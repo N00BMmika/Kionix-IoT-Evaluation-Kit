@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -22,13 +22,14 @@
 from imports import *    
 from lib.sensor_base import sensor_base, SensorException
 
-import kxg03_registers as sensor
-r = sensor.registers()
-b = sensor.bits()
-m = sensor.masks()
+import kxg03_registers 
+r = kxg03_registers.registers()
+b = kxg03_registers.bits()
+m = kxg03_registers.masks()
+e = kxg03_registers.enums()
 
 class kxg03_driver(sensor_base):
-    _WAIS   = [b.KXG03_WHO_AM_I_WIA_ID, 0xED]  # 0xed is temporary id
+    _WAIS   = [b.KXG03_WHO_AM_I_WIA_ID]
 
     def __init__(self):
         sensor_base.__init__(self)
@@ -40,7 +41,7 @@ class kxg03_driver(sensor_base):
         # configurations to register_dump()
         self._registers = dict(r.__dict__)
         self._dump_range = (r.KXG03_WAKE_CNT_L, r.KXG03_BUF_STATUS)
-
+        
     def probe(self):
         """
         Read sensor ID register and make sure value is expected one. Return 1 if ID is correct.
@@ -50,26 +51,33 @@ class kxg03_driver(sensor_base):
             self.WHOAMI = resp[0]
             logger.info('kxg03 found')
             return 1
-        logger.warning("wrong WHOAMI received for kxg03: 0x%02x" % resp[0])
+        logger.debug("wrong WHOAMI received for kxg03: 0x%02x" % resp[0])
         return 0
 
     def por(self):
         self.write_register(r.KXG03_CTL_REG_1, b.KXG03_CTL_REG_1_RST)
-        logger.debug("wait POR"),
-        timeout = 100
-        while timeout > 0:
-            timeout = timeout - 1
+        logger.debug("wait POR")
+        for t in range(200):
+            time.sleep(0.005)
             if (self.read_register(r.KXG03_STATUS1, 1)[0] & b.KXG03_STATUS1_POR):
                 logger.debug("POR done")
-                break                                           # POR done
-        if timeout == 0:
-            raise SensorException('POR failure')
+                return                                           # POR done
+        raise SensorException('POR timeout')
         
     def set_power_on(self, channel = CH_ACC):                   # set sleep and wake modes ON
-        assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel    
+        assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel
+        acc_start_delay = 0.0
+        gyro_start_delay = 0.0
+
         if channel & CH_ACC > 0:
             self.set_bit_pattern(r.KXG03_STDBY,             b.KXG03_STDBY_ACC_STDBY_ENABLED, \
                                                             m.KXG03_STDBY_ACC_STDBY_MASK)
+            # assuming wake-mode has higher or same ODR
+            acc_odr = self.read_register(r.KXG03_ACCEL_ODR_WAKE,1)[0] & m.KXG03_ACCEL_ODR_WAKE_ODRA_W_MASK
+            acc_start_delay = 1 / (2**acc_odr * 0.78125) *1.5
+            if acc_start_delay < 0.1:
+                acc_start_delay = 0.1
+            
         if channel & CH_GYRO > 0:
             self.set_bit_pattern(r.KXG03_STDBY,   b.KXG03_STDBY_GYRO_STDBY_S_ENABLED, \
                                                   m.KXG03_STDBY_GYRO_STDBY_S_MASK)
@@ -79,29 +87,48 @@ class kxg03_driver(sensor_base):
             timeout = 200
             while timeout > 0 :                 # wait for gyro running
                 stat = self.read_register(r.KXG03_STATUS1, 1)[0]
+                time.sleep(0.005)
                 timeout = timeout - 1
                 if stat & b.KXG03_STATUS1_GYRO_RUN:
-                    break
-          
+                    break  
             if timeout < 1:
                 raise SensorException('start failure')
+            gyro_start_delay = 0.2
 
         if channel & CH_TEMP > 0:
             self.set_bit_pattern(r.KXG03_CTL_REG_1,         b.KXG03_CTL_REG_1_TEMP_STDBY_S_ENABLED,
                                                             m.KXG03_CTL_REG_1_TEMP_STDBY_S_MASK)
             self.set_bit_pattern(r.KXG03_CTL_REG_1,         b.KXG03_CTL_REG_1_TEMP_STDBY_W_ENABLED,
                                                             m.KXG03_CTL_REG_1_TEMP_STDBY_W_MASK)
+        if gyro_start_delay > acc_start_delay:
+            time.sleep(gyro_start_delay)
+        else:
+            time.sleep(acc_start_delay)
 
     def set_power_off(self, channel = CH_ACC | CH_GYRO | CH_TEMP):  # set sleep and wake modes OFF
         assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel
+        acc_end_delay = 0.0
+        gyro_end_delay = 0.0
+        
         if channel & CH_ACC > 0:
-            self.set_bit(r.KXG03_STDBY,             b.KXG03_STDBY_ACC_STDBY_DISABLED)
+            self.set_bit(r.KXG03_STDBY, b.KXG03_STDBY_ACC_STDBY_DISABLED)
+            acc_odr = self.read_register(r.KXG03_ACCEL_ODR_WAKE,1)[0] & m.KXG03_ACCEL_ODR_WAKE_ODRA_W_MASK
+            acc_end_delay = 1 / (2**acc_odr * 0.78125) *1.5
+            if acc_end_delay < 0.2:
+                acc_end_delay = 0.2
+
+        if channel & CH_GYRO > 0:
+            self.set_bit(r.KXG03_STDBY,             b.KXG03_STDBY_GYRO_STDBY_S_DISABLED) 
+            self.set_bit(r.KXG03_STDBY,             b.KXG03_STDBY_GYRO_STDBY_W_DISABLED)
+            gyro_end_delay = 0.2              
         if channel & CH_TEMP > 0:
             self.set_bit(r.KXG03_CTL_REG_1,         b.KXG03_CTL_REG_1_TEMP_STDBY_S_DISABLED)
             self.set_bit(r.KXG03_CTL_REG_1,         b.KXG03_CTL_REG_1_TEMP_STDBY_W_DISABLED)
-        if channel & CH_GYRO > 0:
-            self.set_bit(r.KXG03_STDBY,             b.KXG03_STDBY_GYRO_STDBY_S_DISABLED) 
-            self.set_bit(r.KXG03_STDBY,             b.KXG03_STDBY_GYRO_STDBY_W_DISABLED)            
+            
+        if gyro_end_delay > acc_end_delay:
+            time.sleep(gyro_end_delay)
+        else:
+            time.sleep(acc_end_delay)
 
     def read_data(self, channel = CH_ACC | CH_GYRO ):
         assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel
@@ -134,7 +161,7 @@ class kxg03_driver(sensor_base):
                 return ins2 & b.KXG03_INT2_SRC1_INT2_DRDY_GYRO != 0          
 
     def set_default_on(self):
-        "ACC+GYRO+temp: 2g/25Hz/, 256dps/25Hz, drdy (ACC) INT1, sleep and wake modes"
+        "ACC+GYRO+temp: 2g/25Hz/, 1024dps/25Hz, drdy (ACC) INT1, sleep and wake modes"
         self.set_odr(b.KXG03_ACCEL_ODR_WAKE_ODRA_W_25, \
                      b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_25, CH_ACC)         # wake and sleep
         self.set_odr(b.KXG03_GYRO_ODR_WAKE_ODRG_W_25, \
@@ -142,12 +169,20 @@ class kxg03_driver(sensor_base):
         
         self.set_range(b.KXG03_ACCEL_CTL_ACC_FS_W_2G, \
                        b.KXG03_ACCEL_CTL_ACC_FS_S_2G, CH_ACC)           # wake and sleep
-        self.set_range(b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_256, \
-                       b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_256, CH_GYRO)   # wake and sleep
+        self.set_range(b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_1024, \
+                       b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_1024, CH_GYRO)   # wake and sleep
 
-        ## averaging for acc and BW for gyro
-        self.set_average(b.KXG03_ACCEL_ODR_WAKE_NAVG_W_128_SAMPLE_AVG, \
-                         b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_2_SAMPLE_AVG, CH_ACC) # only in low power mode, for wake and sleep modes
+        ## mode, averaging for acc and BW for gyro
+        LOW_POWER_MODE = False
+        if LOW_POWER_MODE == True:
+            power_modes(self, LPMODE, WAKE)
+            power_modes(self, LPMODE, SLEEP)
+            self.set_average( b.KXG03_ACCEL_ODR_WAKE_NAVG_W_128_SAMPLE_AVG, \
+                                b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_2_SAMPLE_AVG, CH_ACC)      
+        else:
+            power_modes(self, FULL_RES, WAKE)
+            power_modes(self, FULL_RES, SLEEP)
+            
         self.set_BW(b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_10, \
                     b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_10, CH_GYRO)     # wake and sleep
 
@@ -160,8 +195,8 @@ class kxg03_driver(sensor_base):
                                                  b.KXG03_INT_PIN_CTL_IEA1_ACTIVE_LOW | \
                                                  b.KXG03_INT_PIN_CTL_IEL1_LATCHED)
 
-        self.enable_drdy(1, CH_ACC)                                     # acc drdy, physical int
-        #self.enable_drdy(1, CH_GYRO)                                    # gyro drdy, physical int
+        self.enable_drdy(1, CH_ACC)                                     # acc drdy, physical int 1
+        #self.enable_drdy(1, CH_GYRO)                                    # gyro drdy, physical int 1
 
         self.set_power_on(CH_ACC | CH_GYRO | CH_TEMP)                   # all sensors ON
 
@@ -171,7 +206,6 @@ class kxg03_driver(sensor_base):
         if( (channel & CH_ACC) > 0):
             #enable data ready
             self.set_bit(r.KXG03_INT_MASK1,         b.KXG03_INT_MASK1_DRDY_ACCTEMP)
-
             # route data ready to pin
             if intpin == 1:
                 self.set_bit(r.KXG03_INT_PIN1_SEL,  b.KXG03_INT_PIN1_SEL_DRDY_ACCTEMP_P1)
@@ -217,25 +251,34 @@ class kxg03_driver(sensor_base):
     def set_range(self, range_W, range_S, channel = CH_ACC):    # set separately for acc or gyro
         assert channel in [CH_ACC, CH_GYRO]        
         if channel & CH_ACC > 0:
-            assert (range_W | range_S) in [b.KXG03_ACCEL_CTL_ACC_FS_W_2G, \
-                                           b.KXG03_ACCEL_CTL_ACC_FS_W_4G, \
-                                           b.KXG03_ACCEL_CTL_ACC_FS_W_8G, \
-                                           b.KXG03_ACCEL_CTL_ACC_FS_W_16G,\
-                                           b.KXG03_ACCEL_CTL_ACC_FS_S_2G, \
-                                           b.KXG03_ACCEL_CTL_ACC_FS_S_4G, \
-                                           b.KXG03_ACCEL_CTL_ACC_FS_S_8G, \
-                                           b.KXG03_ACCEL_CTL_ACC_FS_S_16G]
+            assert range_W in [
+                b.KXG03_ACCEL_CTL_ACC_FS_W_2G, 
+                b.KXG03_ACCEL_CTL_ACC_FS_W_4G, 
+                b.KXG03_ACCEL_CTL_ACC_FS_W_8G, 
+                b.KXG03_ACCEL_CTL_ACC_FS_W_16G], 'Invalid value for KXG03_ACCEL_CTL_ACC_FS_W'
+
+            assert (range_S) in [
+                b.KXG03_ACCEL_CTL_ACC_FS_S_2G, 
+                b.KXG03_ACCEL_CTL_ACC_FS_S_4G, 
+                b.KXG03_ACCEL_CTL_ACC_FS_S_8G, 
+                b.KXG03_ACCEL_CTL_ACC_FS_S_16G], 'Invalid value for KXG03_ACCEL_CTL_ACC_FS_S'
+            
             self.set_bit_pattern(r.KXG03_ACCEL_CTL, range_W, m.KXG03_ACCEL_CTL_ACC_FS_W_MASK)
             self.set_bit_pattern(r.KXG03_ACCEL_CTL, range_S, m.KXG03_ACCEL_CTL_ACC_FS_S_MASK)
+            
         if channel & CH_GYRO > 0:
-            assert (range_W | range_S) in [b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_256, \
-                                           b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_512, \
-                                           b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_1024,\
-                                           b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_2048,\
-                                           b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_256, \
-                                           b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_512, \
-                                           b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_1024,\
-                                           b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_2048]            
+            assert range_W  in [
+                b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_256,
+                b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_512, 
+                b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_1024,
+                b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_2048,
+                b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_256], 'Invalid value for KXG03_GYRO_ODR_WAKE_GYRO_FS_W'
+
+            assert range_S in [
+                b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_512,
+                b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_1024,
+                b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_2048], 'Invalid value for KXG03_GYRO_ODR_WAKE_GYRO_FS_S'
+            
             self.set_bit_pattern(r.KXG03_GYRO_ODR_WAKE, range_W, m.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_MASK)
             self.set_bit_pattern(r.KXG03_GYRO_ODR_WAKE, range_S, m.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_MASK)
 
@@ -248,7 +291,7 @@ class kxg03_driver(sensor_base):
                             b.KXG03_ACCEL_ODR_WAKE_NAVG_W_8_SAMPLE_AVG,  \
                             b.KXG03_ACCEL_ODR_WAKE_NAVG_W_4_SAMPLE_AVG,  \
                             b.KXG03_ACCEL_ODR_WAKE_NAVG_W_2_SAMPLE_AVG,  \
-                            b.KXG03_ACCEL_ODR_WAKE_NAVG_W_NO_AVG]
+                            b.KXG03_ACCEL_ODR_WAKE_NAVG_W_NO_AVG], 'Invalid value for KXG03_ACCEL_ODR_WAKE_NAVG_W'
 
         assert (average_S) in [b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_128_SAMPLE_AVG,
                             b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_64_SAMPLE_AVG, \
@@ -257,7 +300,7 @@ class kxg03_driver(sensor_base):
                             b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_8_SAMPLE_AVG,  \
                             b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_4_SAMPLE_AVG,  \
                             b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_2_SAMPLE_AVG,  \
-                            b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_NO_AVG]      
+                            b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_NO_AVG], 'Invalid value for KXG03_ACCEL_ODR_SLEEP_NAVG_S'
         if channel & CH_ACC > 0: # only acc for kxg03
             self.set_bit_pattern(r.KXG03_ACCEL_ODR_WAKE,  average_W, m.KXG03_ACCEL_ODR_WAKE_NAVG_W_MASK)
             self.set_bit_pattern(r.KXG03_ACCEL_ODR_SLEEP, average_S, m.KXG03_ACCEL_ODR_SLEEP_NAVG_S_MASK)
@@ -265,14 +308,18 @@ class kxg03_driver(sensor_base):
     def set_BW(self, reso_W, reso_S, channel = CH_GYRO):
         assert channel in [CH_GYRO], 'BW limitter control only for gyro sensor'
         if channel & CH_GYRO > 0:
-            assert (reso_W | reso_S) in [b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_10, \
-                                         b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_20, \
-                                         b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_40, \
-                                         b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_160,\
-                                         b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_10, \
-                                         b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_20, \
-                                         b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_40, \
-                                         b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_160]
+            assert reso_W  in [
+                b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_10,                 
+                 b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_20, 
+                 b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_40, 
+                 b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_160], 'Invalid value for KXG03_GYRO_ODR_WAKE_GYRO_BW_W'
+
+            assert reso_S in [
+                b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_10, 
+                b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_20, 
+                b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_40,
+                b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_160], 'Invalid value for KXG03_GYRO_ODR_SLEEP_GYRO_BW_S'
+
             self.set_bit_pattern(r.KXG03_GYRO_ODR_WAKE,  reso_W, m.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_MASK)
             self.set_bit_pattern(r.KXG03_GYRO_ODR_SLEEP, reso_S, m.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_MASK)
 
@@ -285,14 +332,14 @@ class kxg03_driver(sensor_base):
             self.read_register(r.KXG03_INT2_L)
             
     def enable_fifo(self, mode = b.KXG03_BUF_EN_BUF_M_STREAM, res=16, axis_mask=0x7F): # enable buffer with mode
-        ### syncronized with KXxxx, KXG03
+        ### syncronized with KXxxx, KXG08
         assert mode <= 4, 'wrong buffer model'
         assert res == 16, 'buffer storage of KXG03 has only 16b resolution supported'
         assert axis_mask <= 0x7F , 'temp, acc, gyro; max 7 axes possible set to storage '
 
         ## both modes set same way 
-        self.set_bit(r.KXG03_BUF_CTL2, axis_mask)       # wake mode
-        self.set_bit(r.KXG03_BUF_CTL3, axis_mask)       # sleep mode
+        self.set_bit_pattern(r.KXG03_BUF_CTL2, axis_mask, 0x7F)       # wake mode
+        self.set_bit_pattern(r.KXG03_BUF_CTL3, axis_mask, 0x7F)       # sleep mode
         
         self.set_bit(r.KXG03_BUF_EN, b.KXG03_BUF_EN_BUFE)
         self.set_bit_pattern(r.KXG03_BUF_EN, mode, m.KXG03_BUF_EN_BUF_M_MASK)
@@ -307,10 +354,9 @@ class kxg03_driver(sensor_base):
         assert level <= (1024 / (axes * 2)) ,'Watermark level too high.'
         lsb = (level & 0x03) << 6
         msb = level >> 2
-        
         self.write_register(r.KXG03_BUF_WMITH_L, lsb)           
-        self.write_register(r.KXG03_BUF_WMITH_H, msb
-                            )
+        self.write_register(r.KXG03_BUF_WMITH_H, msb)
+        
     def get_fifo_level(self):                                   # Hox! get fifo buffer BYTE level
         ## buffer level            
         sample_in_buffer_l = self.read_register(r.KXG03_BUF_SMPLEV_L)[0]
@@ -343,7 +389,8 @@ wufbts_direction = {
    b.KXG03_INT1_SRC2_INT1_YPWU : "RIGHT",
    b.KXG03_INT1_SRC2_INT1_YNWU : "LEFT" }
 
-def power_modes(sensor, RES, MODE):                 #  defines accelerometer power modes for wake and sleep
+def power_modes(sensor, RES, MODE, channel = CH_ACC):   #  defines accelerometer power modes for wake and sleep
+    assert channel == CH_ACC, "power mode only for accelerometer"
     if RES == LPMODE and MODE == SLEEP:      
         sensor.set_bit_pattern(r.KXG03_ACCEL_ODR_SLEEP, b.KXG03_ACCEL_ODR_SLEEP_LPMODE_S_ENABLED, \
                                                         m.KXG03_ACCEL_ODR_SLEEP_LPMODE_S_MASK)

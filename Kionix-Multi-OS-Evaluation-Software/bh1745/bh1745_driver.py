@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Rohm Semiconductor
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -26,6 +26,7 @@ import bh1745_registers as sensor
 r=sensor.registers()
 b=sensor.bits()
 m=sensor.masks()
+e=sensor.enums()
 
 class bh1745_driver(sensor_base):
     #Who am I
@@ -77,7 +78,7 @@ class bh1745_driver(sensor_base):
         """
         Setup sensor to be ready for multiple measurements
         """
-        self.set_measurement_time(b.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_160MSEC)
+        self.set_measurement_time(b.BH1745_MODE_CONTROL1_ODR_6P25)
         self.set_adc_gain(b.BH1745_MODE_CONTROL2_ADC_GAIN_1X)
         self.disable_interrupt_latch()
         self.disable_int_pin()
@@ -99,7 +100,7 @@ class bh1745_driver(sensor_base):
 
     def set_power_off(self):
         self.stop_measurement()                 #power down measurement block
-        self.disable_int_pin()
+        #self.disable_int_pin()
         self.disable_int_pin_active_state()       #int pin keeps previous state on power off so set it to high impedance state to save power (25uA@2.5V)
 
         #self.soft_reset()
@@ -109,7 +110,7 @@ class bh1745_driver(sensor_base):
         """
         All registers are reset and BH1745NUC becomes power down.
         """
-        self.set_bit_pattern(r.BH1745_MODE_CONTROL1, b.BH1745_SYSTEM_CONTROL_SW_RESET_START, m.BH1745_SYSTEM_CONTROL_SW_RESET_MASK)
+        self.set_bit_pattern(r.BH1745_SYSTEM_CONTROL, b.BH1745_SYSTEM_CONTROL_SW_RESET_START, m.BH1745_SYSTEM_CONTROL_SW_RESET_MASK)
         return
 
     def get_soft_reset_state(self):
@@ -191,20 +192,20 @@ class bh1745_driver(sensor_base):
 
 #Sensor specific functions - measurement setup
     def get_measurement_time(self):
-        time = self.read_register(r.BH1745_MODE_CONTROL1)[0] & m.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_MASK
+        time = self.read_register(r.BH1745_MODE_CONTROL1)[0] & m.BH1745_MODE_CONTROL1_ODR_MASK
         return time
 
     def set_measurement_time(self, time):
         """
-        :param time: Exposure time as in BH1745_MODE_CONTROL1_MEASUREMENT_TIME_*
+        :param time: Exposure time as in BH1745_MODE_CONTROL1_ODR_*
         """
-        assert (time) in [  b.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_160MSEC,    \
-                            b.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_320MSEC,    \
-                            b.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_640MSEC,    \
-                            b.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_1280MSEC,   \
-                            b.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_2560MSEC,   \
-                            b.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_5120MSEC]
-        self.set_bit_pattern(r.BH1745_MODE_CONTROL1, time, m.BH1745_MODE_CONTROL1_MEASUREMENT_TIME_MASK)
+        assert (time) in [  b.BH1745_MODE_CONTROL1_ODR_6P25,    \
+                            b.BH1745_MODE_CONTROL1_ODR_3P125,    \
+                            b.BH1745_MODE_CONTROL1_ODR_1P5625,    \
+                            b.BH1745_MODE_CONTROL1_ODR_0P78125,   \
+                            b.BH1745_MODE_CONTROL1_ODR_0P390625,   \
+                            b.BH1745_MODE_CONTROL1_ODR_0P1953125]
+        self.set_bit_pattern(r.BH1745_MODE_CONTROL1, time, m.BH1745_MODE_CONTROL1_ODR_MASK)
         return
 
     def get_adc_gain(self):
@@ -342,6 +343,7 @@ class bh1745_driver(sensor_base):
         Write 0 to RGBC_EN.
         """
         self.set_bit_pattern(r.BH1745_MODE_CONTROL2, b.BH1745_MODE_CONTROL2_RGBC_MEASUREMENT_INACTIVE, m.BH1745_MODE_CONTROL2_RGBC_MEASUREMENT_MASK)
+        self.clear_interrupt()
         return
 
     def read_drdy(self):    #fixme: refactor top

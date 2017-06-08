@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -25,144 +25,127 @@
 ###
 
 from imports import *
+from lib.data_stream import stream_config, start_time_str, end_time_str
 
-LOW_POWER_MODE = False                              # full resolution or low power
+class kx022_data_stream(stream_config):
+    def __init__(self, sensor):
+        stream_config.__init__(self)
+        # TODO make this dictionary
+        if evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT':
+            pin_index = 0
+        else:
+            pin_index = 1
 
-def init_data_logging(sensor):
-    logger.debug('init_data_logging start')
-    sensor.set_power_off()                          # this sensor request PC=0 to PC=1 before valid settings
+        self.define_request_message(sensor,
+                                    fmt = "<Bhhh",
+                                    hdr = "ch!ax!ay!az",
+                                    reg = r.KX022_XOUT_L,
+                                    pin_index=pin_index)
+                                    
+        # self.define_request_message(sensor,
+                                    # fmt = "<BhhhB",
+                                    # hdr = "ch!ax!ay!az!ind",
+                                    # reg = [sensor.address(), r.KX022_XOUT_L, 6,
+                                           # 0xff,0x00,0x00], # this is for packet count
+                                    # pin_index=pin_index)                                    
+                                           
+def enable_data_logging(sensor, odr=25, acc_fs = '2g', lp_mode=False):
+    assert acc_fs in [ '2g','4g','8g'], 'Invalid value for acc_fs'
+
+    assert lp_mode in [
+        False,
+        'NO_AVG',
+        '2_SAMPLE_AVG',
+        '4_SAMPLE_AVG',
+        '8_SAMPLE_AVG',
+        '16_SAMPLE_AVG',
+        '32_SAMPLE_AVG',
+        '64_SAMPLE_AVG',
+        '128_SAMPLE_AVG',
+        ], 'Invalid value for lp_mode'
+
+    logger.debug('enable_data_logging start')
+    sensor.set_power_off()                                  # this sensor request PC=0 to PC=1 before valid settings
 
     ## select ODR
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_0P781)       #      
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_1P563)       #
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_3P125)       #    
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_6P25)        #
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_12P5)        # 
-    sensor.set_odr(b.KX022_ODCNTL_OSA_25)           # odr setting for basic data logging
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_50)          #
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_100)         # 
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_200)         # works with Aardvark + I2C
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_400)         # works with Aardvark + SPI
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_800)         #
-    #sensor.set_odr(b.KX022_ODCNTL_OSA_1600)        #
-    ##higher than 1600Hz ODR are only for KX122, KX112, KX123, KX124
-    #sensor.set_odr(b122.KX122_ODCNTL_OSA_3200)     #
-    #sensor.set_odr(b122.KX122_ODCNTL_OSA_6400)     #        
-    #sensor.set_odr(b122.KX122_ODCNTL_OSA_12800)    #
-    #sensor.set_odr(b122.KX122_ODCNTL_OSA_25600)    #
+    odr = convert_to_enumkey(odr)
+    sensor.set_odr(e.KX022_ODCNTL_OSA[odr])                 # odr setting for basic data logging
     
-    ## select g-range
-    sensor.set_range(b.KX022_CNTL1_GSEL_2G)
-    #sensor.set_range(b.KX022_CNTL1_GSEL_4G)
-    #sensor.set_range(b.KX022_CNTL1_GSEL_8G)
+    ## select g-range    
+    sensor.set_range(e.KX022_CNTL1_GSEL[acc_fs])
+    #sensor.set_range(b.KX022_CNTL1_GSEL_2G)
     
     ## resolution / power mode selection
-    ## Set performance mode (To change value, the PC1 must be first cleared to set stand-by mode)  
-    if LOW_POWER_MODE:
-        sensor.reset_bit(r.KX022_CNTL1, b.KX022_CNTL1_RES)                          # low current
-        sensor.set_average(b.KX022_LP_CNTL_AVC_NO_AVG)                              # lowest current mode average
+    ## Set performance mode (To change value, the PC1 must be first cleared to set stand-by mode)
+    if lp_mode != False:
+        sensor.reset_bit(r.KX022_CNTL1, b.KX022_CNTL1_RES)  # low current
+        sensor.set_average(e.KX022_LP_CNTL_AVC[lp_mode])      # lowest current mode average
+        
     else:
-        sensor.set_bit(r.KX022_CNTL1, b.KX022_CNTL1_RES)                            # high resolution
-         
+        sensor.set_bit(r.KX022_CNTL1, b.KX022_CNTL1_RES)    # high resolution
+
+    ## set bandwitdh
+    #sensor.set_BW(b.KX022_ODCNTL_LPRO, 0, CH_ACC)           # odr / 2
+    sensor.set_BW(0, 0, CH_ACC)                             # odr / 9
+    
     ## interrupts settings
     ## select dataready routing for sensor = int1, int2 or register polling
     if evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO1_INT':
-        sensor.enable_drdy(intpin=1)
-    elif evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO2_INT':
-        sensor.enable_drdy(intpin=2)            
+        sensor.enable_drdy(intpin = 1)
+        sensor.set_bit(r.KX022_INC1, b.KX022_INC1_IEN1)     # interrupt 1 set        
+    elif evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO2_INT':   
+        sensor.enable_drdy(intpin = 2)
+        sensor.set_bit(r.KX022_INC5, b.KX022_INC5_IEN2)     # interrupt 2 set           
     elif evkit_config.get('generic','drdy_operation') == 'DRDY_REG_POLL':
-        sensor.enable_drdy(intpin=1)                # drdy must be enabled also when register polling
-        
+        sensor.enable_drdy(intpin = 1)                      # drdy must be enabled also when register polling
     ## interrupt signal parameters
-    sensor.reset_bit(r.KX022_INC1, b.KX022_INC1_IEL1)  # latched interrupt
-    sensor.reset_bit(r.KX022_INC5, b.KX022_INC5_IEL2)  # latched interrupt    
+    sensor.reset_bit(r.KX022_INC1, b.KX022_INC1_IEL1)       # latched interrupt int1
+    sensor.reset_bit(r.KX022_INC5, b.KX022_INC5_IEL2)       # latched interrupt int2
     if evkit_config.get('generic','int1_active_high') == 'TRUE':
-        sensor.set_bit(r.KX022_INC1, b.KX022_INC1_IEA1) # active high
+        sensor.set_bit(r.KX022_INC1, b.KX022_INC1_IEA1)     # active high
     else:
-        sensor.reset_bit(r.KX022_INC1, b.KX022_INC1_IEA1)# active low
+        sensor.reset_bit(r.KX022_INC1, b.KX022_INC1_IEA1)   # active low
     if evkit_config.get('generic','int2_active_high') == 'TRUE':
-        sensor.set_bit(r.KX022_INC5, b.KX022_INC5_IEA2) # active high
+        sensor.set_bit(r.KX022_INC5, b.KX022_INC5_IEA2)     # active high
     else:
-        sensor.reset_bit(r.KX022_INC5, b.KX022_INC5_IEA2)# active low
-        
-    sensor.set_power_on()                           # settings coming to valid and start measurements
+        sensor.reset_bit(r.KX022_INC5, b.KX022_INC5_IEA2)   # active low
+
+    sensor.set_power_on()                                   # settings coming to valid and start measurements
     
     #sensor.register_dump()
-
-    logger.debug('init_data_logging done')
-
-    sensor.read_data()                              # this latches data ready interrupt register and signal
     
-    sensor.release_interrupts()                     # clear all internal function interrupts
-    
-def readAndPrint(sensor):
-    # wait for new data
-    sensor.drdy_function()
-    now = timing.time_elapsed()
-    x,y,z = sensor.read_data()
-    print '%f%s%d%s%d%s%d' % (now,DELIMITER,x,DELIMITER,y,DELIMITER,z)
-            
+    logger.debug('enable_data_logging done')
+
 def read_with_polling(sensor, loop):
-    try:
-        if loop == None:
-            while 1:
-                readAndPrint(sensor)
-        else:
-            for i in range (loop):
-                readAndPrint(sensor)
-    except(KeyboardInterrupt):
-        pass
-    finally:
-        sensor.set_power_off()
-        bus.close
-
-def read_with_stream(sensor, loop):
     count = 0
-    if evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT':
-        gpio_pin = sensor._bus._gpio_pin_index[0]
 
-    elif evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO2_INT':
-        gpio_pin = sensor._bus._gpio_pin_index[1]
+    print start_time_str()
 
-    resp=sensor._bus.enable_interrupt(gpio_pin, [sensor.address(), r.KX022_XOUT_L, 6])
-    
+    # print log header. 10 is channel number
+    print DELIMITER.join(['#timestamp','10','ax','ay','az'])
+
     try:
         while count < loop or loop is None:
-            resp = sensor._bus.wait_indication()
-            if resp is None:
-                logger.info("timeout")
-                continue
-                
-            now = timing.time_elapsed()
-
-            if len(resp)==7:
-                data = struct.unpack('<Bhhh',resp)
-
-                msgid,x,y,z = data
-                print '%f%s%d%s%d%s%d' % (now, DELIMITER,
-                                          x, DELIMITER,
-                                          y, DELIMITER,
-                                          z)
-
-            else:
-                logger.warning("Wrong message length %d" % len(resp) )
-
             count += 1
+            sensor.drdy_function()
+            now = timing.time_elapsed()
+            ax, ay, az = sensor.read_data()
+            print '{:.6f}{}10{}'.format(now, DELIMITER, DELIMITER) + DELIMITER.join('{:d}'.format(t) for t in [ax, ay, az])
 
     except KeyboardInterrupt:
-        # todo catch KeyboardInterrupt in framework
-        pass
-    
-    finally:
-        logger.debug("Disable interrupt request")
-        resp=sensor._bus.disable_interrupt(gpio_pin)
-        logger.debug("Disable interrupt done")
+        print end_time_str()
+
+def read_with_stream(sensor, loop):
+    stream = kx022_data_stream(sensor)
+    stream.read_data_stream(sensor, loop)
+    return stream
 
 if __name__ == '__main__':
     sensor = kx022_driver()
     bus = open_bus_or_exit(sensor)
-    init_data_logging(sensor)
     
+    enable_data_logging(sensor)
+
     timing.reset()
     if args.stream_mode:
         if stream_config_check() is True:            
@@ -174,3 +157,4 @@ if __name__ == '__main__':
 
     sensor.set_power_off()
     bus.close()
+

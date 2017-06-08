@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Rohm Semiconductor
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -26,12 +26,13 @@ import bm1383aglv_registers as sensor
 r=sensor.registers()
 b=sensor.bits()
 m=sensor.masks()
+e=sensor.enums()
 
 class bm1383aglv_driver(sensor_base):
-    _WAI =  ( b.BM1383_ID1_REG_MANUFACTURER_ID1 )
-    _WAIREG = r.BM1383_ID1_REG
-    _WAI2 = ( b.BM1383_ID2_REG_MANUFACTURER_ID2 )
-    _WAIREG2 = r.BM1383_ID2_REG
+    _WAI =  ( b.BM1383AGLV_ID1_REG_MANUFACTURER_ID1 )
+    _WAIREG = r.BM1383AGLV_ID1_REG
+    _WAI2 = ( b.BM1383AGLV_ID2_REG_MANUFACTURER_ID2 )
+    _WAIREG2 = r.BM1383AGLV_ID2_REG
 
     def __init__(self):
         sensor_base.__init__(self)
@@ -41,7 +42,7 @@ class bm1383aglv_driver(sensor_base):
 
         # configurations to register_dump()
         self._registers = dict(r.__dict__)
-        self._dump_range = (r.BM1383_REGISTER_DUMP_START, r.BM1383_REGISTER_DUMP_END)
+        self._dump_range = (r.BM1383AGLV_REGISTER_DUMP_START, r.BM1383AGLV_REGISTER_DUMP_END)
         return
 
     # Read component ID and compare it to expected value
@@ -65,10 +66,10 @@ class bm1383aglv_driver(sensor_base):
         # Read value, modify and write it back, read again. Make sure the value changed. Restore original value.
     def ic_test(self):#
          #ic should be powered on before trying this, otherwise it will fail.
-        datain1 = self.read_register(r.BM1383_MODE_CONTROL_REG)[0]
-        self.write_register(r.BM1383_MODE_CONTROL_REG, (datain1 ^ 0x01) )   #toggle between standby and oneshot
-        datain2 = self.read_register(r.BM1383_MODE_CONTROL_REG)[0]
-        self.write_register(r.BM1383_MODE_CONTROL_REG, datain1)
+        datain1 = self.read_register(r.BM1383AGLV_MODE_CONTROL_REG)[0]
+        self.write_register(r.BM1383AGLV_MODE_CONTROL_REG, (datain1 ^ 0x01) )   #toggle between standby and oneshot
+        datain2 = self.read_register(r.BM1383AGLV_MODE_CONTROL_REG)[0]
+        self.write_register(r.BM1383AGLV_MODE_CONTROL_REG, datain1)
         if datain2 == (datain1 ^ 0x01):
             return True
         return False
@@ -76,7 +77,7 @@ class bm1383aglv_driver(sensor_base):
     #setup sensor to be ready for multiple measurements
     def set_default_on(self):#
         self.set_power_on()
-        self.set_averaging(b.BM1383_MODE_CONTROL_REG_AVE_NUM_16_TIMES)
+        self.set_averaging(b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_16_50MS)
         self.disable_drdy_pin()
         self.start_continuous_measurement()
         return
@@ -84,92 +85,105 @@ class bm1383aglv_driver(sensor_base):
     def read_data(self):
         return self.read_data_raw()
         #return self.read_temperature_pressure()        #Choose between these two outputs for default
-        return
 
 
         
     def set_power_on(self): 
         delay_seconds(100 / 1000000.)   #wait >0.1ms
-        self.write_register(r.BM1383_POWER_REG, b.BM1383_POWER_REG_POWER_UP)
+        self.write_register(r.BM1383AGLV_POWER_REG, b.BM1383AGLV_POWER_REG_POWER_UP)
         delay_seconds(2 / 1000.)        #wait >2ms
-        self.write_register(r.BM1383_RESET_REG, b.BM1383_RESET_REG_MODE_STANDBY)
+        self.write_register(r.BM1383AGLV_RESET_REG, b.BM1383AGLV_RESET_REG_MODE_STANDBY)
         return
         
     def set_power_off(self):
-        self.write_register(r.BM1383_RESET_REG, b.BM1383_RESET_REG_MODE_RESET)
-        self.write_register(r.BM1383_POWER_REG, b.BM1383_POWER_REG_POWER_DOWN)
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, b.BM1383AGLV_MODE_CONTROL_REG_MODE_STANDBY, m.BM1383AGLV_MODE_CONTROL_REG_MODE_MASK)
+        #self.write_register(r.BM1383AGLV_RESET_REG, b.BM1383AGLV_RESET_REG_MODE_RESET)
+        #self.write_register(r.BM1383AGLV_POWER_REG, b.BM1383AGLV_POWER_REG_POWER_DOWN)
+        return
+
+    def set_shutdown(self):
+        self.write_register(r.BM1383AGLV_RESET_REG, b.BM1383AGLV_RESET_REG_MODE_RESET)
+        self.write_register(r.BM1383AGLV_POWER_REG, b.BM1383AGLV_POWER_REG_POWER_DOWN)
         return
 
     def por(self):
         """
         This sensor doesn't have soft_reset command so just cycle to power off state and back
         """
-        self.set_power_off()
+        self.set_shutdown()
         self.set_power_on()
         return
 
 
 
     #set output data rate
-    def set_odr(self):
-        logger.debug('Odr is selected indirectly in BM1383AGLV. Use set_averaging() instead.')
-        raise NotImplementedError
+    def set_odr(self, valuex):
+        logger.debug('Odr is selected indirectly in BM1383AGLV. Indexes [0:4] give ODR 20, [5]:ODR 10, [6]:ODR 5')
+        assert (valuex) in [b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_1_50MS,   \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_2_50MS,  \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_4_50MS,  \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_8_50MS,  \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_16_50MS, \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_32_100MS, \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_64_200MS]
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, valuex, m.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_MASK)
         return
+
 
     #reads averaging value and deducts output data rate from that
     def read_odr(self):
-        ave_num = self.read_register( r.BM1383_MODE_CONTROL_REG )[0] & m.BM1383_MODE_CONTROL_REG_AVE_NUM_MASK
-        if (ave_num == b.BM1383_MODE_CONTROL_REG_AVE_NUM_SINGLE   or
-            ave_num == b.BM1383_MODE_CONTROL_REG_AVE_NUM_2_TIMES  or
-            ave_num == b.BM1383_MODE_CONTROL_REG_AVE_NUM_4_TIMES  or
-            ave_num == b.BM1383_MODE_CONTROL_REG_AVE_NUM_8_TIMES  or
-            ave_num == b.BM1383_MODE_CONTROL_REG_AVE_NUM_16_TIMES ):
+        ave_num = self.read_register( r.BM1383AGLV_MODE_CONTROL_REG )[0] & m.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_MASK
+        if (ave_num == b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_1_50MS   or
+            ave_num == b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_2_50MS  or
+            ave_num == b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_4_50MS  or
+            ave_num == b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_8_50MS  or
+            ave_num == b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_16_50MS ):
             odr = 20        #50ms rate = 20Hz
-        elif (ave_num == b.BM1383_MODE_CONTROL_REG_AVE_NUM_32_TIMES ):
+        elif (ave_num == b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_32_100MS ):
             odr = 10        #100ms rate = 10Hz
-        elif (ave_num == b.BM1383_MODE_CONTROL_REG_AVE_NUM_64_TIMES ):
+        elif (ave_num == b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_64_200MS ):
             odr = 5         #200ms rate = 5Hz
         else:
             odr = 0         #invalid averaging value
         return odr
 
-    #input valuex is b.BM1383_MODE_CONTROL_REG_AVE_NUM_*
+    #input valuex is b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_*
     def set_averaging(self, valuex):
-        assert (valuex) in [b.BM1383_MODE_CONTROL_REG_AVE_NUM_SINGLE,   \
-                            b.BM1383_MODE_CONTROL_REG_AVE_NUM_2_TIMES,  \
-                            b.BM1383_MODE_CONTROL_REG_AVE_NUM_4_TIMES,  \
-                            b.BM1383_MODE_CONTROL_REG_AVE_NUM_8_TIMES,  \
-                            b.BM1383_MODE_CONTROL_REG_AVE_NUM_16_TIMES, \
-                            b.BM1383_MODE_CONTROL_REG_AVE_NUM_32_TIMES, \
-                            b.BM1383_MODE_CONTROL_REG_AVE_NUM_64_TIMES]
-        self.set_bit_pattern(r.BM1383_MODE_CONTROL_REG, valuex, m.BM1383_MODE_CONTROL_REG_AVE_NUM_MASK)
+        assert (valuex) in [b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_1_50MS,   \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_2_50MS,  \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_4_50MS,  \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_8_50MS,  \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_16_50MS, \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_32_100MS, \
+                            b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_64_200MS]
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, valuex, m.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_MASK)
         return
 
     def enable_drdy_pin(self):
-        self.set_bit_pattern(r.BM1383_MODE_CONTROL_REG, b.BM1383_MODE_CONTROL_REG_DRDY_ENABLED, m.BM1383_MODE_CONTROL_REG_DRDY_MASK)
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, b.BM1383AGLV_MODE_CONTROL_REG_DRDY_ENABLED, m.BM1383AGLV_MODE_CONTROL_REG_DRDY_MASK)
         return
 
     def disable_drdy_pin(self):
-        self.set_bit_pattern(r.BM1383_MODE_CONTROL_REG, b.BM1383_MODE_CONTROL_REG_DRDY_DISABLED, m.BM1383_MODE_CONTROL_REG_DRDY_MASK)
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, b.BM1383AGLV_MODE_CONTROL_REG_DRDY_DISABLED, m.BM1383AGLV_MODE_CONTROL_REG_DRDY_MASK)
         return
 
 
 
     def start_oneshot_measurement(self):
         #Assume: AVE_NUM and DREN are already setup
-        self.set_bit_pattern(r.BM1383_MODE_CONTROL_REG, b.BM1383_MODE_CONTROL_REG_MODE_ONE_SHOT, m.BM1383_MODE_CONTROL_REG_MODE_MASK)
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, b.BM1383AGLV_MODE_CONTROL_REG_MODE_ONE_SHOT, m.BM1383AGLV_MODE_CONTROL_REG_MODE_MASK)
         return
 
     def start_continuous_measurement(self):
         #Assume: AVE_NUM and DREN are already setup
-        self.set_bit_pattern(r.BM1383_MODE_CONTROL_REG, b.BM1383_MODE_CONTROL_REG_MODE_CONTINUOUS, m.BM1383_MODE_CONTROL_REG_MODE_MASK)
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, b.BM1383AGLV_MODE_CONTROL_REG_MODE_CONTINUOUS, m.BM1383AGLV_MODE_CONTROL_REG_MODE_MASK)
         return
 
     def stop_measurement(self):
         """
         Oneshot is interrupted if ongoing. Continuous is stopped if ongoing. No new measurement results after this command.
         """
-        self.set_bit_pattern(r.BM1383_MODE_CONTROL_REG, b.BM1383_MODE_CONTROL_REG_MODE_STANDBY, m.BM1383_MODE_CONTROL_REG_MODE_MASK)
+        self.set_bit_pattern(r.BM1383AGLV_MODE_CONTROL_REG, b.BM1383AGLV_MODE_CONTROL_REG_MODE_STANDBY, m.BM1383AGLV_MODE_CONTROL_REG_MODE_MASK)
         return
 
 
@@ -181,8 +195,8 @@ class bm1383aglv_driver(sensor_base):
         """
         Used by framework for poll loop. "Poll data ready register via i2c, return register status True/False"
         """
-        drdybit = (self.read_register( r.BM1383_STATUS_REG ))[0] & m.BM1383_STATUS_REG_DRDY_MASK
-        drdy_status = ( drdybit == b.BM1383_STATUS_REG_DRDY_READY )
+        drdybit = (self.read_register( r.BM1383AGLV_STATUS_REG ))[0] & m.BM1383AGLV_STATUS_REG_DRDY_MASK
+        drdy_status = ( drdybit == b.BM1383AGLV_STATUS_REG_DRDY_READY )
         return drdy_status  #True/False
 
     def reset_drdy_pin(self):
@@ -191,27 +205,26 @@ class bm1383aglv_driver(sensor_base):
 
 
     def read_data_raw(self):
-        data = self.read_register(r.BM1383_TEMPERATURE_OUT_MSB,5)
+        data = self.read_register(r.BM1383AGLV_PRESSURE_OUT_MSB,5)
         dataout = struct.unpack('BBBBB',data)
         return dataout
 
     def read_temperature_pressure(self):
-        data = self.read_register(r.BM1383_TEMPERATURE_OUT_MSB,5)
-
-        (T_raw, P_raw, P_raw_xlb) = struct.unpack('>hHB',data)
+        data = self.read_register(r.BM1383AGLV_PRESSURE_OUT_MSB,5)
+        (P_raw, P_raw_xlb, T_raw) = struct.unpack('>HBh',data)
         temperatureC = float( T_raw ) / 32      #'C
-        P_all = ( P_raw << 6 )  |  ( P_raw_xlb & 0b00111111 )
+        P_all = ( P_raw << 6 )  |  (( P_raw_xlb & 0b11111100 ) >> 2)
         pressure_hPa = float( P_all ) / 2048    #hPa
         return temperatureC, pressure_hPa       #Temp 'C, Pressure hPa   (10hPa = 1kPa)
 
     def read_temperature(self):
-        data = self.read_register(r.BM1383_TEMPERATURE_OUT_MSB,2)
+        data = self.read_register(r.BM1383AGLV_TEMPERATURE_OUT_MSB,2)
         T_raw = struct.unpack('>h',data)
         temperatureC = float( T_raw ) / 32      #'C
         return temperatureC                     #Temp 'C, Pressure hPa   (10hPa = 1kPa)
 
     def read_pressure(self):
-        data = self.read_register(r.BM1383_PRESSURE_OUT_MSB,3)
+        data = self.read_register(r.BM1383AGLV_PRESSURE_OUT_MSB,3)
         (P_raw, P_raw_xlb) = struct.unpack('>HB',data)
         P_all = ( P_raw << 6 )  |  ( P_raw_xlb & 0b00111111 )
         pressure_hPa = float( P_all ) / 2048    #hPa

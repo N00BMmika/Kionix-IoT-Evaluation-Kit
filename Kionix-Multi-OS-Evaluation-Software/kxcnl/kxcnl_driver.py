@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -46,7 +46,7 @@ class kxcnl_driver(sensor_base):
             self.WHOAMI = resp[0]
             logger.info('KXCNL found')            
             return 1
-        logger.warning("wrong WHOAMI received for KXCNL: 0x%02x" % resp[0])         
+        logger.debug("wrong WHOAMI received for KXCNL: 0x%02x" % resp[0])         
         return 0
         
     def por(self):

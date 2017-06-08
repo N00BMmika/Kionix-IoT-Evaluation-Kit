@@ -94,6 +94,7 @@ class _i2c_bus(_bus_base):
         #fixme: only first matching sensor is supported. Add support for another SAD in same bus.
         #       (check _sensortable first, and skip existing SADs before assigning and probing)
         found = False
+        logger.info('Probe with %s' , sensor.name)
         for sad in sensor.I2C_SAD_LIST:
             self._sensortable[sensor]=sad
             sensor.assign_bus(self)
@@ -101,12 +102,12 @@ class _i2c_bus(_bus_base):
                 resp = sensor.probe()
                 if resp:
                     found = True
-                    logger.info('Sensor found at slave address 0x%02x' , sad) 
+                    logger.info('Sensor found from slave address 0x%02x' , sad) 
                     break
                 else:
-                    logger.debug('No sensor found at slave address 0x%02x' , sad) 
+                    logger.debug('Probe failed at slave address 0x%02x' , sad) 
             except BusException:
-                logger.debug('No sensor found at slave address 0x%02x' , sad)
+                logger.debug('No response got from slave address 0x%02x' , sad)
 
         if not found:
             self._sensortable[sensor]=None

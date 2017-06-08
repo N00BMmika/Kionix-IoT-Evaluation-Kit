@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -26,14 +26,17 @@ import kxg08_registers as sensor
 r = sensor.registers()
 b = sensor.bits()
 m = sensor.masks()
+e = sensor.enums()
 
 class kxg08_driver(sensor_base):
     _WAIS   = [b.KXG08_WHO_AM_I_WIA_ID,
                b.KXG08_2080_WHO_AM_I_WIA_ID,
-               b.KXG07_WHO_AM_I_WIA_ID,
+               b.KXG07_1080_WHO_AM_I_WIA_ID,
                b.KXG07_2080_WHO_AM_I_WIA_ID,
+               b.KXG07_3001_WHO_AM_I_WIA_ID,
                0x04
               ] ## 0x04 is temporary ID
+    
     def __init__(self):
         sensor_base.__init__(self)
         self.I2C_SAD_LIST = [0x4E, 0x4F] 
@@ -56,21 +59,24 @@ class kxg08_driver(sensor_base):
                 logger.info('kxg08-1080 found')
             elif self.WHOAMI == b.KXG08_2080_WHO_AM_I_WIA_ID:
                 logger.info('kxg08-2080 found')
-            elif self.WHOAMI == b.KXG07_WHO_AM_I_WIA_ID:                
+            elif self.WHOAMI == b.KXG07_1080_WHO_AM_I_WIA_ID:                
                 logger.info('kxg07-1080 found')
             elif self.WHOAMI == b.KXG07_2080_WHO_AM_I_WIA_ID:                
-                logger.info('kxg07-2080 found')                
+                logger.info('kxg07-2080 found')
+            elif self.WHOAMI == b.KXG07_3001_WHO_AM_I_WIA_ID:                
+                logger.info('kxg07-3001 found')                
             else:
                 logger.info("other valid WHOAMI received 0x%02x" % resp[0])
             return 1
-        logger.debug("wrong WHOAMI received 0x%02x" % resp[0])
+        logger.debug("wrong WHOAMI received for KXG08: 0x%02x" % resp[0])
         return 0
 
     def por(self):
         self.write_register(r.KXG08_CTL_REG_1, b.KXG08_CTL_REG_1_SRST)
         logger.debug("Soft Reset")
-        timeout = 100
+        timeout = 200
         while timeout > 0:
+            time.sleep(0.005)            
             timeout = timeout - 1            
             if (self.read_register(r.KXG08_STATUS1, 1)[0] & b.KXG08_STATUS1_POR):
                 logger.debug("POR done")
@@ -80,39 +86,66 @@ class kxg08_driver(sensor_base):
             
     def set_power_on(self, channel = CH_ACC):                   # set sleep and wake modes ON
         assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel    
+        acc_start_delay = 0.0
+        gyro_start_delay = 0.0
+
         if channel & CH_ACC > 0:
             self.set_bit_pattern(r.KXG08_STDBY, b.KXG08_STDBY_ACC_STDBY_ENABLED, \
                                                 m.KXG08_STDBY_ACC_STDBY_MASK)
             acc_odr = self.read_register(r.KXG08_ACCEL_ODR,1)[0] & m.KXG08_ACCEL_ODR_ODRA_MASK
-            acc_start_delay = 1 / (2**acc_odr * 0.78125) *1.55
-            time.sleep(acc_start_delay)
-            
+            acc_start_delay = 1 / (2**acc_odr * 0.78125) *1.5
+            if acc_start_delay < 0.1:
+                acc_start_delay = 0.1
+      
         if channel & CH_GYRO > 0:
-            self.set_bit_pattern(r.KXG08_STDBY, b.KXG08_STDBY_GYRO_STDBY_ENABLED | b.KXG08_STDBY_GYRO_FSTART_DISABLED, \
-                                                m.KXG08_STDBY_GYRO_STDBY_MASK | m.KXG08_STDBY_GYRO_FSTART_MASK)
-            time.sleep(1)
+            self.set_bit_pattern(r.KXG08_STDBY, \
+                                 b.KXG08_STDBY_GYRO_STDBY_ENABLED |
+                                 b.KXG08_STDBY_GYRO_FSTART_DISABLED, \
+                                 m.KXG08_STDBY_GYRO_STDBY_MASK | \
+                                 m.KXG08_STDBY_GYRO_FSTART_MASK)
             logger.debug("wait gyro start")
-            timeout = 100
-            while timeout > 0:                                       # wait for gyro running
+            timeout = 200
+            while timeout > 0:     # wait for gyro running
                 stat = self.read_register(r.KXG08_STATUS1, 1)[0]
+                time.sleep(0.005)
                 timeout = timeout - 1
                 if stat & b.KXG08_STATUS1_GYRO_RUN:
                     break
-    
             if timeout == 0:
                 raise SensorException('start failure')
+            gyro_start_delay = 0.2 # FIXME ###### depend on gyro odr
 
         if channel & CH_TEMP > 0:
             self.reset_bit(r.KXG08_STDBY, b.KXG08_STDBY_TEMP_STDBY_DISABLED)
+            
+        if gyro_start_delay > acc_start_delay:
+            time.sleep(gyro_start_delay)
+        else:
+            time.sleep(acc_start_delay)
 
     def set_power_off(self, channel = CH_ACC | CH_GYRO | CH_TEMP):  # set sleep and wake modes OFF
         assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel
+        acc_end_delay = 0.0
+        gyro_end_delay = 0.0
+        
         if channel & CH_ACC > 0:
-            self.set_bit(r.KXG08_STDBY, b.KXG08_STDBY_ACC_STDBY_DISABLED) 
+            self.set_bit(r.KXG08_STDBY, b.KXG08_STDBY_ACC_STDBY_DISABLED)
+            acc_odr = self.read_register(r.KXG08_ACCEL_ODR,1)[0] & m.KXG08_ACCEL_ODR_ODRA_MASK
+            acc_end_delay = 1 / (2**acc_odr * 0.78125) *1.5
+            if acc_end_delay < 0.2:
+                acc_end_delay = 0.2
+                
+        if channel & CH_GYRO > 0:
+            self.reset_bit(r.KXG08_STDBY, b.KXG08_STDBY_GYRO_FSTART_ENABLED)
+            gyro_end_delay = 0.2
+            
         if channel & CH_TEMP > 0:
             self.set_bit(r.KXG08_STDBY, b.KXG08_STDBY_TEMP_STDBY_DISABLED)
-        if channel & CH_GYRO > 0:
-            self.set_bit(r.KXG08_STDBY, b.KXG08_STDBY_GYRO_FSTART_DISABLED)                     
+            
+        if gyro_end_delay > acc_end_delay:
+            time.sleep(gyro_end_delay)
+        else:
+            time.sleep(acc_end_delay)
 
     def read_data(self, channel = CH_ACC):
         assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel
@@ -145,25 +178,36 @@ class kxg08_driver(sensor_base):
                 return ins2 & b.KXG08_INT2_SRC1_INT2_DRDY_GYRO != 0          
 
     def set_default_on(self):
-        "ACC+GYRO+temp: 2g/25Hz/128s, 256dps/100Hz/10Hz"
+        "ACC+GYRO+temp: 2g/25Hz/128s, 1024dps/100Hz/10Hz"
         self.set_odr(b.KXG08_ACCEL_ODR_ODRA_25, 0, CH_ACC)          # acc
         self.set_odr(b.KXG08_GYRO_ODR_ODRG_100, 0, CH_GYRO)         # gyro
         
         self.set_range(b.KXG08_ACCEL_CTL_ACC_FS_2G, 0, CH_ACC)      # acc
-        self.set_range(b.KXG08_GYRO_CTL_GYRO_FS_256, 0, CH_GYRO)    # gyro
-
-        self.set_average(b.KXG08_ACCEL_ODR_NAVGA_128_SAMPLE_AVG, CH_ACC) # acc average
-        self.set_BW(b.KXG08_ACCEL_CTL_ACC_BW_ODR_2, CH_ACC)         # acc BW
-        ##### self.set_average(b.KXG08_GYRO_ODR_NAVGG_128_SAMPLE_AVG, CH_GYRO) # gyro average (only for 2080 version        
+        self.set_range(b.KXG08_GYRO_CTL_GYRO_FS_1024, 0, CH_GYRO)    # gyro
+        
+        ## mode, averaging and BW for acc+gyro        
+        LOW_POWER_MODE = False
+        if LOW_POWER_MODE == True:
+            power_modes(sensor, LPMODE, None, CH_ACC)                  # power mode for acc 
+            power_modes(sensor, LPMODE, None, CH_GYRO)                 # power mode for gyro  
+            self.set_average(b.KXG08_ACCEL_ODR_NAVGA_128_SAMPLE_AVG, CH_ACC) # acc average
+            self.set_average(b.KXG08_GYRO_ODR_NAVGG_128_SAMPLE_AVG, CH_GYRO) # gyro average (only for 2080 version
+        else:
+            power_modes(sensor, FULL_RES, None, CH_ACC)                 # power mode for acc        
+            power_modes(sensor, FULL_RES, None, CH_GYRO)                # power mode for gyro            
         self.set_BW(b.KXG08_GYRO_CTL_GYRO_BW_ODR_2, CH_GYRO)        # gyro BW
-
-        self.write_register(r.KXG08_INT_PIN_CTL, b.KXG08_INT_PIN_CTL_IEA2_ACTIVE_HIGH  | \
-                                                 b.KXG08_INT_PIN_CTL_IEL2_LATCHED      | \
-                                                 b.KXG08_INT_PIN_CTL_IEN1              | \
+        self.set_BW(b.KXG08_ACCEL_CTL_ACC_BW_ODR_2, CH_ACC)         # acc BW
+        
+        ## interrupts
+        self.write_register(r.KXG08_INT_PIN_SEL1, 0)              # routings off
+        self.write_register(r.KXG08_INT_PIN_SEL2, 0)              # 
+        self.write_register(r.KXG08_INT_PIN_SEL3, 0)              # 
+        self.write_register(r.KXG08_INT_MASK1, 0)                 # masks all ints out
+        self.write_register(r.KXG08_INT_PIN_CTL, b.KXG08_INT_PIN_CTL_IEN1              | \
                                                  b.KXG08_INT_PIN_CTL_IEA1_ACTIVE_HIGH  | \
                                                  b.KXG08_INT_PIN_CTL_IEL1_LATCHED)
-        self.enable_drdy(2, CH_ACC)                                     # acc drdy, physical int2
-        #self.enable_drdy(2, CH_GYRO)                                   # gyro drdy, physical int1
+        self.enable_drdy(1, CH_ACC)                                     # acc drdy, physical int1
+        #self.enable_drdy(1, CH_GYRO)                                   # gyro drdy, physical int1
 
         self.set_power_on(CH_ACC | CH_GYRO | CH_TEMP)                   # all sensors ON
 
@@ -276,11 +320,10 @@ class kxg08_driver(sensor_base):
         assert mode < 4
         assert axis_mask <= 0x7F , 'temp, acc, gyro; max 7 axes possible set to storage '         
 
-        self.set_bit(r.KXG08_BUF_CTL1, axis_mask)       # buffer axes masks
+        self.set_bit_pattern(r.KXG08_BUF_CTL1, axis_mask, 0x7F)       # buffer axes masks
         
         self.set_bit(r.KXG08_BUF_EN, b.KXG08_BUF_EN_BUFE)
         self.set_bit_pattern(r.KXG08_BUF_EN, mode, m.KXG08_BUF_EN_BUF_M_MASK)
-        
 
     def disable_fifo(self):                                     # disable buffer
         self.reset_bit(r.KXG08_BUF_EN, b.KXG08_BUF_EN_BUFE)
@@ -307,7 +350,7 @@ class kxg08_driver(sensor_base):
         return sample_in_buffer 
 
     def clear_buffer(self):
-        self.write_register(r.KXG08_BUF_CLEAR, 0)
+        self.write_register(r.KXG08_BUF_CLEAR, 0xff)
 
    
 ## common functinality for sensor tests
@@ -331,7 +374,7 @@ def power_modes(sensor, res, mode = None, channel = CH_ACC):    # defines power 
         if res == LPMODE:      
             sensor.set_bit(r.KXG08_ACCEL_ODR, b.KXG08_ACCEL_ODR_LPMODEA)
         elif res == FULL_RES:
-            sensor.reset_bit(r.KXG08_ACCEL_ODR, b.KXG08_ACCEL_ODR_LPMODEA)
+            sensor.reset_bit(r.KXG08_ACCEL_ODR, b.KXG08_ACCEL_ODR_LPMODEA)        
     if channel & CH_GYRO > 0:                                   # defines gyro's power modes, only for 2080 version
         if res == LPMODE:        
             sensor.set_bit(r.KXG08_GYRO_ODR, b.KXG08_GYRO_ODR_LPMODEG)

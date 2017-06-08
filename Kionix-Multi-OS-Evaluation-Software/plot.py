@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -25,8 +25,6 @@ import sys
 import os
 import csv
 import argparse
-#from lib.util_lib import DELIMITER
-
 """ Tool for plotting kzzz_data_logger.py generated log files"""
 
 def doit(csvfile):
@@ -57,6 +55,17 @@ def doit(csvfile):
                 sensordata.append(values)
                 
 
+        if args.histogram:
+            import matplotlib.mlab as mlab
+            mu = mlab.np.average(sensordata)
+            sigma = max(abs(mlab.np.max(sensordata)- mu), abs(mlab.np.min(sensordata)- mu))
+                                 
+            # the histogram of the data
+            n, bins, patches = pylab.hist(mlab.np.array(sensordata), 100, normed=True, facecolor='green', alpha=0.75)
+
+            pylab.grid()
+            pylab.show()
+            
         if args.output_file_name:
             outfile = open(args.output_file_name,'w')
             for line in sensordata:
@@ -88,13 +97,15 @@ if __name__ == '__main__':
     parser.add_argument('-n',action='store_true', help='channel names on 1st row.')
     parser.add_argument('-c','--columns',nargs='*',type=int, help='Which columns to plot (index starts from 0).')
     parser.add_argument('-l','--legend',nargs='*',type=str, help='Names for plot columns.')
-    parser.add_argument('-d','--delimiter',type=str, default='\t', help='Column delimiter (default "tab").')
+    parser.add_argument('-d','--delimiter',type=str, default=';', help='Column delimiter (default ";").')
 ##    parser.add_argument('-o','--output_delimiter',type=str, default=',', help='Column delimiter for output (default ",").')
 ##    parser.add_argument('-M','--output_formatter',type=str, default='%d', help='Output file data formatter for example %d or %f (default %d).')
     parser.add_argument('-m','--output_multiplier',type=float, default='1.0', help='Output file data multiplier (default 1.0).')
     parser.add_argument('-f','--output_file_name',type=str, default='', help='File to save data (if want to save).')
     parser.add_argument('-x','--tick_mark',type=str, default='', help='Tick mark for data sample for example "x", "o", "x-" etc. default is empty')
     parser.add_argument('-t','--timestamps',action='store_true', help='1st column is timestamps')
+    parser.add_argument('-g','--histogram',action='store_true', help='plot histogram')
+
     parser.add_argument('fname', type=argparse.FileType('rb'), help='log file name')
 
     args = parser.parse_args()

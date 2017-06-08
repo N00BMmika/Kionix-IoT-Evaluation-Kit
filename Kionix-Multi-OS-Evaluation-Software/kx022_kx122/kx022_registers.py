@@ -1,5 +1,5 @@
 # The MIT License (MIT)
-# Copyright (c) 2016 Kionix Inc.
+# Copyright (c) 2017 Kionix Inc.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -53,27 +53,27 @@ class registers(register_base):
 		self.KX022_INC4                                           = 0x1F         # This register controls routing of an interrupt reporting to physical interrupt pin INT1
 		self.KX022_INC5                                           = 0x20         # This register controls the settings for the physical interrupt pin INT2.
 		self.KX022_INC6                                           = 0x21         # This register controls routing of interrupt reporting to physical interrupt pin INT2
-		self.KX022_TILT_TIMER                                     = 0x22         # This register is the initial count register for the tilt position state timer
-		self.KX022_WUFC                                           = 0x23         # This register is the initial count register for the motion detection timer
+		self.KX022_TILT_TIMER                                     = 0x22         
+		self.KX022_WUFC                                           = 0x23         
 		self.KX022_TDTRC                                          = 0x24         # This register is responsible for enableing/disabling reporting of Tap/Double Tap.
-		self.KX022_TDTC                                           = 0x25         # This register contains counter information for the detection of a double tap event.
-		self.KX022_TTH                                            = 0x26         # This register represents the 8-bit jerk high threshold to determine if a tap is detected.
-		self.KX022_TTL                                            = 0x27         # This register represents the 8-bit (0d 255d) jerk low threshold to determine if a tap is detected.
-		self.KX022_FTD                                            = 0x28         # This register contains counter information for the detection of any tap event.
-		self.KX022_STD                                            = 0x29         # This register contains counter information for the detection of a double tap event
-		self.KX022_TLT                                            = 0x2A         # This register contains counter information for the detection of a tap event.
-		self.KX022_TWS                                            = 0x2B         # This register contains counter information for the detection of single and double taps.
-		self.KX022_ATH                                            = 0x30         # This register sets the threshold for wake-up (motion detect) interrupt is set.
-		self.KX022_TILT_ANGLE_LL                                  = 0x32         # This register sets the low level threshold for tilt angle detection.
-		self.KX022_TILT_ANGLE_HL                                  = 0x33         # This register sets the high level threshold for tilt angle detection.
-		self.KX022_HYST_SET                                       = 0x34         # This register sets the Hysteresis that is placed in between the Screen Rotation states
+		self.KX022_TDTC                                           = 0x25         
+		self.KX022_TTH                                            = 0x26         
+		self.KX022_TTL                                            = 0x27         
+		self.KX022_FTD                                            = 0x28         
+		self.KX022_STD                                            = 0x29         
+		self.KX022_TLT                                            = 0x2A         
+		self.KX022_TWS                                            = 0x2B         
+		self.KX022_ATH                                            = 0x30         
+		self.KX022_TILT_ANGLE_LL                                  = 0x32         
+		self.KX022_TILT_ANGLE_HL                                  = 0x33         
+		self.KX022_HYST_SET                                       = 0x34         
 		self.KX022_LP_CNTL                                        = 0x35         # Low Power Control sets the number of samples of accelerometer output to be average
 		self.KX022_BUF_CNTL1                                      = 0x3A         # Read/write control register that controls the buffer sample threshold
 		self.KX022_BUF_CNTL2                                      = 0x3B         # Read/write control register that controls sample buffer operation
 		self.KX022_BUF_STATUS_1                                   = 0x3C         # This register reports the status of the sample buffer
 		self.KX022_BUF_STATUS_2                                   = 0x3D         # This register reports the status of the sample buffer trigger function
-		self.KX022_BUF_CLEAR                                      = 0x3E         # Latched buffer status information and the entire sample buffer are cleared when any data is written to this register.
-		self.KX022_BUF_READ                                       = 0x3F         # Buffer output register
+		self.KX022_BUF_CLEAR                                      = 0x3E         
+		self.KX022_BUF_READ                                       = 0x3F         
 		self.KX022_SELF_TEST                                      = 0x60         # When 0xCA is written to this register, the MEMS self-test function is enabled. Electrostatic-actuation of the accelerometer, results in a DC shift of the X, Y and Z axis outputs. Writing 0x00 to this register will return the accelerometer to normal operation
 		self.KX012_WHO_AM_I                                       = 0x0F         
 		self.KX023_WHO_AM_I                                       = 0x0F         
@@ -224,6 +224,85 @@ class bits(register_base):
 		self.KX022_SELF_TEST_MEMS_TEST_ON                         = (0xCA << 0)  # MEMS Test ON
 		self.KX012_WHO_AM_I_WIA_ID                                = (0x1A << 0)  # WHO_AM_I -value for KX012
 		self.KX023_WHO_AM_I_WIA_ID                                = (0x15 << 0)  # WHO_AM_I -value for KX023
+_b=bits()
+class enums(register_base):
+	def __init__(self):
+		self.KX022_ODCNTL_OSA={
+			'25':_b.KX022_ODCNTL_OSA_25,
+			'0p781':_b.KX022_ODCNTL_OSA_0P781,
+			'200':_b.KX022_ODCNTL_OSA_200,
+			'12p5':_b.KX022_ODCNTL_OSA_12P5,
+			'1600':_b.KX022_ODCNTL_OSA_1600,
+			'50':_b.KX022_ODCNTL_OSA_50,
+			'1p563':_b.KX022_ODCNTL_OSA_1P563,
+			'3p125':_b.KX022_ODCNTL_OSA_3P125,
+			'400':_b.KX022_ODCNTL_OSA_400,
+			'100':_b.KX022_ODCNTL_OSA_100,
+			'800':_b.KX022_ODCNTL_OSA_800,
+			'6p25':_b.KX022_ODCNTL_OSA_6P25,
+		}
+		self.KX022_CNTL3_OTDT={
+			'200':_b.KX022_CNTL3_OTDT_200,
+			'25':_b.KX022_CNTL3_OTDT_25,
+			'12p5':_b.KX022_CNTL3_OTDT_12P5,
+			'1600':_b.KX022_CNTL3_OTDT_1600,
+			'50':_b.KX022_CNTL3_OTDT_50,
+			'400':_b.KX022_CNTL3_OTDT_400,
+			'100':_b.KX022_CNTL3_OTDT_100,
+			'800':_b.KX022_CNTL3_OTDT_800,
+		}
+		self.KX022_INS2_TDTS={
+			'DOUBLE':_b.KX022_INS2_TDTS_DOUBLE,
+			'SINGLE':_b.KX022_INS2_TDTS_SINGLE,
+			'NOTAP':_b.KX022_INS2_TDTS_NOTAP,
+			'NA':_b.KX022_INS2_TDTS_NA,
+		}
+		self.KX022_CNTL3_OTP={
+			'1p563':_b.KX022_CNTL3_OTP_1P563,
+			'12p5':_b.KX022_CNTL3_OTP_12P5,
+			'6p25':_b.KX022_CNTL3_OTP_6P25,
+			'50':_b.KX022_CNTL3_OTP_50,
+		}
+		self.KX022_CNTL3_OWUF={
+			'25':_b.KX022_CNTL3_OWUF_25,
+			'0p781':_b.KX022_CNTL3_OWUF_0P781,
+			'12p5':_b.KX022_CNTL3_OWUF_12P5,
+			'50':_b.KX022_CNTL3_OWUF_50,
+			'1p563':_b.KX022_CNTL3_OWUF_1P563,
+			'3p125':_b.KX022_CNTL3_OWUF_3P125,
+			'100':_b.KX022_CNTL3_OWUF_100,
+			'6p25':_b.KX022_CNTL3_OWUF_6P25,
+		}
+		self.KX022_SELF_TEST_MEMS_TEST={
+			'ON':_b.KX022_SELF_TEST_MEMS_TEST_ON,
+			'OFF':_b.KX022_SELF_TEST_MEMS_TEST_OFF,
+		}
+		self.KX022_LP_CNTL_AVC={
+			'4_SAMPLE_AVG':_b.KX022_LP_CNTL_AVC_4_SAMPLE_AVG,
+			'16_SAMPLE_AVG':_b.KX022_LP_CNTL_AVC_16_SAMPLE_AVG,
+			'8_SAMPLE_AVG':_b.KX022_LP_CNTL_AVC_8_SAMPLE_AVG,
+			'NO_AVG':_b.KX022_LP_CNTL_AVC_NO_AVG,
+			'128_SAMPLE_AVG':_b.KX022_LP_CNTL_AVC_128_SAMPLE_AVG,
+			'2_SAMPLE_AVG':_b.KX022_LP_CNTL_AVC_2_SAMPLE_AVG,
+			'64_SAMPLE_AVG':_b.KX022_LP_CNTL_AVC_64_SAMPLE_AVG,
+			'32_SAMPLE_AVG':_b.KX022_LP_CNTL_AVC_32_SAMPLE_AVG,
+		}
+		self.KX022_COTR_DCSTR={
+			'AFTER':_b.KX022_COTR_DCSTR_AFTER,
+			'BEFORE':_b.KX022_COTR_DCSTR_BEFORE,
+		}
+		self.KX022_CNTL1_GSEL={
+			'4g':_b.KX022_CNTL1_GSEL_4G,
+			'2g':_b.KX022_CNTL1_GSEL_2G,
+			'8g':_b.KX022_CNTL1_GSEL_8G,
+			'NA':_b.KX022_CNTL1_GSEL_NA,
+		}
+		self.KX022_BUF_CNTL2_BUF_M={
+			'TRIGGER':_b.KX022_BUF_CNTL2_BUF_M_TRIGGER,
+			'FILO':_b.KX022_BUF_CNTL2_BUF_M_FILO,
+			'FIFO':_b.KX022_BUF_CNTL2_BUF_M_FIFO,
+			'STREAM':_b.KX022_BUF_CNTL2_BUF_M_STREAM,
+		}
 class masks(register_base):
 	def __init__(self):
 		self.KX022_COTR_DCSTR_MASK                                = 0xFF         

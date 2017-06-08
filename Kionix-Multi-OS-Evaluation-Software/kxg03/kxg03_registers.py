@@ -1,5 +1,5 @@
 # The MIT License (MIT)
-# Copyright (c) 2016 Kionix Inc.
+# Copyright (c) 2017 Kionix Inc.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -36,13 +36,13 @@ class registers(register_base):
 		self.KXG03_ACC_YOUT_H                                     = 0x0B         
 		self.KXG03_ACC_ZOUT_L                                     = 0x0C         
 		self.KXG03_ACC_ZOUT_H                                     = 0x0D         
-		self.KXG03_AUX1_OUT1                                      = 0x0E         # Auxiliary Sensor #1 output data bytes AUX1_OUT1 through AUX1_OUT6
+		self.KXG03_AUX1_OUT1                                      = 0x0E         
 		self.KXG03_AUX1_OUT2                                      = 0x0F         
 		self.KXG03_AUX1_OUT3                                      = 0x10         
 		self.KXG03_AUX1_OUT4                                      = 0x11         
 		self.KXG03_AUX1_OUT5                                      = 0x12         
 		self.KXG03_AUX1_OUT6                                      = 0x13         
-		self.KXG03_AUX2_OUT1                                      = 0x14         # Auxiliary Sensor #2 output data bytes AUX2_OUT1 through AUX2_OUT6
+		self.KXG03_AUX2_OUT1                                      = 0x14         
 		self.KXG03_AUX2_OUT2                                      = 0x15         
 		self.KXG03_AUX2_OUT3                                      = 0x16         
 		self.KXG03_AUX2_OUT4                                      = 0x17         
@@ -58,18 +58,18 @@ class registers(register_base):
 		self.KXG03_BUF_PAST_H                                     = 0x21         
 		self.KXG03_AUX_STATUS                                     = 0x22         # Reports the status of Auxiliary Sensors AUX1 and AUX2.
 		self.KXG03_WHO_AM_I                                       = 0x30         # WHO_AM_I
-		self.KXG03_SN1_MIR                                        = 0x31         # Individual Identification (serial number).
+		self.KXG03_SN1_MIR                                        = 0x31         
 		self.KXG03_SN2_MIR                                        = 0x32         
 		self.KXG03_SN3_MIR                                        = 0x33         
 		self.KXG03_SN4_MIR                                        = 0x34         
 		self.KXG03_STATUS1                                        = 0x36         
 		self.KXG03_INT1_SRC1                                      = 0x37         
 		self.KXG03_INT1_SRC2                                      = 0x38         
-		self.KXG03_INT1_L                                         = 0x39         # Reading this register releases int1 source registers
+		self.KXG03_INT1_L                                         = 0x39         
 		self.KXG03_STATUS2                                        = 0x3A         
 		self.KXG03_INT2_SRC1                                      = 0x3B         
 		self.KXG03_INT2_SRC2                                      = 0x3C         
-		self.KXG03_INT2_L                                         = 0x3D         # Reading this register releases int2 source registers
+		self.KXG03_INT2_L                                         = 0x3D         
 		self.KXG03_ACCEL_ODR_WAKE                                 = 0x3E         # Accelerometer Wake Mode Control register.
 		self.KXG03_ACCEL_ODR_SLEEP                                = 0x3F         
 		self.KXG03_ACCEL_CTL                                      = 0x40         
@@ -90,10 +90,10 @@ class registers(register_base):
 		self.KXG03_BTS_TH                                         = 0x4F         
 		self.KXG03_BTS_COUNTER                                    = 0x50         
 		self.KXG03_AUX_I2C_CTL_REG                                = 0x51         
-		self.KXG03_AUX_I2C_SAD1                                   = 0x52         # Read/Write that should be used to store the SAD for auxiliary I2C device 1
-		self.KXG03_AUX_I2C_REG1                                   = 0x53         # Read/Write that should be used to store the starting data register address for auxiliary I2C device 1
-		self.KXG03_AUX_I2C_CTL1                                   = 0x54         # Register address for enable/disable control register for auxiliary I2C device
-		self.KXG03_AUX_I2C_BIT1                                   = 0x55         # Defines bits to toggle in the control register for auxiliary I2C device 1
+		self.KXG03_AUX_I2C_SAD1                                   = 0x52         
+		self.KXG03_AUX_I2C_REG1                                   = 0x53         
+		self.KXG03_AUX_I2C_CTL1                                   = 0x54         
+		self.KXG03_AUX_I2C_BIT1                                   = 0x55         
 		self.KXG03_AUX_I2C_ODR1_W                                 = 0x56         # Defines register read controls for auxiliary I2C device 1
 		self.KXG03_AUX_I2C_ODR1_S                                 = 0x57         # Defines register read controls for auxiliary I2C device 1
 		self.KXG03_AUX_I2C_SAD2                                   = 0x58         
@@ -102,17 +102,17 @@ class registers(register_base):
 		self.KXG03_AUX_I2C_BIT2                                   = 0x5B         
 		self.KXG03_AUX_I2C_ODR2_W                                 = 0x5C         
 		self.KXG03_AUX_I2C_ODR1_S                                 = 0x57         # Defines register read controls for auxiliary I2C device 1
-		self.KXG03_BUF_WMITH_L                                    = 0x75         # Buffer watermark threshold level L
-		self.KXG03_BUF_WMITH_H                                    = 0x76         # Buffer watermark threshold level H
-		self.KXG03_BUF_TRIGTH_L                                   = 0x77         # Buffer Trigger mode threshold L
-		self.KXG03_BUF_TRIGTH_H                                   = 0x78         # Buffer Trigger mode threshold H
+		self.KXG03_BUF_WMITH_L                                    = 0x75         
+		self.KXG03_BUF_WMITH_H                                    = 0x76         
+		self.KXG03_BUF_TRIGTH_L                                   = 0x77         
+		self.KXG03_BUF_TRIGTH_H                                   = 0x78         
 		self.KXG03_BUF_CTL2                                       = 0x79         # Read/write control register that controls sample buffer input in wake mode.
 		self.KXG03_BUF_CTL3                                       = 0x7A         # Read/write control register that controls sample buffer input in sleep mode
 		self.KXG03_BUF_CTL4                                       = 0x7B         # Read/write control register that controls aux1 and aux2 buffer input.
 		self.KXG03_BUF_EN                                         = 0x7C         # Read/write control register that controls sample buffer operation.
 		self.KXG03_BUF_STATUS                                     = 0x7D         # This register reports the status of the sample buffer trigger function.
-		self.KXG03_BUF_CLEAR                                      = 0x7E         # Latched buffer status information and the entire sample buffer are cleared when any data is written to this register.
-		self.KXG03_BUF_READ                                       = 0x7F         # Data from the buffer should be read using a single SAD+R command
+		self.KXG03_BUF_CLEAR                                      = 0x7E         
+		self.KXG03_BUF_READ                                       = 0x7F         
 class bits(register_base):
 	def __init__(self):
 		self.KXG03_AUX_STATUS_AUX2FAIL                            = (0x01 << 7)  # Aux2 command sequence failure flag
@@ -354,22 +354,14 @@ class bits(register_base):
 		self.KXG03_FSYNC_CTL_FSYNC_MODE_INPUT_EXT                 = (0x01 << 4)  # FSYNC is enabled. Sync pin is onfigured as input pin. Buffer is updated in sync with external clock applied at SYNC pin.
 		self.KXG03_FSYNC_CTL_FSYNC_MODE_INPUT                     = (0x02 << 4)  # FSYNC is enabled. Sync pin is configured as input pin.State of SYNC pin is stored in selected sensor's LSB bit.
 		self.KXG03_FSYNC_CTL_FSYNC_MODE_OUTPUT                    = (0x03 << 4)  # FSYNC is disabled. SYNC pin is configured as output pin.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_DISABLED                   = (0x00 << 0)  # SYNC function disabled
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_GYRO_X_LSB                 = (0x01 << 0)  # State of SYNC pin is stored in gyro x LSB bit
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_GYRO_Y_LSB                 = (0x02 << 0)  # State of SYNC pin is stored in gyro y LSB bit.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_GYRO_Z_LSB                 = (0x03 << 0)  # State of SYNC pin is stored in gyro.z LSB bt
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_ACCEL_X_LSB                = (0x04 << 0)  # State of SYNC pin is stored in accel x LSB bit.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_ACCEL_Y_LSB                = (0x05 << 0)  # State of SYNC pin is stored in accel y LSB bit.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_ACCEL_Z_LSB                = (0x06 << 0)  # State of SYNC pin is stored in accel z LSB bit.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_TEMPERATURE_LSB            = (0x07 << 0)  # State of SYNC pin is stored in temperature LSB bit
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_GYRO_ODR                   = (0x00 << 0)  # SYNC pin outputs gyroscope ODR clock.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_ACC_ODR                    = (0x01 << 0)  # SYNC pin outputs accelerometers ODR clock.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_AUX1_ODR                   = (0x02 << 0)  # SYNC pin outputs aux1 ODR clock
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_AUX2_ODR                   = (0x03 << 0)  # SYNC pin outputs aux2 ODR clock
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_DISABLED_1                 = (0x04 << 0)  # SYNC pin disabled.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_DISABLED_2                 = (0x05 << 0)  # SYNC pin disabled.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_DISABLED_3                 = (0x06 << 0)  # SYNC pin disabled.
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_DISABLED_4                 = (0x07 << 0)  # SYNC pin disabled.
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL000                     = (0x00 << 0)  # Definition according FSYNC_MODE selection
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL001                     = (0x01 << 0)  # Definition according FSYNC_MODE selection
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL010                     = (0x02 << 0)  # Definition according FSYNC_MODE selection
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL011                     = (0x03 << 0)  # Definition according FSYNC_MODE selection
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL100                     = (0x04 << 0)  # Definition according FSYNC_MODE selection
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL101                     = (0x05 << 0)  # Definition according FSYNC_MODE selection
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL110                     = (0x06 << 0)  # Definition according FSYNC_MODE selection
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_SEL111                     = (0x07 << 0)  # Definition according FSYNC_MODE selection
 		self.KXG03_WAKE_SLEEP_CTL1_BTS_EN                         = (0x01 << 7)  # Active high back-to-sleep function enable
 		self.KXG03_WAKE_SLEEP_CTL1_WUF_EN                         = (0x01 << 6)  # Active high wake-up function enable.
 		self.KXG03_WAKE_SLEEP_CTL1_MAN_SLEEP                      = (0x01 << 5)  # Forces transition to sleep state.
@@ -481,13 +473,13 @@ class bits(register_base):
 		self.KXG03_BUF_CTL2_BUF_GYR_W_X                           = (0x01 << 2)  # controls the Gyroscope axis input into the sample buffer.
 		self.KXG03_BUF_CTL2_BUF_GYR_W_Y                           = (0x01 << 1)  
 		self.KXG03_BUF_CTL2_BUF_GYR_W_Z                           = (0x01 << 0)  
-		self.KXG03_BUF_CTL3_BUF_TEMP_W                            = (0x01 << 6)  # controls the Temperature input into the sample buffer.
-		self.KXG03_BUF_CTL3_BUF_ACC_W_X                           = (0x01 << 5)  # controls the Accelerometer axis input into the sample buffer.
-		self.KXG03_BUF_CTL3_BUF_ACC_W_Y                           = (0x01 << 4)  
-		self.KXG03_BUF_CTL3_BUF_ACC_W_Z                           = (0x01 << 3)  
-		self.KXG03_BUF_CTL3_BUF_GYR_W_X                           = (0x01 << 2)  # controls the Gyroscope axis input into the sample buffer.
-		self.KXG03_BUF_CTL3_BUF_GYR_W_Y                           = (0x01 << 1)  
-		self.KXG03_BUF_CTL3_BUF_GYR_W_Z                           = (0x01 << 0)  
+		self.KXG03_BUF_CTL3_BUF_TEMP_S                            = (0x01 << 6)  # controls the Temperature input into the sample buffer.
+		self.KXG03_BUF_CTL3_BUF_ACC_S_X                           = (0x01 << 5)  # controls the Accelerometer axis input into the sample buffer.
+		self.KXG03_BUF_CTL3_BUF_ACC_S_Y                           = (0x01 << 4)  
+		self.KXG03_BUF_CTL3_BUF_ACC_S_Z                           = (0x01 << 3)  
+		self.KXG03_BUF_CTL3_BUF_GYR_S_X                           = (0x01 << 2)  # controls the Gyroscope axis input into the sample buffer.
+		self.KXG03_BUF_CTL3_BUF_GYR_S_Y                           = (0x01 << 1)  
+		self.KXG03_BUF_CTL3_BUF_GYR_S_Z                           = (0x01 << 0)  
 		self.KXG03_BUF_CTL4_BUF_AUX2_S                            = (0x01 << 3)  # controls the aux2 input into the sample buffer in sleep mode.
 		self.KXG03_BUF_CTL4_BUF_AUX1_S                            = (0x01 << 2)  # controls the aux1 axis input into the sample buffer in sleep mode
 		self.KXG03_BUF_CTL4_BUF_AUX2_W                            = (0x01 << 1)  # controls the aux2 input into the sample buffer in wake mode.
@@ -501,6 +493,380 @@ class bits(register_base):
 		self.KXG03_BUF_EN_BUF_M_STREAM                            = (0x01 << 0)  
 		self.KXG03_BUF_EN_BUF_M_TRIGGER                           = (0x02 << 0)  
 		self.KXG03_BUF_EN_BUF_M_FILO                              = (0x03 << 0)  
+		self.KXG03_BUF_STATUS_BUF_TRIG                            = (0x01 << 7)  
+_b=bits()
+class enums(register_base):
+	def __init__(self):
+		self.KXG03_AUX_I2C_ODR2_W_AUX2_D={
+			'DNE':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_DNE,
+			'5_READ_BACK':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_5_READ_BACK,
+			'2_READ_BACK':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_2_READ_BACK,
+			'3_READ_BACK':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_3_READ_BACK,
+			'NO_READ_BACK':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_NO_READ_BACK,
+			'4_READ_BACK':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_4_READ_BACK,
+			'6_READ_BACK':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_6_READ_BACK,
+			'1_READ_BACK':_b.KXG03_AUX_I2C_ODR2_W_AUX2_D_1_READ_BACK,
+		}
+		self.KXG03_GYRO_ODR_WAKE_GYRO_FS_W={
+			'1024':_b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_1024,
+			'512':_b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_512,
+			'256':_b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_256,
+			'2048':_b.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_2048,
+		}
+		self.KXG03_STDBY_AUX1_STDBY_S={
+			'DISABLED':_b.KXG03_STDBY_AUX1_STDBY_S_DISABLED,
+			'ENABLED':_b.KXG03_STDBY_AUX1_STDBY_S_ENABLED,
+		}
+		self.KXG03_WAKE_SLEEP_CTL2_C_MODE={
+			'COUNTER_CLEAR':_b.KXG03_WAKE_SLEEP_CTL2_C_MODE_COUNTER_CLEAR,
+			'COUNTER_DECREASE':_b.KXG03_WAKE_SLEEP_CTL2_C_MODE_COUNTER_DECREASE,
+		}
+		self.KXG03_FSYNC_CTL_FSYNC_MODE={
+			'disabled':_b.KXG03_FSYNC_CTL_FSYNC_MODE_DISABLED,
+			'input_ext':_b.KXG03_FSYNC_CTL_FSYNC_MODE_INPUT_EXT,
+			'input':_b.KXG03_FSYNC_CTL_FSYNC_MODE_INPUT,
+			'output':_b.KXG03_FSYNC_CTL_FSYNC_MODE_OUTPUT,
+		}
+		self.KXG03_STDBY_ACC_STDBY={
+			'DISABLED':_b.KXG03_STDBY_ACC_STDBY_DISABLED,
+			'ENABLED':_b.KXG03_STDBY_ACC_STDBY_ENABLED,
+		}
+		self.KXG03_STDBY_AUX1_STDBY_W={
+			'DISABLED':_b.KXG03_STDBY_AUX1_STDBY_W_DISABLED,
+			'ENABLED':_b.KXG03_STDBY_AUX1_STDBY_W_ENABLED,
+		}
+		self.KXG03_AUX_STATUS_AUX1ST={
+			'aux1_running':_b.KXG03_AUX_STATUS_AUX1ST_AUX1_RUNNING,
+			'aux1_waiting_enable':_b.KXG03_AUX_STATUS_AUX1ST_AUX1_WAITING_ENABLE,
+			'aux1_waiting_disable':_b.KXG03_AUX_STATUS_AUX1ST_AUX1_WAITING_DISABLE,
+			'aux1_disabled':_b.KXG03_AUX_STATUS_AUX1ST_AUX1_DISABLED,
+		}
+		self.KXG03_STDBY_AUX2_STDBY_S={
+			'DISABLED':_b.KXG03_STDBY_AUX2_STDBY_S_DISABLED,
+			'ENABLED':_b.KXG03_STDBY_AUX2_STDBY_S_ENABLED,
+		}
+		self.KXG03_AUX_I2C_ODR1_W_AUX1_D={
+			'DNE':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_DNE,
+			'5_READ_BACK':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_5_READ_BACK,
+			'2_READ_BACK':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_2_READ_BACK,
+			'3_READ_BACK':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_3_READ_BACK,
+			'NO_READ_BACK':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_NO_READ_BACK,
+			'4_READ_BACK':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_4_READ_BACK,
+			'6_READ_BACK':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_6_READ_BACK,
+			'1_READ_BACK':_b.KXG03_AUX_I2C_ODR1_W_AUX1_D_1_READ_BACK,
+		}
+		self.KXG03_GYRO_ODR_SLEEP_ODRG_S={
+			'25':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_25,
+			'0p781':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_0P781,
+			'200':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_200,
+			'12p5':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_12P5,
+			'1600':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_1600,
+			'50':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_50,
+			'6p25':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_6P25,
+			'1p563':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_1P563,
+			'1600_4':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_1600_4,
+			'3p125':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_3P125,
+			'400':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_400,
+			'100':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_100,
+			'1600_5':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_1600_5,
+			'1600_2':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_1600_2,
+			'1600_3':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_1600_3,
+			'800':_b.KXG03_GYRO_ODR_SLEEP_ODRG_S_800,
+		}
+		self.KXG03_INT_PIN_CTL_IEL2={
+			'PULSED_160US':_b.KXG03_INT_PIN_CTL_IEL2_PULSED_160US,
+			'PULSED_40US':_b.KXG03_INT_PIN_CTL_IEL2_PULSED_40US,
+			'LATCHED':_b.KXG03_INT_PIN_CTL_IEL2_LATCHED,
+			'REALTIME':_b.KXG03_INT_PIN_CTL_IEL2_REALTIME,
+		}
+		self.KXG03_INT_PIN_CTL_IEL1={
+			'PULSED_160US':_b.KXG03_INT_PIN_CTL_IEL1_PULSED_160US,
+			'PULSED_40US':_b.KXG03_INT_PIN_CTL_IEL1_PULSED_40US,
+			'LATCHED':_b.KXG03_INT_PIN_CTL_IEL1_LATCHED,
+			'REALTIME':_b.KXG03_INT_PIN_CTL_IEL1_REALTIME,
+		}
+		self.KXG03_STDBY_GYRO_STDBY_S={
+			'DISABLED':_b.KXG03_STDBY_GYRO_STDBY_S_DISABLED,
+			'ENABLED':_b.KXG03_STDBY_GYRO_STDBY_S_ENABLED,
+		}
+		self.KXG03_STATUS2_WAKE_SLEEP={
+			'sleep_mode':_b.KXG03_STATUS2_WAKE_SLEEP_SLEEP_MODE,
+			'wake_mode':_b.KXG03_STATUS2_WAKE_SLEEP_WAKE_MODE,
+		}
+		self.KXG03_AUX_I2C_ODR1_W_AUX1ODRW={
+			'25':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_25,
+			'0p781':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_0P781,
+			'200':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_200,
+			'12p5':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_12P5,
+			'1600':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_1600,
+			'50':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_50,
+			'6p25':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_6P25,
+			'1p563':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_1P563,
+			'1600_4':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_1600_4,
+			'3p125':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_3P125,
+			'400':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_400,
+			'100':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_100,
+			'1600_5':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_1600_5,
+			'1600_2':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_1600_2,
+			'1600_3':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_1600_3,
+			'800':_b.KXG03_AUX_I2C_ODR1_W_AUX1ODRW_800,
+		}
+		self.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S={
+			'1024':_b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_1024,
+			'512':_b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_512,
+			'256':_b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_256,
+			'2048':_b.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_2048,
+		}
+		self.KXG03_BUF_EN_BUF_M={
+			'TRIGGER':_b.KXG03_BUF_EN_BUF_M_TRIGGER,
+			'FILO':_b.KXG03_BUF_EN_BUF_M_FILO,
+			'FIFO':_b.KXG03_BUF_EN_BUF_M_FIFO,
+			'STREAM':_b.KXG03_BUF_EN_BUF_M_STREAM,
+		}
+		self.KXG03_CTL_REG_1_ACC_STPOL={
+			'NOT_INVERTED':_b.KXG03_CTL_REG_1_ACC_STPOL_NOT_INVERTED,
+			'INVERTED':_b.KXG03_CTL_REG_1_ACC_STPOL_INVERTED,
+		}
+		self.KXG03_WAKE_SLEEP_CTL1_OWUF={
+			'25':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_25,
+			'0p781':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_0P781,
+			'12p5':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_12P5,
+			'50':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_50,
+			'1p563':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_1P563,
+			'3p125':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_3P125,
+			'100':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_100,
+			'6p25':_b.KXG03_WAKE_SLEEP_CTL1_OWUF_6P25,
+		}
+		self.KXG03_ACCEL_ODR_SLEEP_ODRA_S={
+			'200':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_200,
+			'6400':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_6400,
+			'0p781':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_0P781,
+			'3200':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_3200,
+			'12p5':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_12P5,
+			'1600':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_1600,
+			'50':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_50,
+			'6p25':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_6P25,
+			'1p563':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_1P563,
+			'3p125':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_3P125,
+			'25':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_25,
+			'12800':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_12800,
+			'400':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_400,
+			'100':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_100,
+			'800':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_800,
+			'51200':_b.KXG03_ACCEL_ODR_SLEEP_ODRA_S_51200,
+		}
+		self.KXG03_INT_PIN_CTL_IEA1={
+			'ACTIVE_HIGH':_b.KXG03_INT_PIN_CTL_IEA1_ACTIVE_HIGH,
+			'ACTIVE_LOW':_b.KXG03_INT_PIN_CTL_IEA1_ACTIVE_LOW,
+		}
+		self.KXG03_INT_PIN_CTL_IEA2={
+			'ACTIVE_HIGH':_b.KXG03_INT_PIN_CTL_IEA2_ACTIVE_HIGH,
+			'ACTIVE_LOW':_b.KXG03_INT_PIN_CTL_IEA2_ACTIVE_LOW,
+		}
+		self.KXG03_AUX_I2C_ODR1_S_AUX1ODRS={
+			'25':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_25,
+			'0p781':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_0P781,
+			'200':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_200,
+			'12p5':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_12P5,
+			'1600':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_1600,
+			'50':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_50,
+			'6p25':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_6P25,
+			'1p563':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_1P563,
+			'1600_4':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_1600_4,
+			'3p125':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_3P125,
+			'400':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_400,
+			'100':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_100,
+			'1600_5':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_1600_5,
+			'1600_2':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_1600_2,
+			'1600_3':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_1600_3,
+			'800':_b.KXG03_AUX_I2C_ODR1_S_AUX1ODRS_800,
+		}
+		self.KXG03_STDBY_GYRO_STDBY_W={
+			'DISABLED':_b.KXG03_STDBY_GYRO_STDBY_W_DISABLED,
+			'ENABLED':_b.KXG03_STDBY_GYRO_STDBY_W_ENABLED,
+		}
+		self.KXG03_GYRO_ODR_WAKE_ODRG_W={
+			'25':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_25,
+			'0p781':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_0P781,
+			'200':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_200,
+			'12p5':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_12P5,
+			'1600':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_1600,
+			'50':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_50,
+			'6p25':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_6P25,
+			'1p563':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_1P563,
+			'1600_4':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_1600_4,
+			'3p125':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_3P125,
+			'400':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_400,
+			'100':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_100,
+			'1600_5':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_1600_5,
+			'1600_2':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_1600_2,
+			'1600_3':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_1600_3,
+			'800':_b.KXG03_GYRO_ODR_WAKE_ODRG_W_800,
+		}
+		self.KXG03_CTL_REG_1_I2C_DIS={
+			'DISABLED':_b.KXG03_CTL_REG_1_I2C_DIS_DISABLED,
+			'ENABLED':_b.KXG03_CTL_REG_1_I2C_DIS_ENABLED,
+		}
+		self.KXG03_ACCEL_ODR_WAKE_NAVG_W={
+			'4_sample_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_4_SAMPLE_AVG,
+			'16_sample_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_16_SAMPLE_AVG,
+			'8_sample_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_8_SAMPLE_AVG,
+			'2_sample_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_2_SAMPLE_AVG,
+			'128_sample_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_128_SAMPLE_AVG,
+			'no_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_NO_AVG,
+			'64_sample_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_64_SAMPLE_AVG,
+			'32_sample_avg':_b.KXG03_ACCEL_ODR_WAKE_NAVG_W_32_SAMPLE_AVG,
+		}
+		self.KXG03_ACCEL_CTL_ACC_FS_S={
+			'4g':_b.KXG03_ACCEL_CTL_ACC_FS_S_4G,
+			'16g':_b.KXG03_ACCEL_CTL_ACC_FS_S_16G,
+			'2g':_b.KXG03_ACCEL_CTL_ACC_FS_S_2G,
+			'8g':_b.KXG03_ACCEL_CTL_ACC_FS_S_8G,
+		}
+		self.KXG03_AUX_I2C_CTL_REG_AUX_BUS_SPD={
+			'400HZ':_b.KXG03_AUX_I2C_CTL_REG_AUX_BUS_SPD_400HZ,
+			'100HZ':_b.KXG03_AUX_I2C_CTL_REG_AUX_BUS_SPD_100HZ,
+		}
+		self.KXG03_GYRO_ODR_WAKE_GYRO_BW_W={
+			'10':_b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_10,
+			'160':_b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_160,
+			'40':_b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_40,
+			'20':_b.KXG03_GYRO_ODR_WAKE_GYRO_BW_W_20,
+		}
+		self.KXG03_ACCEL_CTL_ACC_FS_W={
+			'4g':_b.KXG03_ACCEL_CTL_ACC_FS_W_4G,
+			'16g':_b.KXG03_ACCEL_CTL_ACC_FS_W_16G,
+			'2g':_b.KXG03_ACCEL_CTL_ACC_FS_W_2G,
+			'8g':_b.KXG03_ACCEL_CTL_ACC_FS_W_8G,
+		}
+		self.KXG03_STDBY_AUX2_STDBY_W={
+			'DISABLED':_b.KXG03_STDBY_AUX2_STDBY_W_DISABLED,
+			'ENABLED':_b.KXG03_STDBY_AUX2_STDBY_W_ENABLED,
+		}
+		self.KXG03_ACCEL_ODR_SLEEP_LPMODE_S={
+			'DISABLED':_b.KXG03_ACCEL_ODR_SLEEP_LPMODE_S_DISABLED,
+			'ENABLED':_b.KXG03_ACCEL_ODR_SLEEP_LPMODE_S_ENABLED,
+		}
+		self.KXG03_AUX_STATUS_AUX2ST={
+			'aux2_waiting_disable':_b.KXG03_AUX_STATUS_AUX2ST_AUX2_WAITING_DISABLE,
+			'aux2_running':_b.KXG03_AUX_STATUS_AUX2ST_AUX2_RUNNING,
+			'aux2_waiting_enable':_b.KXG03_AUX_STATUS_AUX2ST_AUX2_WAITING_ENABLE,
+			'aux2_disabled':_b.KXG03_AUX_STATUS_AUX2ST_AUX2_DISABLED,
+		}
+		self.KXG03_AUX_I2C_CTL_REG_AUX_PULL_UP={
+			'DISABLED':_b.KXG03_AUX_I2C_CTL_REG_AUX_PULL_UP_DISABLED,
+			'ENABLED':_b.KXG03_AUX_I2C_CTL_REG_AUX_PULL_UP_ENABLED,
+		}
+		self.KXG03_WAKE_SLEEP_CTL2_TH_MODE={
+			'ABSOLUTE_THRESHOLD':_b.KXG03_WAKE_SLEEP_CTL2_TH_MODE_ABSOLUTE_THRESHOLD,
+			'RELATIVE_THRESHOLD':_b.KXG03_WAKE_SLEEP_CTL2_TH_MODE_RELATIVE_THRESHOLD,
+		}
+		self.KXG03_AUX_I2C_CTL_REG_AUX_BYPASS={
+			'NOT_BYPASSED':_b.KXG03_AUX_I2C_CTL_REG_AUX_BYPASS_NOT_BYPASSED,
+			'BYPASSED':_b.KXG03_AUX_I2C_CTL_REG_AUX_BYPASS_BYPASSED,
+		}
+		self.KXG03_ACCEL_ODR_WAKE_ODRA_W={
+			'200':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_200,
+			'6400':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_6400,
+			'0p781':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_0P781,
+			'3200':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_3200,
+			'12p5':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_12P5,
+			'1600':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_1600,
+			'50':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_50,
+			'6p25':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_6P25,
+			'1p563':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_1P563,
+			'3p125':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_3P125,
+			'25':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_25,
+			'12800':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_12800,
+			'400':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_400,
+			'100':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_100,
+			'800':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_800,
+			'51200':_b.KXG03_ACCEL_ODR_WAKE_ODRA_W_51200,
+		}
+		self.KXG03_CTL_REG_1_TEMP_STDBY_W={
+			'DISABLED':_b.KXG03_CTL_REG_1_TEMP_STDBY_W_DISABLED,
+			'ENABLED':_b.KXG03_CTL_REG_1_TEMP_STDBY_W_ENABLED,
+		}
+		self.KXG03_AUX_I2C_ODR1_S_AUX2ODRS={
+			'25':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_25,
+			'0p781':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_0P781,
+			'200':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_200,
+			'12p5':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_12P5,
+			'1600':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_1600,
+			'50':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_50,
+			'6p25':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_6P25,
+			'1p563':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_1P563,
+			'1600_4':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_1600_4,
+			'3p125':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_3P125,
+			'400':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_400,
+			'100':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_100,
+			'1600_5':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_1600_5,
+			'1600_2':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_1600_2,
+			'1600_3':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_1600_3,
+			'800':_b.KXG03_AUX_I2C_ODR1_S_AUX2ODRS_800,
+		}
+		self.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S={
+			'10':_b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_10,
+			'160':_b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_160,
+			'40':_b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_40,
+			'20':_b.KXG03_GYRO_ODR_SLEEP_GYRO_BW_S_20,
+		}
+		self.KXG03_CTL_REG_1_TEMP_STDBY_S={
+			'DISABLED':_b.KXG03_CTL_REG_1_TEMP_STDBY_S_DISABLED,
+			'ENABLED':_b.KXG03_CTL_REG_1_TEMP_STDBY_S_ENABLED,
+		}
+		self.KXG03_FSYNC_CTL_FSYNC_SEL={
+			'SEL101':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL101,
+			'SEL100':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL100,
+			'SEL110':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL110,
+			'SEL111':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL111,
+			'SEL011':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL011,
+			'SEL010':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL010,
+			'SEL000':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL000,
+			'SEL001':_b.KXG03_FSYNC_CTL_FSYNC_SEL_SEL001,
+		}
+		self.KXG03_AUX_I2C_ODR2_W_AUX2ODRW={
+			'25':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_25,
+			'0p781':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_0P781,
+			'200':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_200,
+			'12p5':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_12P5,
+			'1600':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_1600,
+			'50':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_50,
+			'6p25':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_6P25,
+			'1p563':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_1P563,
+			'1600_4':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_1600_4,
+			'3p125':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_3P125,
+			'400':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_400,
+			'100':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_100,
+			'1600_5':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_1600_5,
+			'1600_2':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_1600_2,
+			'1600_3':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_1600_3,
+			'800':_b.KXG03_AUX_I2C_ODR2_W_AUX2ODRW_800,
+		}
+		self.KXG03_ACCEL_ODR_SLEEP_NAVG_S={
+			'4_sample_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_4_SAMPLE_AVG,
+			'16_sample_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_16_SAMPLE_AVG,
+			'8_sample_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_8_SAMPLE_AVG,
+			'2_sample_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_2_SAMPLE_AVG,
+			'128_sample_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_128_SAMPLE_AVG,
+			'no_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_NO_AVG,
+			'64_sample_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_64_SAMPLE_AVG,
+			'32_sample_avg':_b.KXG03_ACCEL_ODR_SLEEP_NAVG_S_32_SAMPLE_AVG,
+		}
+		self.KXG03_ACCEL_ODR_WAKE_LPMODE_W={
+			'DISABLED':_b.KXG03_ACCEL_ODR_WAKE_LPMODE_W_DISABLED,
+			'ENABLED':_b.KXG03_ACCEL_ODR_WAKE_LPMODE_W_ENABLED,
+		}
+		self.KXG03_STATUS1_WAKE_SLEEP={
+			'sleep_mode':_b.KXG03_STATUS1_WAKE_SLEEP_SLEEP_MODE,
+			'wake_mode':_b.KXG03_STATUS1_WAKE_SLEEP_WAKE_MODE,
+		}
+		self.KXG03_BUF_EN_BUF_SYM={
+			'DUAL_SYMBOL_TRANS_MODE_ENABLED':_b.KXG03_BUF_EN_BUF_SYM_DUAL_SYMBOL_TRANS_MODE_ENABLED,
+			'SINGLE_SYMBOL_MODE_ENABLED':_b.KXG03_BUF_EN_BUF_SYM_SINGLE_SYMBOL_MODE_ENABLED,
+			'SYMBOL_MODE_DISABLED':_b.KXG03_BUF_EN_BUF_SYM_SYMBOL_MODE_DISABLED,
+			'DUAL_SYMBOL_FRAME_MODE_ENABLED':_b.KXG03_BUF_EN_BUF_SYM_DUAL_SYMBOL_FRAME_MODE_ENABLED,
+		}
 class masks(register_base):
 	def __init__(self):
 		self.KXG03_AUX_STATUS_AUX2ST_MASK                         = 0x30         
@@ -538,8 +904,7 @@ class masks(register_base):
 		self.KXG03_INT_PIN_CTL_IEA1_MASK                          = 0x04         # Interrupt polarity select for INT1 pin.
 		self.KXG03_INT_PIN_CTL_IEL1_MASK                          = 0x03         # Interrupt latch mode select for INT1 pin
 		self.KXG03_FSYNC_CTL_FSYNC_MODE_MASK                      = 0x30         
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_MASK                       = 0x07         # if(fsync_mode=2'b10)
-		self.KXG03_FSYNC_CTL_FSYNC_SEL_MASK                       = 0x07         # if(fsync_mode=2'b11)
+		self.KXG03_FSYNC_CTL_FSYNC_SEL_MASK                       = 0x07         
 		self.KXG03_WAKE_SLEEP_CTL1_OWUF_MASK                      = 0x07         # the Output Data Rate for the wake up (motion detection).
 		self.KXG03_WAKE_SLEEP_CTL2_TH_MODE_MASK                   = 0x02         
 		self.KXG03_WAKE_SLEEP_CTL2_C_MODE_MASK                    = 0x01         # debounce counter clear mode.

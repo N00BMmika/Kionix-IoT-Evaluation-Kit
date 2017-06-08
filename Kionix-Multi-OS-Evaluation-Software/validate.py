@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -83,7 +83,7 @@ def validate(fname, skiplines, colsep, deltatime_in_log, multiplier):
 
 import argparse as __argparse
 _argparser = __argparse.ArgumentParser(description='Example: %(prog)s -s')
-_argparser.add_argument('-c','--colsep',default='\t',type=str)
+_argparser.add_argument('-c','--colsep',default=";\t",type=str)
 _argparser.add_argument('-s','--skiprows',default = 0, type=int )
 _argparser.add_argument('-d','--deltatime_in_log',action='store_true')
 _argparser.add_argument('-t','--timestamp_multiplier',type=float, default=1.0)

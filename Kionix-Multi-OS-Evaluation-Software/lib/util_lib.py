@@ -12,6 +12,7 @@ import argparse as __argparse
 _argparser = __argparse.ArgumentParser(description='Example: %(prog)s -s')
 _argparser.add_argument('-l','--loop',default=None,type=int, help='How many samples to read in loop (default None = infinite loop).')
 _argparser.add_argument('-s','--stream_mode',action='store_true', help='Use high speed streaming mode (not active by default)')
+_argparser.add_argument('-x','--streamfile',action='store_true')
 args = _argparser.parse_args()
 
 from datetime import datetime
@@ -93,9 +94,9 @@ def stream_config_check():
     if not(evkit_config.get('generic', 'drdy_operation') in ['ADAPTER_GPIO1_INT','ADAPTER_GPIO2_INT']):
         return 'Stream mode requires GPIO drdy_operation in settings.cfg'
 
-    if not ( evkit_config.get('connection', 'bus_index') == '3' or  \
+    if not ( evkit_config.get('connection', 'bus_index') in ['3','5'] or  \
            evkit_config.get('connection', 'bus_index').startswith('serial_')):
-        return 'Stream mode requires serial connection or connection type 3 in settings.cfg'
+        return 'Stream mode requires serial connection or connection type 3 or 5 in settings.cfg'
 
     return True
            
@@ -133,5 +134,18 @@ def bin2uint8(data):
         data=data[0]
     return data 
 
+# convert int and float to string which is used in enumerated values dictionaries
+def convert_to_enumkey(value):
+    if isinstance(value,int):
+        value = str(value)
+    elif isinstance(value,float):
+        value = str(value)
+        value=value.replace('.','p')
+    elif isinstance(value,str):
+        pass
+    else:
+        assert 0,'Invalid enumkey'
+    return value
+
 # delimiter character for log printout
-DELIMITER = '\t'
+DELIMITER = ';\t'

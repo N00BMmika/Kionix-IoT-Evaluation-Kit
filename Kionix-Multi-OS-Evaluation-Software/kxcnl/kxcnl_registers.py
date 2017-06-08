@@ -1,5 +1,5 @@
 # The MIT License (MIT)
-# Copyright (c) 2016 Kionix Inc.
+# Copyright (c) 2017 Kionix Inc.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -22,8 +22,8 @@
 class register_base: pass
 class registers(register_base):
 	def __init__(self):
-		self.KXCNL_INFO1                                          = 0x0D         # This register can be used for optional supplier information.
-		self.KXCNL_INFO2                                          = 0x0E         # A second register can be used for optional supplier information.
+		self.KXCNL_INFO1                                          = 0x0D         
+		self.KXCNL_INFO2                                          = 0x0E         
 		self.KXCNL_WIA                                            = 0x0F         # This register can be used for supplier recognition (Who I Am ID),
 		self.KXCNL_OUTX_L                                         = 0x10         
 		self.KXCNL_OUTX_H                                         = 0x11         
@@ -34,8 +34,8 @@ class registers(register_base):
 		self.KXCNL_LC_L                                           = 0x16         # These two registers contain up to 16-bits of long counter information.
 		self.KXCNL_LC_H                                           = 0x17         
 		self.KXCNL_STAT                                           = 0x18         # This register reports the status of the accelerometer outputs
-		self.KXCNL_PEAK1                                          = 0x19         # Peak detector value for Next condition of State Program 1.
-		self.KXCNL_PEAK2                                          = 0x1A         # Peak detector value for Next condition of State Program 2
+		self.KXCNL_PEAK1                                          = 0x19         
+		self.KXCNL_PEAK2                                          = 0x1A         
 		self.KXCNL_CNTL1                                          = 0x1B         # Read/write control register that controls the main feature set
 		self.KXCNL_CNTL2                                          = 0x1C         # Read/write control register that controls the State Program 1.
 		self.KXCNL_CNTL3                                          = 0x1D         # Read/write control register that controls the State Program 2.
@@ -221,6 +221,69 @@ class bits(register_base):
 		self.KXCNL_OUTS2_N_Z                                      = (0x01 << 2)  
 		self.KXCNL_OUTS2_P_V                                      = (0x01 << 1)  
 		self.KXCNL_OUTS2_N_V                                      = (0x01 << 0)  
+_b=bits()
+class enums(register_base):
+	def __init__(self):
+		self.KXCNL_ST1_1_NEXT={
+			'GNTH1':_b.KXCNL_ST1_1_NEXT_GNTH1,
+			'GNTH2':_b.KXCNL_ST1_1_NEXT_GNTH2,
+			'LNTH1':_b.KXCNL_ST1_1_NEXT_LNTH1,
+			'LLTH2':_b.KXCNL_ST1_1_NEXT_LLTH2,
+			'TI4':_b.KXCNL_ST1_1_NEXT_TI4,
+			'LRTH2':_b.KXCNL_ST1_1_NEXT_LRTH2,
+			'LRTH1':_b.KXCNL_ST1_1_NEXT_LRTH1,
+			'TI1':_b.KXCNL_ST1_1_NEXT_TI1,
+			'TI2':_b.KXCNL_ST1_1_NEXT_TI2,
+			'TI3':_b.KXCNL_ST1_1_NEXT_TI3,
+			'NZERO':_b.KXCNL_ST1_1_NEXT_NZERO,
+			'GTTH1':_b.KXCNL_ST1_1_NEXT_GTTH1,
+			'LNTH2':_b.KXCNL_ST1_1_NEXT_LNTH2,
+			'GRTH2':_b.KXCNL_ST1_1_NEXT_GRTH2,
+			'NOP':_b.KXCNL_ST1_1_NEXT_NOP,
+			'GRTH1':_b.KXCNL_ST1_1_NEXT_GRTH1,
+		}
+		self.KXCNL_ST1_1_RESET={
+			'GNTH1':_b.KXCNL_ST1_1_RESET_GNTH1,
+			'GNTH2':_b.KXCNL_ST1_1_RESET_GNTH2,
+			'LNTH1':_b.KXCNL_ST1_1_RESET_LNTH1,
+			'LLTH2':_b.KXCNL_ST1_1_RESET_LLTH2,
+			'TI4':_b.KXCNL_ST1_1_RESET_TI4,
+			'LRTH2':_b.KXCNL_ST1_1_RESET_LRTH2,
+			'LRTH1':_b.KXCNL_ST1_1_RESET_LRTH1,
+			'TI1':_b.KXCNL_ST1_1_RESET_TI1,
+			'TI2':_b.KXCNL_ST1_1_RESET_TI2,
+			'TI3':_b.KXCNL_ST1_1_RESET_TI3,
+			'NZERO':_b.KXCNL_ST1_1_RESET_NZERO,
+			'GTTH1':_b.KXCNL_ST1_1_RESET_GTTH1,
+			'LNTH2':_b.KXCNL_ST1_1_RESET_LNTH2,
+			'GRTH2':_b.KXCNL_ST1_1_RESET_GRTH2,
+			'NOP':_b.KXCNL_ST1_1_RESET_NOP,
+			'GRTH1':_b.KXCNL_ST1_1_RESET_GRTH1,
+		}
+		self.KXCNL_SETT2_ABS={
+			'UNSIGNED':_b.KXCNL_SETT2_ABS_UNSIGNED,
+			'SIGNED':_b.KXCNL_SETT2_ABS_SIGNED,
+		}
+		self.KXCNL_CNTL1_ODR={
+			'25':_b.KXCNL_CNTL1_ODR_25,
+			'12p5':_b.KXCNL_CNTL1_ODR_12P5,
+			'1600':_b.KXCNL_CNTL1_ODR_1600,
+			'50':_b.KXCNL_CNTL1_ODR_50,
+			'3p125':_b.KXCNL_CNTL1_ODR_3P125,
+			'400':_b.KXCNL_CNTL1_ODR_400,
+			'100':_b.KXCNL_CNTL1_ODR_100,
+			'6p25':_b.KXCNL_CNTL1_ODR_6P25,
+		}
+		self.KXCNL_SETT1_ABS={
+			'UNSIGNED':_b.KXCNL_SETT1_ABS_UNSIGNED,
+			'SIGNED':_b.KXCNL_SETT1_ABS_SIGNED,
+		}
+		self.KXCNL_CNTL1_SC={
+			'4g':_b.KXCNL_CNTL1_SC_4G,
+			'2g':_b.KXCNL_CNTL1_SC_2G,
+			'8g':_b.KXCNL_CNTL1_SC_8G,
+			'6g':_b.KXCNL_CNTL1_SC_6G,
+		}
 class masks(register_base):
 	def __init__(self):
 		self.KXCNL_WIA_WIA_MASK                                   = 0xFF         

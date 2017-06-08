@@ -246,12 +246,15 @@ class bus_aadvark_spi(_spi_bus):
             }
 
     def write_register(self, sensor, register, data):
-        if isinstance(data, int):
-            length = 2
+        if register is None:        # Pure SPI command write without address
+            data_out = array('B', [data])
+            length = 1 ## FIXME len(data)
+        elif isinstance(data, int): # normal address set and data write
+            length = 2  ## FIXME multiwrite
             data_out = array('B', [register, data])
         else:
             raise BusException('Datatype "%s" not supported.' % type(data))
-
+          
         # todo check sensor chip select parameters from self._sensortable
         res, dummy_data = aa.aa_spi_write(self._handle, data_out, 0)  # write the reg.address and data
         if res != length:

@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -22,16 +22,17 @@
 from imports import *    
 from lib.sensor_base import sensor_base, SensorException
 
-import kmx62_registers as sensor
-r=sensor.registers()
-b=sensor.bits()
-m=sensor.masks()
+import kmx62_registers
+r=kmx62_registers.registers()
+b=kmx62_registers.bits()
+m=kmx62_registers.masks()
+e=kmx62_registers.enums()
 
 ## for acc power on delay calculation
 hz = [12.5, 25.0, 50.0, 100.0, 200.0, 400.0, 800.0, 1600.0, 0.781, 1.563, 3.125, 6.25, 25600.0,25600.0,25600.0,25600.0]
 
 class kmx62_driver(sensor_base):
-    _WAIS   = [0x18, 0x19, 0x6f]
+    _WAIS   = [0x18, 0x19, 0x6f, 0x7d]
     
     def __init__(self):
         sensor_base.__init__(self)
@@ -53,7 +54,7 @@ class kmx62_driver(sensor_base):
             self.WHOAMI = resp[0]
             logger.info('KMX62 found')
             return 1
-        logger.warning("wrong WHOAMI received for KMX62: 0x%02x" % resp[0])        
+        logger.debug("wrong WHOAMI received for KMX62: 0x%02x" % resp[0])        
         return 0
 
     def ic_test(self):                                      ## TODO: power on or off
@@ -160,7 +161,6 @@ class kmx62_driver(sensor_base):
         ## enable acc+mag+temp
         self.set_power_on(CH_ACC | CH_MAG | CH_TEMP )
         
-    #def set_odr(self, ODR, temp=0, channel = CH_ACC):           # set separately for acc or mag
     def set_odr(self, ODR, channel = CH_ACC):           # set separately for acc or mag
         """ Setup output data rate. """
         assert channel in [CH_ACC ,CH_MAG]

@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -19,27 +19,32 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
+## basic data logger for KXTJ2
+###
+## Data ready is only GPIO-1_INT
+## DRDY INT must be released separately with INT_REL
+###
+
 from imports import *
-import sys
 
-def init_data_logging(sensor):
-    logger.debug('init_data_logging start')
+class stream_config:
+    def __init__(self, sensor):
+        assert evkit_config.get('generic', 'drdy_operation') in ['ADAPTER_GPIO1_INT'], 'An Int pin1 must be configured in order to use streaming.'
+        self.gpio_pin = sensor._bus._gpio_pin_index[0]
+        
+        self.fmt = "<Bhhhb"
+        self.hdr = "ch!ax!ay!az"
+        self.msg = [self.gpio_pin, [sensor.address(), r.KXTJ2_OUTX_L, 6,
+                                    sensor.address(), r.KXTJ2_INT_REL, 1,]]
+
+def enable_data_logging(sensor, odr = 25):
+    logger.debug('enable_data_logging start')
     sensor.set_power_off()                          # this sensor request PC=0 to PC=1 before valid settings
-    
-    ## select ODR
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_0P781)  
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_1P563)  
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_3P125)  
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_6P25)
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_12P5)
-    sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_25)
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_50)
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_100)
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_200)
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_400)
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_800)
-    #sensor.set_odr(b.KXTJ2_DATA_CTRL_REG_OSA_1600)
 
+    ## select ODR
+    odr = convert_to_enumkey(odr)
+    sensor.set_odr(e.KXTJ2_DATA_CTRL_REG_OSA[odr])  # odr setting for basic data logging
+    
     ## select g-range
     sensor.set_range(b.KXTJ2_CTRL_REG1_GSEL_2G)
     #sensor.set_range(b.KXTJ2_CTRL_REG1_GSEL_4G)
@@ -47,9 +52,12 @@ def init_data_logging(sensor):
     #sensor.set_range(b.KXTJ2_CTRL_REG1_GSEL_8G_14B)   # 8g -range with 14b data
 
     ## resolution / power mode selection
-    sensor.set_bit(r.KXTJ2_CTRL_REG1, b.KXTJ2_CTRL_REG1_RES)# high resolution mode
-    #sensor.reset_bit(r.KXTJ2_CTRL_REG1, b.KXTJ2_CTRL_REG1_RES)# low power mode        
-
+    LOW_POWER_MODE = False
+    if LOW_POWER_MODE == True:
+        sensor.reset_bit(r.KXTJ2_CTRL_REG1, b.KXTJ2_CTRL_REG1_RES)# low power mode  
+    else:
+        sensor.set_bit(r.KXTJ2_CTRL_REG1, b.KXTJ2_CTRL_REG1_RES)# high resolution mode
+      
     ## interrupts settings
     ## select dataready routing for sensor = int1 or register polling
     if evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO1_INT':
@@ -65,16 +73,16 @@ def init_data_logging(sensor):
         sensor.reset_bit(r.KXTJ2_INT_CTRL_REG1, b.KXTJ2_INT_CTRL_REG1_IEA)# active low
 
     sensor.set_power_on()
-    
+
+    #sensor.register_dump()#; sys.exit()
+
     logger.debug('init_data_logging done')
 
+    sensor.release_interrupts()
+    
 def read_with_polling(sensor, loop):
+    ## HOX! data is in raw 16b mode   
     count = 0
-    ## selection of 12 and 14b data word length    
-    if (sensor.read_register(r.KXTJ2_CTRL_REG1, 1)[0] & b.KXTJ2_CTRL_REG1_GSEL_8G_14B) == b.KXTJ2_CTRL_REG1_GSEL_8G_14B:
-        shift = 2
-    else:
-        shift = 4
 
     try:
         while count < loop or loop is None:        
@@ -83,9 +91,9 @@ def read_with_polling(sensor, loop):
             sensor.drdy_function()
             now = timing.time_elapsed()
             x,y,z = sensor.read_data()
-            print '%f%s%d%s%d%s%d' %  (now,DELIMITER,x>>shift,DELIMITER,y>>shift,DELIMITER,z>>shift)
+            print '%f%s%d%s%d%s%d' %  (now,DELIMITER,x,DELIMITER,y,DELIMITER,z)
             
-            # need to release explicitely if monitoring drdy interrupt line
+            ## need to release explicitely if monitoring drdy interrupt line
             sensor.release_interrupts()
             count +=1
             
@@ -96,50 +104,49 @@ def read_with_polling(sensor, loop):
         logger.debug("Bye")        
 
 def read_with_stream(sensor, loop):
+    ## HOX! data is in raw 16b mode      
     count = 0
-    addr = sensor.address()
-    # experimental implementation of data streaming
-    assert evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT','This example supports only int1'
-    gpio_pin = sensor._bus._gpio_pin_index[1-1]
-
-     ## selection of 12 and 14b data word length
-    if (sensor.read_register(r.KXTJ2_CTRL_REG1, 1)[0] & b.KXTJ2_CTRL_REG1_GSEL_8G_14B) == b.KXTJ2_CTRL_REG1_GSEL_8G_14B:
-        shift = 2
-    else:
-        shift = 4
-
-    resp=sensor._bus.enable_interrupt(gpio_pin, [addr, r.KXTJ2_OUTX_L, 6, addr, r.KXTJ2_INT_REL, 1])
-    #print 'resp',[hex(ord(t)) for t in resp]
+    data_received = False
     
+    cfg = stream_config(sensor)
+    resp=sensor._bus.enable_interrupt(*cfg.msg)
+  
     try:
         while count < loop or loop is None:
             resp = sensor._bus.wait_indication()
-            now = timing.time_elapsed()
-            
-            data = struct.unpack('<Bhhhb',resp)[1:]
-            l = len(data)
-            if l == 4:
-                x,y,z,rel=data
-                print '%f%s%d%s%d%s%d' %  (now, DELIMITER,x>>shift,DELIMITER,y>>shift,DELIMITER,z>>shift)
+
+            if resp is None:
+                logger.warning("timeout")
+            elif len(resp) !=8:
+                logger.warning("Wrong message length %d" % len(resp) )            
             else:
-                logger.warning("Wrong message length %d" % len(resp) )
+                data_received = True
+                now = timing.time_elapsed()
+                data = struct.unpack(cfg.fmt, resp)[1:]                
 
-            count+=1
-
+                print '%f%s%d%s%d%s%d' % (now, DELIMITER,
+                                          data[0], DELIMITER,
+                                          data[1], DELIMITER,
+                                          data[2])
+            count += 1
+     
     except KeyboardInterrupt:
-        # todo catch KeyboardInterrupt in framework
         pass
     
     finally:
+        if not data_received:
+            logger.error("No stream data received")
+            
         logger.debug("Disable interrupt request")
-        resp=sensor._bus.disable_interrupt(gpio_pin)
+        resp=sensor._bus.disable_interrupt(cfg.gpio_pin)
         logger.debug("Disable interrupt done")
 
 if __name__ == '__main__':
     sensor=kxtj2_driver()
     bus = open_bus_or_exit(sensor)
 
-    init_data_logging(sensor)
+    enable_data_logging(sensor)
+    
     timing.reset()
     if args.stream_mode:
         if stream_config_check() is True:            

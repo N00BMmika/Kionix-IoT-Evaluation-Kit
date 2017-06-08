@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright 2016 Kionix Inc.
+# Copyright (c) 2016 Kionix Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy 
 # of this software and associated documentation files (the "Software"), to deal 
@@ -23,18 +23,22 @@ from imports import *
 
 from lib.sensor_base import sensor_base, SensorException
 
-import kx022_registers as sensor
-r = sensor.registers()
-b = sensor.bits()
-m = sensor.masks()
+import kx022_registers
+r = kx022_registers.registers()
+b = kx022_registers.bits()
+m = kx022_registers.masks()
+e = kx022_registers.enums()
 
 import kx122_registers
 r122 = kx122_registers.registers()
 b122 = kx122_registers.bits()
 m122 = kx122_registers.masks()
+e122 = kx122_registers.enums()
 
-## for PC1 delay calculation
-hz = [12.5, 25.0, 50.0, 100.0, 200.0, 400.0, 800.0, 1600.0, 3200.0, 6400.0, 12800.0, 25600.0, 0.781, 1.563, 3.125, 6.25]
+hz = [12.5, 25.0, 50.0, 100.0, \
+      200.0, 400.0, 800.0, 1600.0, \
+      3200.0, 6400.0, 12800.0, 25600.0,\
+      0.781, 1.563, 3.125, 6.25]        # for PC1 start delay (acc) calculation
 
 class kx022_driver(sensor_base):
     _WAIS022 = [b.KX012_WHO_AM_I_WIA_ID,
@@ -60,13 +64,14 @@ class kx022_driver(sensor_base):
             if self.WHOAMI in self._WAIS022:
                 logger.info('KX012/KX022/KX023 found')
                 self._registers = dict(r.__dict__)
-                self._dump_range = (r.KX022_CNTL1, r.KX022_BUF_CNTL2)                
+                self._dump_range = (r.KX022_CNTL1, r.KX022_BUF_CNTL2)
             else:
                 logger.info('KX112/KX122/KX123/KX124 found')
                 self._registers = dict(r122.__dict__)
                 self._dump_range = (r122.KX122_CNTL1, r122.KX122_BUF_CNTL2)               
+                self.name = 'kx122_driver' # default name was kx022_driver
             return 1
-        logger.warning("wrong WHOAMI received: 0x%02x" % resp[0])
+        logger.debug("wrong WHOAMI received for KX022_KX122: 0x%02x" % resp[0])
         return 0
 
     def ic_test(self):                      # communication self test
@@ -96,7 +101,7 @@ class kx022_driver(sensor_base):
         self.set_bit(r.KX022_CNTL1, b.KX022_CNTL1_PC1)
         
         ## When changing PC1 0->1 then 1.5/ODR delay is needed
-        odr_t =1 / (hz[self.read_register(r.KX022_ODCNTL,1)[0] & m.KX022_ODCNTL_OSA_MASK])       
+        odr_t =1 / (hz[self.read_register(r.KX022_ODCNTL,1)[0] & m.KX022_ODCNTL_OSA_MASK]) * 1.5     
         if odr_t < 0.1:
             odr_t = 0.1
         delay_seconds(odr_t) 
@@ -110,7 +115,7 @@ class kx022_driver(sensor_base):
         self.write_register(r.KX022_CNTL1, cntl1 & ~b.KX022_CNTL1_PC1)
    
         ## When changing PC1 1->0 then 1.5/ODR delay is needed
-        odr_t =1 / hz[self.read_register(r.KX022_ODCNTL,1)[0] & m.KX022_ODCNTL_OSA_MASK]
+        odr_t =1 / hz[self.read_register(r.KX022_ODCNTL,1)[0] & m.KX022_ODCNTL_OSA_MASK] * 1.5
         if odr_t < 0.1:
             odr_t = 0.1   
         delay_seconds(odr_t) 
@@ -144,32 +149,31 @@ class kx022_driver(sensor_base):
         self.enable_drdy(intpin=1)                      # drdy to INT1
         self.reset_bit(r.KX022_CNTL1, b.KX022_INC1_IEL1)# latched interrupt
         self.reset_bit(r.KX022_INC1, b.KX022_INC1_IEA1) # active low
+        self.set_bit(r.KX022_INC1, b.KX022_INC1_IEN1)   # interrupt 1 set
 
         ## power on sensor
         self.set_power_on()
         self.release_interrupts()                       # clear all interrupts
         
     def enable_drdy(self, intpin=1, channel=CH_ACC):
+        """enables and routes dataready, but not enable physical interrupt"""
         assert channel == CH_ACC, 'only accelerometer available'
         assert intpin in self.INT_PINS
         self.set_bit(r.KX022_CNTL1,  b.KX022_CNTL1_DRDYE)
         if intpin==1:
             self.set_bit(r.KX022_INC4, b.KX022_INC4_DRDYI1)     # data ready to int1
-            self.set_bit(r.KX022_INC1, b.KX022_INC1_IEN1)       # enable int1 pin
         else:
             self.set_bit(r.KX022_INC6, b.KX022_INC6_DRDYI2)     # data ready to int2
-            self.set_bit(r.KX022_INC5, b.KX022_INC5_IEN2)       # enable int2 pin
             
     def disable_drdy(self, intpin=1, channel=CH_ACC):
+        """disables and routes dataready, but not enable physical interrupt"""
         assert channel == CH_ACC, 'only accelerometer available'
         assert intpin in self.INT_PINS
         self.reset_bit(r.KX022_CNTL1, b.KX022_CNTL1_DRDYE)
         if intpin==1:
             self.reset_bit(r.KX022_INC4, b.KX022_INC4_DRDYI1)     # remove drdy to int1 routing
-            self.reset_bit(r.KX022_INC1, b.KX022_INC1_IEN1)       # disable int1 pin
         else:
             self.reset_bit(r.KX022_INC6, b.KX022_INC6_DRDYI2)     # remove drdy to int2 routing
-            self.reset_bit(r.KX022_INC5, b.KX022_INC5_IEN2)       # disable int2 pin
 
     def set_odr(self, ODCNTL_OSA, channel=CH_ACC):
         assert channel == CH_ACC, 'only accelerometer available'

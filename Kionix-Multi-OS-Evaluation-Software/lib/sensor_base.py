@@ -9,7 +9,7 @@ import traceback
 class SensorException(Exception): pass
 
 class sensor_base(object):
-    "Sensor interface definition"
+    "Sensor interface definition" 
     I2C_SAD_LIST = [] # list of possible i2c slave addresses of sensor
     SPI_SUPPORT = False
     I2C_SUPPORT = False
@@ -130,15 +130,19 @@ class sensor_base(object):
 #
     #Write value to sensor register via bus.
     def write_register(self, register, value):
-        if 0:
-            #print '<reg_write>%s,0x%02X,0x%02X</reg_write>' % (self.__module__.split('_driver')[0].upper(), register, value)
+        if args.streamfile:
             stack_list = traceback.extract_stack()[-3]
             #print stack_list
             s2 = stack_list[-1]
             s1 = stack_list[-2]
             stack = s1+'/'+s2
-            print 'b.write_register(%s,0x%02X,0x%02X)\t# %s' % (self.__module__.split('_driver')[0].upper(), register, value, stack)
-            #print stack
+            #name = str(self).split('.')[1].split(' ')[0].upper()
+            name = self.__module__.split('_driver')[0].upper()
+            
+            #print 'b.write_register(%s,0x%02X,0x%02X)\t# %s' % (name, register, value, stack)
+            print '<reg_write>%s,0x%02X,0x%02X</reg_write><!-- %s -->' % (name, register, value, stack)
+            #print '<reg_write>%s,%d,%d</reg_write><!-- %s -->' % (name, register, value, stack)
+
         self._bus.write_register(self, register, value)
 
 
@@ -148,12 +152,20 @@ class sensor_base(object):
 
     #Set input bit 1 bit(s) as 1 in target register by read/change/write -cycle. Keep zeroes in input bit as they are in register.
     def set_bit(self,register, bit):
+        if bit==0:
+            logger.error('Setting bitvalue which is 0. This has no effect.')
+            return
+        
         value = self.read_register(register)[0]
         value = value | bit
         self.write_register(register, value)
 
     #Set input bit 1 bit(s) to 0 in target register by read/change/write -cycle. Keep zeroes in input bit as they are in register.
     def reset_bit(self, register, bit):
+        if bit==0:
+            logger.error('Resetting bitvalue which is 0. This has no effect.')
+            return
+        
         value = self.read_register(register)[0]
         value = value & ~bit
         self.write_register(register, value)

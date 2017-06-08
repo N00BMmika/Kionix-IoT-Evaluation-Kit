@@ -1,5 +1,5 @@
 # The MIT License (MIT)
-# Copyright (c) 2016 Rohm Semiconductor
+# Copyright (c) 2017 Rohm Semiconductor
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -39,7 +39,7 @@ class registers(register_base):
 		self.BM1383GLV_TEMPERATURE_OUT_LSB                        = 0x1B         # Temperature value [C]= TEMP_OUT[15:0]/32
 		self.BM1383GLV_PRESSURE_OUT_MSB                           = 0x1C         # PRESS_OUT[15:5] integer part of pressure value
 		self.BM1383GLV_PRESSURE_OUT_LSB                           = 0x1D         # PRESS_OUT[4:0] PRESS_OUT_XL[5:0] decimal part of pressure value
-		self.BM1383GLV_PRESSURE_OUT_DECIMAL                       = 0x1E         # Pressurevalue[hPa] = { PRESS_OUT[15:8] PRESS_OUT[7:0] PRESS_OUT_XL[5:0] } / 2048
+		self.BM1383GLV_PRESSURE_OUT_DECIMAL                       = 0x1E         
 		self.BM1383GLV_REGISTER_DUMP_END                          = 0x1E         
 class bits(register_base):
 	def __init__(self):
@@ -87,6 +87,72 @@ class bits(register_base):
 		self.BM1383GLV_INT_CONTROL_REG_INTERRUPT_STATE_CONTINUOUS_UPDATE = (0x01 << 1)  # terminal is updated after each measurement
 		self.BM1383GLV_INT_CONTROL_REG_INTERRUPT_DISABLE          = (0x00 << 0)  
 		self.BM1383GLV_INT_CONTROL_REG_INTERRUPT_ENABLE           = (0x01 << 0)  
+_b=bits()
+class enums(register_base):
+	def __init__(self):
+		self.BM1383GLV_POWER_REG_POWER={
+			'down':_b.BM1383GLV_POWER_REG_POWER_DOWN,
+			'up':_b.BM1383GLV_POWER_REG_POWER_UP,
+		}
+		self.BM1383GLV_RESET_CONTROL_REG_INT_RESET={
+			'active':_b.BM1383GLV_RESET_CONTROL_REG_INT_RESET_ACTIVE,
+			'inactive':_b.BM1383GLV_RESET_CONTROL_REG_INT_RESET_INACTIVE,
+		}
+		self.BM1383GLV_INT_CONTROL_REG_INT_LOW={
+			'enable':_b.BM1383GLV_INT_CONTROL_REG_INT_LOW_ENABLE,
+			'disable':_b.BM1383GLV_INT_CONTROL_REG_INT_LOW_DISABLE,
+		}
+		self.BM1383GLV_INT_CONTROL_REG_INTERRUPT={
+			'enable':_b.BM1383GLV_INT_CONTROL_REG_INTERRUPT_ENABLE,
+			'disable':_b.BM1383GLV_INT_CONTROL_REG_INTERRUPT_DISABLE,
+		}
+		self.BM1383GLV_INT_CONTROL_REG_INT_HIGH={
+			'enable':_b.BM1383GLV_INT_CONTROL_REG_INT_HIGH_ENABLE,
+			'disable':_b.BM1383GLV_INT_CONTROL_REG_INT_HIGH_DISABLE,
+		}
+		self.BM1383GLV_INT_CONTROL_REG_TRESHOLD_HIGH={
+			'in_limits':_b.BM1383GLV_INT_CONTROL_REG_TRESHOLD_HIGH_IN_LIMITS,
+			'crossed':_b.BM1383GLV_INT_CONTROL_REG_TRESHOLD_HIGH_CROSSED,
+		}
+		self.BM1383GLV_MODE_CONTROL_REG_MODE={
+			'100ms':_b.BM1383GLV_MODE_CONTROL_REG_MODE_100MS,
+			'prohibited7':_b.BM1383GLV_MODE_CONTROL_REG_MODE_PROHIBITED7,
+			'prohibited6':_b.BM1383GLV_MODE_CONTROL_REG_MODE_PROHIBITED6,
+			'standby':_b.BM1383GLV_MODE_CONTROL_REG_MODE_STANDBY,
+			'200ms':_b.BM1383GLV_MODE_CONTROL_REG_MODE_200MS,
+			'one_shot':_b.BM1383GLV_MODE_CONTROL_REG_MODE_ONE_SHOT,
+			'50ms':_b.BM1383GLV_MODE_CONTROL_REG_MODE_50MS,
+			'prohibited5':_b.BM1383GLV_MODE_CONTROL_REG_MODE_PROHIBITED5,
+		}
+		self.BM1383GLV_RESET_CONTROL_REG_SW_RESET={
+			'none':_b.BM1383GLV_RESET_CONTROL_REG_SW_RESET_NONE,
+			'execute':_b.BM1383GLV_RESET_CONTROL_REG_SW_RESET_EXECUTE,
+		}
+		self.BM1383GLV_INT_CONTROL_REG_INT_PULLUP={
+			'enable':_b.BM1383GLV_INT_CONTROL_REG_INT_PULLUP_ENABLE,
+			'disable':_b.BM1383GLV_INT_CONTROL_REG_INT_PULLUP_DISABLE,
+		}
+		self.BM1383GLV_SLEEP_REG_SLEEP={
+			'on':_b.BM1383GLV_SLEEP_REG_SLEEP_ON,
+			'off':_b.BM1383GLV_SLEEP_REG_SLEEP_OFF,
+		}
+		self.BM1383GLV_MODE_CONTROL_REG_AVE_NUM={
+			'32_times':_b.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_32_TIMES,
+			'2_times':_b.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_2_TIMES,
+			'16_times':_b.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_16_TIMES,
+			'8_times':_b.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_8_TIMES,
+			'single':_b.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_SINGLE,
+			'4_times':_b.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_4_TIMES,
+			'64_times':_b.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_64_TIMES,
+		}
+		self.BM1383GLV_INT_CONTROL_REG_INTERRUPT_STATE={
+			'keep_until_cleared':_b.BM1383GLV_INT_CONTROL_REG_INTERRUPT_STATE_KEEP_UNTIL_CLEARED,
+			'continuous_update':_b.BM1383GLV_INT_CONTROL_REG_INTERRUPT_STATE_CONTINUOUS_UPDATE,
+		}
+		self.BM1383GLV_INT_CONTROL_REG_TRESHOLD_LOW={
+			'in_limits':_b.BM1383GLV_INT_CONTROL_REG_TRESHOLD_LOW_IN_LIMITS,
+			'crossed':_b.BM1383GLV_INT_CONTROL_REG_TRESHOLD_LOW_CROSSED,
+		}
 class masks(register_base):
 	def __init__(self):
 		self.BM1383GLV_ID_REG_MANUFACTURER_MASK                   = 0xF0         
@@ -101,10 +167,6 @@ class masks(register_base):
 		self.BM1383GLV_MODE_CONTROL_REG_AVE_NUM_MASK              = 0xE0         
 		self.BM1383GLV_MODE_CONTROL_REG_RESERVED_MASK             = 0x18         
 		self.BM1383GLV_MODE_CONTROL_REG_MODE_MASK                 = 0x07         
-		self.BM1383GLV_INT_HIGH_TRESHOLD_MSB_ALLBITS_MASK         = 0xFF         
-		self.BM1383GLV_INT_HIGH_TRESHOLD_LSB_ALLBITS_MASK         = 0xFF         
-		self.BM1383GLV_INT_LOW_TRESHOLD_MSB_ALLBITS_MASK          = 0xFF         
-		self.BM1383GLV_INT_LOW_TRESHOLD_LSB_ALLBITS_MASK          = 0xFF         
 		self.BM1383GLV_INT_CONTROL_REG_TRESHOLD_HIGH_MASK         = 0x80         
 		self.BM1383GLV_INT_CONTROL_REG_TRESHOLD_LOW_MASK          = 0x40         
 		self.BM1383GLV_INT_CONTROL_REG_INT_HIGH_MASK              = 0x20         
@@ -113,8 +175,3 @@ class masks(register_base):
 		self.BM1383GLV_INT_CONTROL_REG_RESERVED_MASK              = 0x04         
 		self.BM1383GLV_INT_CONTROL_REG_INTERRUPT_STATE_MASK       = 0x02         
 		self.BM1383GLV_INT_CONTROL_REG_INTERRUPT_MASK             = 0x01         
-		self.BM1383GLV_TEMPERATURE_OUT_MSB_ALLBITS_MASK           = 0xFF         
-		self.BM1383GLV_TEMPERATURE_OUT_LSB_ALLBITS_MASK           = 0xFF         
-		self.BM1383GLV_PRESSURE_OUT_MSB_ALLBITS_MASK              = 0xFF         
-		self.BM1383GLV_PRESSURE_OUT_LSB_ALLBITS_MASK              = 0xFF         
-		self.BM1383GLV_PRESSURE_OUT_DECIMAL_ALLBITS_MASK          = 0x3F         
