@@ -40,13 +40,13 @@
                 [
                     "KMX62", 
                     10, 
-                    12
+                    14
                 ]
             ], 
             "odr": 100, 
-            "fmt": "<Bhhhhhh", 
+            "fmt": "<Bhhhhhhh", 
             "type": "continuous", 
-            "hdr": "ch!ax!ay!az!mx!my!mz"
+            "hdr": "ch!ax!ay!az!mx!my!mz!temp"
         }
     ], 
     "configure": [
@@ -114,7 +114,7 @@
             "set_power_off/m.KMX62_CNTL2_TEMP_EN_MASK)"
         ]
     ], 
-    "doc": "Read KMX62 sensor data; accelerometer and magnetometer at 100 Hz ODR", 
+    "doc": "Read KMX62 sensor data; accelerometer, magnetometer and temperature at 100 Hz ODR", 
     "channels": [
         {
             "SI_unit": "m/s^2", 
@@ -127,6 +127,12 @@
             "data": "Mag_X,Mag_Y,Mag_Z", 
             "name": "Magnetometer", 
             "SI_multiplier": "1200 / 32768"
+        }, 
+        {
+            "SI_unit": "Celsius", 
+            "data": "Temp", 
+            "name": "Temperature", 
+            "SI_multiplier": "1 / 256"
         }
     ], 
     "register_dump": [], 
