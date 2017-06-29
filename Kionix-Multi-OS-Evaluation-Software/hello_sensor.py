@@ -26,6 +26,7 @@ from connection_setup import setup_default_connection
 
 #import all supported sensor drivers
 from kx126.imports import kx126_driver
+from kx224.imports import kx224_driver
 from kx022_kx122.imports import kx022_driver
 from kmx62.imports import kmx62_driver
 from kxg03.imports import kxg03_driver
@@ -38,17 +39,21 @@ from bh1726.imports import bh1726_driver
 from bh1730.imports import bh1730_driver
 from bh1745.imports import bh1745_driver
 from bh1790.imports import bh1790_driver
-#from bh1792.imports import bh1792_driver  # commented out, because bh1792 is not included in release 1.1
 from bm1383glv.imports import bm1383glv_driver
 from bm1383aglv.imports import bm1383aglv_driver
 from bm1422gmv.imports import bm1422gmv_driver
 from rpr0521.imports import rpr0521_driver
 
 
+try:
+    from hello_rnd import sensors_rnd
+except ImportError:
+    sensors_rnd=[]
+
 def test_default():
     # list of all supported sensor drivers
     bus = None
-    sensors = [
+    sensors = [       
         kx126_driver(),
         kx022_driver(),
         kmx62_driver(),
@@ -61,13 +66,15 @@ def test_default():
         bh1730_driver(),
         bh1745_driver(),
         bh1790_driver(),
-        #bh1792_driver(),   # commented out, because bh1792 is not included in release 1.1
         bm1383glv_driver(),
         bm1383aglv_driver(),
         bm1422gmv_driver(),
         rpr0521_driver(),
+        kx224_driver(),            
         ]
-
+    
+    sensors.extend(sensors_rnd)
+    
     # Get first available sensor on default bus.
     bus = setup_default_connection()
 

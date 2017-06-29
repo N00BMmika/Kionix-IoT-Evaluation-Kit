@@ -31,8 +31,8 @@ class kmx62_data_stream(stream_config):
         stream_config.__init__(self)
         assert evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT','This example for KMX62 supports only int1 on iot node'
         self.define_request_message(sensor,
-                                    fmt = "<Bhhhhhh",
-                                    hdr = "ch!ax!ay!az!mx!my!mz",
+                                    fmt = "<Bhhhhhhh",
+                                    hdr = "ch!ax!ay!az!mx!my!mz!temp",
                                     reg = r.KMX62_ACCEL_XOUT_L,
                                     pin_index=0)
     
@@ -108,7 +108,7 @@ def enable_data_logging(sensor, odr = 25, int_number = None):
 
     #sensor.register_dump()#;sys.exit()
     
-    sensor.read_data()                              # this latches data ready interrupt register and signal
+    sensor.read_data(CH_ACC | CH_MAG | CH_TEMP)     # this latches data ready interrupt register and signal
     
     sensor.release_interrupts()                     # clear all internal function interrupts
 
@@ -120,15 +120,15 @@ def read_with_polling(sensor, loop):
     print start_time_str()
 
     # print log header
-    print DELIMITER.join(['#timestamp','10','ax','ay','az','mx','my','mz'])
+    print DELIMITER.join(['#timestamp','10','ax','ay','az','mx','my','mz','temp'])
     
     try:
         while count < loop or loop is None:
             count += 1
             sensor.drdy_function()
             now = timing.time_elapsed()
-            ax, ay, az, mx, my, mz = sensor.read_data()
-            print '{:.6f}{}10{}'.format(now, DELIMITER, DELIMITER) + DELIMITER.join('{:d}'.format(t) for t in [ax, ay, az, mx, my, mz])
+            ax, ay, az, mx, my, mz, temp = sensor.read_data(CH_ACC | CH_MAG | CH_TEMP)
+            print '{:.7f}{}10{}'.format(now, DELIMITER, DELIMITER) + DELIMITER.join('{:d}'.format(t) for t in [ax, ay, az, mx, my, mz, temp])
 
     except KeyboardInterrupt:
         print end_time_str()

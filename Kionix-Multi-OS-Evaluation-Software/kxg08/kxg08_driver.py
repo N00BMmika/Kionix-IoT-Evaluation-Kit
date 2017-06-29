@@ -22,11 +22,11 @@
 from imports import *    
 from lib.sensor_base import sensor_base, SensorException
 
-import kxg08_registers as sensor
-r = sensor.registers()
-b = sensor.bits()
-m = sensor.masks()
-e = sensor.enums()
+import kxg08_registers
+r = kxg08_registers.registers()
+b = kxg08_registers.bits()
+m = kxg08_registers.masks()
+e = kxg08_registers.enums()
 
 class kxg08_driver(sensor_base):
     _WAIS   = [b.KXG08_WHO_AM_I_WIA_ID,
@@ -147,7 +147,7 @@ class kxg08_driver(sensor_base):
         else:
             time.sleep(acc_end_delay)
 
-    def read_data(self, channel = CH_ACC):
+    def read_data(self, channel = CH_ACC | CH_GYRO):
         assert channel & (CH_ACC | CH_GYRO | CH_TEMP) == channel
         s_form = ()
         if channel & CH_TEMP > 0:
@@ -188,13 +188,13 @@ class kxg08_driver(sensor_base):
         ## mode, averaging and BW for acc+gyro        
         LOW_POWER_MODE = False
         if LOW_POWER_MODE == True:
-            power_modes(sensor, LPMODE, None, CH_ACC)                  # power mode for acc 
-            power_modes(sensor, LPMODE, None, CH_GYRO)                 # power mode for gyro  
+            power_modes(self, LPMODE, None, CH_ACC)                  # power mode for acc 
+            power_modes(self, LPMODE, None, CH_GYRO)                 # power mode for gyro  
             self.set_average(b.KXG08_ACCEL_ODR_NAVGA_128_SAMPLE_AVG, CH_ACC) # acc average
             self.set_average(b.KXG08_GYRO_ODR_NAVGG_128_SAMPLE_AVG, CH_GYRO) # gyro average (only for 2080 version
         else:
-            power_modes(sensor, FULL_RES, None, CH_ACC)                 # power mode for acc        
-            power_modes(sensor, FULL_RES, None, CH_GYRO)                # power mode for gyro            
+            power_modes(self, FULL_RES, None, CH_ACC)                 # power mode for acc        
+            power_modes(self, FULL_RES, None, CH_GYRO)                # power mode for gyro            
         self.set_BW(b.KXG08_GYRO_CTL_GYRO_BW_ODR_2, CH_GYRO)        # gyro BW
         self.set_BW(b.KXG08_ACCEL_CTL_ACC_BW_ODR_2, CH_ACC)         # acc BW
         

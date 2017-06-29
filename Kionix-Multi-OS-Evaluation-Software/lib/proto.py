@@ -218,7 +218,7 @@ class kx_com_port(object):
     def read(self, length = 1):
         data = self._com.read(length)
         if data is None or data == '':
-            raise ProtocolException('COM port reading failure')
+            raise ProtocolTimeoutException('No data raceived.')
 
         return data
 
