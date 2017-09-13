@@ -1,0 +1,108 @@
+{
+    "activate": [
+        [
+            "KX126", 
+            26, 
+            0, 
+            "set_range/m.KX126_CNTL1_GSEL_MASK)"
+        ], 
+        [
+            "KX126", 
+            26, 
+            64, 
+            "enable_data_logging/sensor.set_bit(r.KX126_CNTL1, b.KX126_CNTL1_RES)                            # high resolution"
+        ], 
+        [
+            "KX126", 
+            26, 
+            96, 
+            "enable_drdy/self.set_bit(r.KX126_CNTL1,  b.KX126_CNTL1_DRDYE)"
+        ], 
+        [
+            "KX126", 
+            26, 
+            224, 
+            "set_power_on/self.set_bit(r.KX126_CNTL1, b.KX126_CNTL1_PC1)"
+        ]
+    ], 
+    "start_req": [
+        {
+            "msg": [
+                13, 
+                1, 
+                2, 
+                [
+                    "KX126", 
+                    8,
+                    6,
+                    255, 
+                    0, 
+                    0
+                ]
+            ], 
+            "odr": 100, 
+            "fmt": "<BhhhB", 
+            "type": "continuous", 
+            "hdr": "ch!ax!ay!az!ind"
+        }
+    ], 
+    "configure": [
+        [
+            "KX126", 
+            27, 
+            128, 
+            "setup_serial_i2c/sensor.por()"
+        ], 
+        [
+            "KX126", 
+            32, 
+            32, 
+            "enable_data_logging/sensor.reset_bit(r.KX126_INC1, b.KX126_INC1_IEA1)# active low"
+        ], 
+        [
+            "KX126", 
+            35, 
+            16, 
+            "enable_drdy/self.set_bit(r.KX126_INC4, b.KX126_INC4_DRDYI1)     # data ready to int1"
+        ], 
+        [
+            "KX126", 
+            36, 
+            0, 
+            "enable_data_logging/sensor.reset_bit(r.KX126_INC5, b.KX126_INC5_IEA2)# active low"
+        ], 
+        [
+            "KX126", 
+            31, 
+            67, 
+            "enable_iir/self.reset_bit(r.KX126_ODCNTL, b.KX126_ODCNTL_IIR_BYPASS)"
+        ]
+    ], 
+    "structure_version": "1.0", 
+    "deactivate": [
+        [
+            "KX126", 
+            26, 
+            96, 
+            "make_stream_config/sensor.set_power_off()                      # power off the sensor and record write commands"
+        ]
+    ], 
+    "doc": "Read accelerometer data from KX126 at 100 Hz ODR on 2g high performance mode", 
+    "channels": [
+        {
+            "SI_unit": "m/s^2",
+            "data": "Acc_X,Acc_Y,Acc_Z",
+            "name": "Accelerometer",
+            "SI_multiplier": "9.8 / 16384"
+        },
+        {
+            "SI_unit": "", 
+            "data": "Packet_index", 
+            "name": "Sample counter", 
+            "SI_multiplier": ""
+        }
+    ], 
+    "register_dump": [], 
+    "protocol_version": "1.0", 
+    "name": "KX126 / 100Hz"
+}

@@ -1,1 +1,1 @@
-# Board and stream configurations for Kionix Windows Sensor Evaluation Software #
+# R&D board and stream configurations for Kionix Windows Sensor Evaluation Software #
