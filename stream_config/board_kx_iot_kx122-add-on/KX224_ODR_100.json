@@ -90,7 +90,7 @@
             "make_stream_config/sensor.set_power_off()                      # power off the sensor and record write commands"
         ]
     ], 
-    "doc": "Read accelerometer data from KX122 at 100 Hz ODR on 2g high performance mode", 
+    "doc": "Read accelerometer data from KX224 at 100 Hz ODR on 8g high performance mode", 
     "channels": [
         {
             "SI_unit": "m/s^2", 

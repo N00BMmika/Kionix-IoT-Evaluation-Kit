@@ -107,8 +107,8 @@
         [
             "KXG03", 
             69, 
-            136, 
-            "enable_data_logging/m.KXG03_INT_PIN_CTL_IEA2_MASK)"
+            8, 
+            "enable_data_logging/m.KXG03_INT_PIN_CTL_IEL1_MASK | m.KXG03_INT_PIN_CTL_IEL2_MASK)"
         ], 
         [
             "KXG03", 
@@ -119,8 +119,8 @@
         [
             "KXG03", 
             71, 
-            0, 
-            "enable_data_logging/sensor.set_bit_pattern(r.KXG03_INT_PIN2_SEL, 0x00, 0xff)        # routing int2 none"
+            255, 
+            "make_stream_config/init_func(sensor, init_param)"
         ], 
         [
             "KXG03", 

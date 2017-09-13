@@ -63,10 +63,10 @@
     "doc": "Read barometer data from BM1383AGLV at 20Hz ODR", 
     "channels": [
         {
-            "SI_unit": "hPa", 
+            "SI_unit": "bar", 
             "data": "Pressure", 
             "name": "Pressure", 
-            "SI_multiplier": "1 / 2048"
+            "SI_multiplier": "1 / 2048 / 1000"
         }, 
         {
             "SI_unit": "C", 

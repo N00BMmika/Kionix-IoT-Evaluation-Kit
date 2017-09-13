@@ -9,14 +9,14 @@
         [
             "BM1422GMV", 
             28, 
-            0, 
-            "set_drdy_low_active/self.set_bit_pattern(r.BM1422GMV_CNTL2, b.BM1422GMV_CNTL2_DRP_LOWACTIVE, m.BM1422GMV_CNTL2_DRP_MASK)"
+            12, 
+            "enable_drdy_pin/self.set_bit_pattern(r.BM1422GMV_CNTL2, b.BM1422GMV_CNTL2_DREN_ENABLED, m.BM1422GMV_CNTL2_DREN_MASK)"
         ], 
         [
             "BM1422GMV", 
             28, 
             8, 
-            "enable_drdy_pin/self.set_bit_pattern(r.BM1422GMV_CNTL2, b.BM1422GMV_CNTL2_DREN_ENABLED, m.BM1422GMV_CNTL2_DREN_MASK)"
+            "set_drdy_low_active/self.set_bit_pattern(r.BM1422GMV_CNTL2, b.BM1422GMV_CNTL2_DRP_LOWACTIVE, m.BM1422GMV_CNTL2_DRP_MASK)"
         ], 
         [
             "BM1422GMV", 

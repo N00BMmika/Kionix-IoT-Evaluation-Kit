@@ -3,13 +3,13 @@
         [
             "BH1745", 
             66, 
-            16, 
-            "start_measurement/self.set_bit_pattern(r.BH1745_MODE_CONTROL2, b.BH1745_MODE_CONTROL2_RGBC_MEASUREMENT_ACTIVE, m.BH1745_MODE_CONTROL2_RGBC_MEASUREMENT_MASK)"
+            0, 
+            "stop_measurement/self.set_bit_pattern(r.BH1745_MODE_CONTROL2, b.BH1745_MODE_CONTROL2_RGBC_MEASUREMENT_INACTIVE, m.BH1745_MODE_CONTROL2_RGBC_MEASUREMENT_MASK)"
         ], 
         [
             "BH1745", 
             66, 
-            16, 
+            0, 
             "set_adc_gain/self.set_bit_pattern(r.BH1745_MODE_CONTROL2, gain, m.BH1745_MODE_CONTROL2_ADC_GAIN_MASK)"
         ], 
         [
@@ -57,25 +57,25 @@
             "BH1745", 
             98, 
             0, 
-            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      #always interrupt, kind of DRDY mode"
+            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      # always interrupt, kind of DRDY mode"
         ], 
         [
             "BH1745", 
             99, 
             0, 
-            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      #always interrupt, kind of DRDY mode"
+            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      # always interrupt, kind of DRDY mode"
         ], 
         [
             "BH1745", 
             100, 
             1, 
-            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      #always interrupt, kind of DRDY mode"
+            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      # always interrupt, kind of DRDY mode"
         ], 
         [
             "BH1745", 
             101, 
             0, 
-            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      #always interrupt, kind of DRDY mode"
+            "enable_data_logging/sensor.write_interrupt_tresholds(1, 0)      # always interrupt, kind of DRDY mode"
         ], 
         [
             "BH1745", 

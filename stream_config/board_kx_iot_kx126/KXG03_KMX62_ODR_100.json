@@ -164,8 +164,8 @@
         [
             "KXG03", 
             69, 
-            136, 
-            "enable_data_logging/m.KXG03_INT_PIN_CTL_IEA2_MASK)"
+            8, 
+            "enable_data_logging/m.KXG03_INT_PIN_CTL_IEL1_MASK | m.KXG03_INT_PIN_CTL_IEL2_MASK)"
         ], 
         [
             "KXG03", 
@@ -176,8 +176,8 @@
         [
             "KXG03", 
             71, 
-            0, 
-            "enable_data_logging/sensor.set_bit_pattern(r.KXG03_INT_PIN2_SEL, 0x00, 0xff)        # routing int2 none"
+            255, 
+            "enable_data_logging/kxg03_data_logger.enable_data_logging(sensor_kxg03, odr=odr, max_range_acc=max_range_acc)"
         ], 
         [
             "KXG03", 

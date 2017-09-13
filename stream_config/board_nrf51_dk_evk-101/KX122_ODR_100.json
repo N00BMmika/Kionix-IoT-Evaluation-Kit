@@ -10,7 +10,7 @@
             "KX122", 
             24, 
             64, 
-            "enable_data_logging/sensor.set_bit(r.KX022_CNTL1, b.KX022_CNTL1_RES)    # high resolution"
+            "enable_data_logging/sensor.set_bit(r.KX022_CNTL1, b.KX022_CNTL1_RES)"
         ], 
         [
             "KX122", 
@@ -54,25 +54,19 @@
             "KX122", 
             24, 
             0, 
-            "enable_data_logging/sensor.set_power_off()                                  # this sensor request PC=0 to PC=1 before valid settings"
-        ], 
-        [
-            "KX122", 
-            32, 
-            0, 
-            "enable_data_logging/sensor.reset_bit(r.KX022_INC5, b.KX022_INC5_IEA2)   # active low"
+            "set_power_off/self.reset_bit(r.KX022_CNTL1, b.KX022_CNTL1_PC1)"
         ], 
         [
             "KX122", 
             27, 
             3, 
-            "set_BW/self.reset_bit(r.KX022_ODCNTL, b.KX022_ODCNTL_LPRO) # BW odr /9 (default)"
+            "enable_iir/self.reset_bit(r.KX022_ODCNTL, b.KX022_ODCNTL_IIR_BYPASS)"
         ], 
         [
             "KX122", 
             28, 
             32, 
-            "enable_data_logging/sensor.reset_bit(r.KX022_INC1, b.KX022_INC1_IEA1)   # active low"
+            "set_interrupt_polarity/self.reset_bit(r.KX022_INC1, b.KX022_INC1_IEA1)   # active low"
         ], 
         [
             "KX122", 
@@ -87,7 +81,7 @@
             "KX122", 
             24, 
             96, 
-            "make_stream_config/sensor.set_power_off()                      # power off the sensor and record write commands"
+            "set_power_off/self.reset_bit(r.KX022_CNTL1, b.KX022_CNTL1_PC1)"
         ]
     ], 
     "doc": "Read accelerometer data from KX122 at 100 Hz ODR on 2g high performance mode", 
