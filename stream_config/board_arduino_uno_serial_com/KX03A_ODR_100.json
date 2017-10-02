@@ -1,0 +1,74 @@
+{
+    "activate": [
+        [
+            "KX03A", 
+            25, 
+            11, 
+            "set_odr/self.set_bit_pattern(r.KX03A_CNTL1, ODR, m.KX03A_CNTL1_ODR_MASK)"
+        ], 
+        [
+            "KX03A", 
+            25, 
+            11, 
+            "set_average/self.set_bit_pattern(r.KX03A_CNTL1, average, m.KX03A_CNTL1_LPOSM_MASK)"
+        ]
+    ], 
+    "start_req": [
+        {
+            "msg": [
+                3, 
+                1, 
+                2, 
+                [
+                    "KX03A", 
+                    2, 
+                    6
+                ]
+            ], 
+            "odr": 100, 
+            "fmt": "<Bhhh", 
+            "type": "continuous", 
+            "hdr": "ch!ax!ay!az"
+        }
+    ], 
+    "configure": [
+        [
+            "KX03A", 
+            27, 
+            1, 
+            "set_BW/self.set_bit(r.KX03A_CNTL3, b.KX03A_CNTL3_ACC_LPBW_ODR_8)   # BW odr /8"
+        ], 
+        [
+            "KX03A", 
+            29, 
+            64, 
+            "enable_drdy/self.set_bit(r.KX03A_CNTL5, b.KX03A_CNTL5_DRDY_IE_ENABLED)      # data ready enabled"
+        ], 
+        [
+            "KX03A", 
+            30, 
+            1, 
+            "set_power_on/self.set_bit(r.KX03A_EN, b.KX03A_EN_ACC_EN_ENABLED)"
+        ], 
+        [
+            "KX03A", 
+            31, 
+            16, 
+            "enable_data_logging/sensor.set_bit(r.KX03A_INC1, b.KX03A_INC1_DRDY_EN_ENABLED)      # data ready routed to DRDY pin"
+        ]
+    ], 
+    "structure_version": "1.0", 
+    "deactivate": [], 
+    "doc": "Read accelerometer data from KX03A at 100 Hz ODR", 
+    "channels": [
+        {
+            "SI_unit": "m/s^2", 
+            "data": "Acc_X,Acc_Y,Acc_Z", 
+            "name": "Accelerometer", 
+            "SI_multiplier": "9.8 / 16384"
+        }
+    ], 
+    "register_dump": [], 
+    "protocol_version": "1.1", 
+    "name": "KX03A / 100Hz"
+}

@@ -41,6 +41,11 @@
                     "name": "BH1745",
                     "SAD": 57,
                     "int1_gpio": 2
+                },
+                {
+                    "name": "KX03A",
+                    "SAD": 60,
+                    "int1_gpio": 3
                 }]
             }]
         },
