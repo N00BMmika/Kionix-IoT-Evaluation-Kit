@@ -84,7 +84,7 @@
             "make_stream_config/sensor.set_power_off()                      # power off the sensor and record write commands"
         ]
     ], 
-    "doc": "Read accelerometer data from KX126 at 100 Hz ODR on 2g high performancemode", 
+    "doc": "Read accelerometer data from KX126 at 100 Hz ODR on 2g high performance mode", 
     "channels": [
         {
             "SI_unit": "m/s^2", 
