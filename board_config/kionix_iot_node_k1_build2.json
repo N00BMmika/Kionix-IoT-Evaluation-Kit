@@ -46,7 +46,7 @@
             }]
         },
         "stream_config": {
-            "directory": "stream_config/board_kx_iot_kx126"
+            "directory": "stream_config/board_kx_iot_k1_build2"
         },
         "board_init": {
             "reg_write": [
