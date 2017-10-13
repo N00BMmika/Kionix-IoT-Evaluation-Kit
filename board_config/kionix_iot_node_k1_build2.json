@@ -2,8 +2,8 @@
     "structure_version": 1.0,
     "protocol_version": 1.1,
     "configuration": {
-        "name": "Kionix IoT node with KX126 and add-on board",
-        "doc": "Kionix IoT node with KX126 and additional sensor on add-on board",
+        "name": "Kionix IoT node with KX126",
+        "doc": "Kionix IoT node including KXG03, KMX62, KX126 and BM1383AGLV",
         "bus1": {
             "connections": [{
                 "connection": "i2c",
@@ -28,28 +28,8 @@
                     "name": "BM1383AGLV",
                     "SAD": 93,
                     "int1_gpio": 16
-                },
-                {
-                    "name": "KXG08",
-                    "SAD": 78,
-                    "int1_gpio": 16,
-                    "int2_gpio": 13
-                },
-                {
-                    "name": "KXTJ3",
-                    "SAD": 15,
-                    "int1_gpio": 16
-                },
-                {
-                    "name": "KX224",
-                    "SAD": 30,
-                    "int1_gpio": 16
-                },
-                {
-                    "name": "KX03A",
-                    "SAD": 60,
-                    "int1_gpio": 16
-                }]
+                }
+                ]
             }]
         },
         "bus2": {
@@ -57,7 +37,7 @@
                 "connection": "USB",
                 "packet_per_second": 400,
                 "baund_rate": 460800,
-                "start_up_delay_ms": 2000,
+                "start_up_delay_ms": 0,
                 "com_port_name": ["USB Serial Port"]
             },
             {
@@ -66,7 +46,7 @@
             }]
         },
         "stream_config": {
-            "directory": "stream_config/board_kx_iot_kx126-add-on"
+            "directory": "stream_config/board_kx_iot_k1_build2"
         },
         "board_init": {
             "reg_write": [
@@ -99,52 +79,7 @@
             136],
             ["KMX62",
             44,
-            0],
-            [
-                "KXG08",
-                107,
-                128],
-            [
-                "KXG08",
-                64,
-                136],
-            [
-                "KX224",
-                25,
-                128],
-            [
-                "KX224",
-                28,
-                32],
-            [
-                "KX224",
-                32,
-                0],
-            [
-                "KXTJ3",
-                29,
-                128],
-            [
-                "KXTJ3",
-                30,
-                32],
-            [
-                "KX03A",
-                29,
-                65],
-            [
-                "KX03A",
-                29,
-                67],
-            [
-                "KX03A",
-                29,
-                66],
-            [
-                "KX03A",
-                31,
-                16]
-            ]
+            0]]
         }
     }
 }

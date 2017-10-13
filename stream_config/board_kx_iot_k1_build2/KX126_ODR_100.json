@@ -3,25 +3,25 @@
         [
             "KX126", 
             26, 
-            0, 
+            16, 
             "set_range/m.KX126_CNTL1_GSEL_MASK)"
         ], 
         [
             "KX126", 
             26, 
-            64, 
+            80, 
             "enable_data_logging/sensor.set_bit(r.KX126_CNTL1, b.KX126_CNTL1_RES)"
         ], 
         [
             "KX126", 
             26, 
-            96, 
+            112, 
             "enable_drdy/self.set_bit(r.KX126_CNTL1,  b.KX126_CNTL1_DRDYE)"
         ], 
         [
             "KX126", 
             26, 
-            224, 
+            240, 
             "set_power_on/self.set_bit(r.KX126_CNTL1, b.KX126_CNTL1_PC1)"
         ]
     ], 
@@ -80,7 +80,7 @@
         [
             "KX126", 
             26, 
-            96, 
+            112, 
             "make_stream_config/sensor.set_power_off()                      # power off the sensor and record write commands"
         ]
     ], 
