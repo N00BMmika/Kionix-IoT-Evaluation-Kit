@@ -107,7 +107,7 @@
         [
             "KXG03", 
             69, 
-            8, 
+            72, 
             "enable_data_logging/m.KXG03_INT_PIN_CTL_IEL1_MASK | m.KXG03_INT_PIN_CTL_IEL2_MASK)"
         ], 
         [

@@ -60,19 +60,19 @@
             "KX126", 
             67, 
             102, 
-            "set_pedometer_parameters_odr_100/sensor.set_bit_pattern(r.KX126_PED_CNTL1, 0x06 << 0, m.KX126_PED_CNTL1_MAG_SCALE_MASK)"
+            "set_pedometer_parameters/sensor.set_bit_pattern(r.KX126_PED_CNTL1, cfg.MAG_SCALE, m.KX126_PED_CNTL1_MAG_SCALE_MASK)"
         ], 
         [
             "KX126", 
             68, 
             44, 
-            "set_pedometer_parameters_odr_100/sensor.set_bit_pattern(r.KX126_PED_CNTL2, b.KX126_PED_CNTL2_PED_ODR_100, m.KX126_PED_CNTL2_PED_ODR_MASK)"
+            "set_pedometer_parameters/sensor.set_bit_pattern(r.KX126_PED_CNTL2, cfg.LP_LEN, m.KX126_PED_CNTL2_PED_ODR_MASK)"
         ], 
         [
             "KX126", 
             69, 
             23, 
-            "set_pedometer_parameters_odr_100/sensor.set_bit_pattern(r.KX126_PED_CNTL3, 0x07 << 0, m.KX126_PED_CNTL3_FCA_MASK)"
+            "set_pedometer_parameters/sensor.set_bit_pattern(r.KX126_PED_CNTL3, cfg.FCA, m.KX126_PED_CNTL3_FCA_MASK)"
         ], 
         [
             "KX126", 
@@ -84,37 +84,37 @@
             "KX126", 
             71, 
             36, 
-            "enable_data_logging/elif mode == 2: set_pedometer_parameters_odr_100(kx126_drv)"
+            "enable_data_logging/set_pedometer_parameters(sensor, cfg)"
         ], 
         [
             "KX126", 
             72, 
             19, 
-            "enable_data_logging/elif mode == 2: set_pedometer_parameters_odr_100(kx126_drv)"
+            "enable_data_logging/set_pedometer_parameters(sensor, cfg)"
         ], 
         [
             "KX126", 
             73, 
             11, 
-            "enable_data_logging/elif mode == 2: set_pedometer_parameters_odr_100(kx126_drv)"
+            "enable_data_logging/set_pedometer_parameters(sensor, cfg)"
         ], 
         [
             "KX126", 
             74, 
             8, 
-            "enable_data_logging/elif mode == 2: set_pedometer_parameters_odr_100(kx126_drv)"
+            "enable_data_logging/set_pedometer_parameters(sensor, cfg)"
         ], 
         [
             "KX126", 
             75, 
             25, 
-            "enable_data_logging/elif mode == 2: set_pedometer_parameters_odr_100(kx126_drv)"
+            "enable_data_logging/set_pedometer_parameters(sensor, cfg)"
         ], 
         [
             "KX126", 
             76, 
             28, 
-            "enable_data_logging/elif mode == 2: set_pedometer_parameters_odr_100(kx126_drv)"
+            "enable_data_logging/set_pedometer_parameters(sensor, cfg)"
         ], 
         [
             "KX126", 
@@ -132,7 +132,7 @@
             "KX126", 
             70, 
             31, 
-            "set_pedometer_parameters_odr_100/sensor.set_bit_pattern(r.KX126_PED_CNTL4, 0x0F << 0, m.KX126_PED_CNTL4_A_H_MASK)"
+            "set_pedometer_parameters/sensor.set_bit_pattern(r.KX126_PED_CNTL4, cfg.A_H, m.KX126_PED_CNTL4_A_H_MASK)"
         ]
     ], 
     "structure_version": "1.0", 
