@@ -3,7 +3,7 @@
     "protocol_version": 1.1,
     "configuration": {
         "name": "Nordic NRF51-DK with Rohm EVK-101",
-        "doc": "Nordic nRF51-DK board with Rohm EVK-101 including KMX62, KX122, KXG03, BM1383AGLV, BM1522GMV, RPR0521 and BH1745",
+        "doc": "Nordic nRF51-DK board with Rohm EVK-101 including KMX62, KX122, BM1383AGLV, BM1522GMV, RPR0521 and BH1745",
         "bus1": {
             "connections": [{
                 "connection": "i2c",

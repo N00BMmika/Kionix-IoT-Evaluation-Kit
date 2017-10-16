@@ -3,7 +3,7 @@
     "protocol_version": 1.1,
     "configuration": {
         "name": "Kionix IoT node with KX122",
-        "doc": "Kionix IoT node including KXG03, KMX62, KX122 and BM1383AGLV",
+        "doc": "Kionix IoT node including KX122, KMX62 and BM1383AGLV",
         "bus1": {
             "connections": [{
                 "connection": "i2c",
