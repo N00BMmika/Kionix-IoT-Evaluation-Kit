@@ -2,12 +2,18 @@
     "structure_version": 1.0,
     "protocol_version": 1.1,
     "configuration": {
-        "name": "Kionix IoT node with KX122 and add-on board",
-        "doc": "Kionix IoT node with KX122 and additional sensor on add-on board",
+        "name": "Kionix IoT node with KX126 and add-on board",
+        "doc": "Kionix IoT node with KX126 and additional sensor on add-on board",
         "bus1": {
             "connections": [{
                 "connection": "i2c",
                 "part_list": [{
+                    "name": "KX126",
+                    "SAD": 31,
+                    "int1_gpio": 16,
+                    "int2_gpio": 13
+                },
+                {
                     "name": "KMX62",
                     "SAD": 14,
                     "int1_gpio": 0
@@ -15,12 +21,6 @@
                 {
                     "name": "KXG03",
                     "SAD": 79,
-                    "int1_gpio": 16,
-                    "int2_gpio": 13
-                },
-                {
-                    "name": "KX122",
-                    "SAD": 31,
                     "int1_gpio": 16,
                     "int2_gpio": 13
                 },
@@ -62,11 +62,12 @@
             }]
         },
         "stream_config": {
-            "directory": "stream_config/board_kx_iot_k1_build1-add-on"
+            "directory": "stream_config/board_kx_iot_k1_build3-add-on"
         },
         "board_init": {
-            "reg_write": [["KX122",
-            25,
+            "reg_write": [
+            ["KX126",
+            27,
             128],
             ["KXG03",
             68,
@@ -83,21 +84,15 @@
             ["BM1383AGLV",
             18,
             0],
-            ["KX122",
-            28,
-            32],
-            ["KX122",
+            ["KX126",
             32,
             32],
-            ["KX122",
-            24,
-            128],
+            ["KX126",
+            36,
+            32],
             ["KXG03",
             69,
             136],
-            ["KMX62",
-            42,
-            16],
             ["KMX62",
             44,
             0],
@@ -128,7 +123,7 @@
             [
                 "KXTJ3",
                 30,
-                32]
+                32]                
             ]
         }
     }
