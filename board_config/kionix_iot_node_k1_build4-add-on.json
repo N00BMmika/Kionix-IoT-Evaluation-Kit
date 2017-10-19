@@ -2,8 +2,8 @@
     "structure_version": 1.0,
     "protocol_version": 1.1,
     "configuration": {
-        "name": "Kionix IoT node with KX122 and add-on board",
-        "doc": "Kionix IoT node with KX122 and additional sensor on add-on board",
+        "name": "Kionix IoT node with KXG08, KX122 and add-on board",
+        "doc": "Kionix IoT node with KXG08, KX122 and additional sensor on add-on board",
         "bus1": {
             "connections": [{
                 "connection": "i2c",
@@ -13,7 +13,7 @@
                     "int1_gpio": 0
                 },
                 {
-                    "name": "KXG03",
+                    "name": "KXG08",
                     "SAD": 79,
                     "int1_gpio": 16,
                     "int2_gpio": 13
@@ -28,12 +28,6 @@
                     "name": "BM1383AGLV",
                     "SAD": 93,
                     "int1_gpio": 16
-                },
-                {
-                    "name": "KXG08",
-                    "SAD": 78,
-                    "int1_gpio": 16,
-                    "int2_gpio": 13
                 },
                 {
                     "name": "KXTJ3",
@@ -66,27 +60,12 @@
             }]
         },
         "stream_config": {
-            "directory": "stream_config/board_kx_iot_k1_build2-add-on"
+            "directory": "stream_config/board_kx_iot_k1_build4-add-on"
         },
         "board_init": {
             "reg_write": [["KX122",
             25,
             128],
-            ["KXG03",
-            68,
-            128],
-            ["KMX62",
-            57,
-            8],
-            ["BM1383AGLV",
-            17,
-            128],
-            ["BM1383AGLV",
-            19,
-            0],
-            ["BM1383AGLV",
-            18,
-            0],
             ["KX122",
             28,
             32],
@@ -96,23 +75,30 @@
             ["KX122",
             24,
             128],
-            ["KXG03",
-            69,
-            136],
+            ["KMX62",
+            57,
+            8],
             ["KMX62",
             42,
             16],
             ["KMX62",
             44,
             0],
-            [
-                "KXG08",
-                107,
-                128],
-            [
-                "KXG08",
-                64,
-                136],
+            ["BM1383AGLV",
+            17,
+            128],
+            ["BM1383AGLV",
+            19,
+            0],
+            ["BM1383AGLV",
+            18,
+            0],
+            ["KXG08",
+            107,
+            128],
+            ["KXG08",
+            64,
+            136],
             [
                 "KX224",
                 25,
