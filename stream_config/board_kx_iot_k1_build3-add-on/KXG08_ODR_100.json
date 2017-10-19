@@ -3,7 +3,7 @@
         [
             "KXG08", 
             110, 
-            62, 
+            58, 
             "set_power_on/m.KXG08_STDBY_ACC_STDBY_MASK)"
         ], 
         [
@@ -28,11 +28,11 @@
                 [
                     "KXG08", 
                     0, 
-                    14
+                    12
                 ]
             ], 
             "odr": 100, 
-            "fmt": "<Bhhhhhhh", 
+            "fmt": "<Bhhhhhh", 
             "type": "continuous", 
             "hdr": "ch!temperature!gx!gy!gz!ax!ay!az"
         }
@@ -46,45 +46,51 @@
         ], 
         [
             "KXG08", 
+            110, 
+            63, 
+            "set_power_off/self.set_bit(r.KXG08_STDBY, b.KXG08_STDBY_ACC_STDBY_DISABLED)"
+        ], 
+        [
+            "KXG08", 
+            110, 
+            59, 
+            "set_power_off/self.reset_bit(r.KXG08_STDBY, b.KXG08_STDBY_GYRO_FSTART_ENABLED)"
+        ], 
+        [
+            "KXG08", 
+            110, 
+            59, 
+            "set_power_off/self.set_bit(r.KXG08_STDBY, b.KXG08_STDBY_TEMP_STDBY_DISABLED)"
+        ], 
+        [
+            "KXG08", 
             64, 
-            136, 
-            "enable_data_logging/0xff)                       # both int pins active"
+            8, 
+            "enable_data_logging/m.KXG08_INT_PIN_CTL_IEL1_MASK)                       # both int pins active"
         ], 
         [
             "KXG08", 
             65, 
-            2, 
+            255, 
             "enable_drdy/self.set_bit(r.KXG08_INT_PIN_SEL1, b.KXG08_INT_PIN_SEL1_DRDY_ACC_P1)"
         ], 
         [
             "KXG08", 
-            66, 
-            0, 
-            "enable_data_logging/sensor.set_bit_pattern(r.KXG08_INT_PIN_SEL2, 0x00, 0xff)    #"
-        ], 
-        [
-            "KXG08", 
-            67, 
-            0, 
-            "enable_data_logging/sensor.set_bit_pattern(r.KXG08_INT_PIN_SEL3, 0x00, 0xff)    #"
-        ], 
-        [
-            "KXG08", 
             68, 
-            2, 
+            194, 
             "enable_drdy/self.set_bit(r.KXG08_INT_MASK1,         b.KXG08_INT_MASK1_DRDY_ACC)"
         ], 
         [
             "KXG08", 
             79, 
             16, 
-            "wake_sleep/sensor.set_bit(r.KXG08_WAKE_SLEEP_CTL2, b.KXG08_WAKE_SLEEP_CTL2_MAN_WAKE)"
+            "wake_sleep/self.set_bit(r.KXG08_WAKE_SLEEP_CTL2, b.KXG08_WAKE_SLEEP_CTL2_MAN_WAKE)"
         ], 
         [
             "KXG08", 
             60, 
             87, 
-            "power_modes/sensor.reset_bit(r.KXG08_ACCEL_ODR, b.KXG08_ACCEL_ODR_LPMODEA)"
+            "set_average/self.reset_bit(r.KXG08_ACCEL_ODR, b.KXG08_ACCEL_ODR_LPMODEA)"
         ], 
         [
             "KXG08", 
@@ -96,7 +102,7 @@
             "KXG08", 
             62, 
             7, 
-            "power_modes/sensor.reset_bit(r.KXG08_GYRO_ODR, b.KXG08_GYRO_ODR_LPMODEG)"
+            "set_average/self.reset_bit(r.KXG08_GYRO_ODR, b.KXG08_GYRO_ODR_LPMODEG)"
         ], 
         [
             "KXG08", 
