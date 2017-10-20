@@ -3,7 +3,7 @@
     "protocol_version": 1.1,
     "configuration": {
         "name": "Kionix IoT node with KXG08, KX122 and add-on board",
-        "doc": "Kionix IoT node with KXG08, KX122 and additional sensor on add-on board",
+        "doc": "Kionix IoT node build4 with additional sensor on add-on board",
         "bus1": {
             "connections": [{
                 "connection": "i2c",
