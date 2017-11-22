@@ -11,6 +11,18 @@
             25, 
             11, 
             "set_average/self.set_bit_pattern(r.KX03A_CNTL1, average, m.KX03A_CNTL1_LPOSM_MASK)"
+        ], 
+        [
+            "KX03A", 
+            31, 
+            0, 
+            "enable_data_logging/m.KX03A_INC1_DRDY_MOD_MASK)      # drdy latch mode set"
+        ], 
+        [
+            "KX03A", 
+            31, 
+            16, 
+            "enable_data_logging/sensor.set_bit(r.KX03A_INC1, b.KX03A_INC1_DRDY_EN_ENABLED)      # data ready routed to DRDY pin"
         ]
     ], 
     "start_req": [
@@ -49,12 +61,6 @@
             30, 
             1, 
             "set_power_on/self.set_bit(r.KX03A_EN, b.KX03A_EN_ACC_EN_ENABLED)"
-        ], 
-        [
-            "KX03A", 
-            31, 
-            16, 
-            "enable_data_logging/sensor.set_bit(r.KX03A_INC1, b.KX03A_INC1_DRDY_EN_ENABLED)      # data ready routed to DRDY pin"
         ]
     ], 
     "structure_version": "1.0", 
