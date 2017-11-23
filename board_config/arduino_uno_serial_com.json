@@ -9,7 +9,7 @@
                 "connection": "i2c",
                 "part_list": [{
                     "name": "KMX62",
-                    "SAD": 14,
+                    "SAD": 15,
                     "int1_gpio": 3
                 },
                 {

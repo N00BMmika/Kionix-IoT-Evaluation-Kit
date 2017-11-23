@@ -2,15 +2,15 @@
     "activate": [
         [
             "KX03A", 
-            25, 
-            11, 
-            "set_odr/self.set_bit_pattern(r.KX03A_CNTL1, ODR, m.KX03A_CNTL1_ODR_MASK)"
+            31, 
+            0, 
+            "enable_data_logging/sensor.reset_bit(r.KX03A_INC1, b.KX03A_INC1_DRDY_POL_ACTIVE_HIGH)"
         ], 
         [
             "KX03A", 
-            25, 
-            11, 
-            "set_average/self.set_bit_pattern(r.KX03A_CNTL1, average, m.KX03A_CNTL1_LPOSM_MASK)"
+            29, 
+            64, 
+            "enable_drdy/self.set_bit(r.KX03A_CNTL5, b.KX03A_CNTL5_DRDY_IE_ENABLED)      # data ready enabled"
         ], 
         [
             "KX03A", 
@@ -34,16 +34,61 @@
                 [
                     "KX03A", 
                     2, 
-                    6
+                    8, 
+                    "KX03A", 
+                    23, 
+                    1
                 ]
             ], 
             "odr": 100, 
-            "fmt": "<Bhhh", 
+            "fmt": "<Bhhhhb", 
             "type": "continuous", 
-            "hdr": "ch!ax!ay!az"
+            "hdr": "ch!ax!ay!az!temp"
         }
     ], 
     "configure": [
+        [
+            "KX03A", 
+            29, 
+            1, 
+            "por/self.set_bit_pattern(r.KX03A_CNTL5, b.KX03A_CNTL5_SRST_SEQUENCE1, m.KX03A_CNTL5_SRST_MASK)"
+        ], 
+        [
+            "KX03A", 
+            29, 
+            3, 
+            "por/self.set_bit_pattern(r.KX03A_CNTL5, b.KX03A_CNTL5_SRST_SEQUENCE2, m.KX03A_CNTL5_SRST_MASK)"
+        ], 
+        [
+            "KX03A", 
+            29, 
+            2, 
+            "por/self.set_bit_pattern(r.KX03A_CNTL5, b.KX03A_CNTL5_SRST_SEQUENCE3, m.KX03A_CNTL5_SRST_MASK)"
+        ], 
+        [
+            "KX03A", 
+            25, 
+            0, 
+            "set_power_off/self.reset_bit(r.KX03A_CNTL1, b.KX03A_EN_ACC_EN_ENABLED)"
+        ], 
+        [
+            "KX03A", 
+            25, 
+            0, 
+            "set_power_off/self.reset_bit(r.KX03A_CNTL1, b.KX03A_EN_TEMP_EN_ENABLED)"
+        ], 
+        [
+            "KX03A", 
+            25, 
+            11, 
+            "set_odr/self.set_bit_pattern(r.KX03A_CNTL1, ODR, m.KX03A_CNTL1_ODR_MASK)"
+        ], 
+        [
+            "KX03A", 
+            25, 
+            11, 
+            "set_average/self.set_bit_pattern(r.KX03A_CNTL1, average, m.KX03A_CNTL1_LPOSM_MASK)"
+        ], 
         [
             "KX03A", 
             27, 
@@ -52,19 +97,20 @@
         ], 
         [
             "KX03A", 
-            29, 
-            64, 
-            "enable_drdy/self.set_bit(r.KX03A_CNTL5, b.KX03A_CNTL5_DRDY_IE_ENABLED)      # data ready enabled"
-        ], 
-        [
-            "KX03A", 
             30, 
-            1, 
-            "set_power_on/self.set_bit(r.KX03A_EN, b.KX03A_EN_ACC_EN_ENABLED)"
+            5, 
+            "set_power_on/self.set_bit(r.KX03A_EN, b.KX03A_EN_TEMP_EN_ENABLED)"
         ]
     ], 
     "structure_version": "1.0", 
-    "deactivate": [], 
+    "deactivate": [
+        [
+            "KX03A", 
+            25, 
+            10, 
+            "set_power_off/self.reset_bit(r.KX03A_CNTL1, b.KX03A_EN_ACC_EN_ENABLED)"
+        ]
+    ], 
     "doc": "Read accelerometer data from KX03A at 100 Hz ODR", 
     "channels": [
         {
@@ -72,6 +118,12 @@
             "data": "Acc_X,Acc_Y,Acc_Z", 
             "name": "Accelerometer", 
             "SI_multiplier": "9.8 / 16384"
+        }, 
+        {
+            "SI_unit": "Celsius", 
+            "data": "Temp", 
+            "name": "Temperature", 
+            "SI_multiplier": "1 / 256"
         }
     ], 
     "register_dump": [], 
