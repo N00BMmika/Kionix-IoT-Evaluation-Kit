@@ -28,11 +28,11 @@
                 [
                     "KXG08", 
                     0, 
-                    12
+                    14
                 ]
             ], 
             "odr": 100, 
-            "fmt": "<Bhhhhhh", 
+            "fmt": "<Bhhhhhhh", 
             "type": "continuous", 
             "hdr": "ch!temperature!gx!gy!gz!ax!ay!az"
         }
