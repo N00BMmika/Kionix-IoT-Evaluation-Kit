@@ -36,7 +36,7 @@
 			"connections": [{
 				"connection": "Socket",
 				"packet_per_second": 400,
-				"baund_rate": 460800,
+				"baud_rate": 460800,
 				"start_up_delay_ms": 2000,				
 				"com_port_name": []
 			}]
