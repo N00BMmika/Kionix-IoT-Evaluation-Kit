@@ -14,7 +14,7 @@
                 },
                 {
                     "name": "KX122",
-                    "SAD": 30,
+                    "SAD": 31,
                     "int1_gpio": 2
                 },
                 {
@@ -48,8 +48,8 @@
             "connections": [{
                 "connection": "USB",
                 "packet_per_second": 400,
-                "baund_rate": 460800,
-                "start_up_delay_ms": 0,
+                "baud_rate": 1000000,
+                "start_up_delay_ms": 2000,
                 "com_port_name": ["Arduino Uno"]
             }]
         },
