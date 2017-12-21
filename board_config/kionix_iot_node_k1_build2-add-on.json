@@ -49,6 +49,11 @@
                     "name": "KX03A",
                     "SAD": 60,
                     "int1_gpio": 16
+                },
+                {
+                    "name": "BH1790",
+                    "SAD": 91,
+                    "int1_gpio": 0
                 }]
             }]
         },

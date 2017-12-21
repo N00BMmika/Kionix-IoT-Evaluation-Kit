@@ -1,0 +1,180 @@
+{
+    "activate": [
+        [
+            "BH1790", 
+            65, 
+            128, 
+            "set_power_on/self.set_bit_pattern(r.BH1790_MEAS_CONTROL1, b.BH1790_MEAS_CONTROL1_RDY_ENABLE, m.BH1790_MEAS_CONTROL1_RDY_MASK)"
+        ], 
+        [
+            "BH1790", 
+            65, 
+            128, 
+            "set_led_freq_128hz/self.set_bit_pattern(r.BH1790_MEAS_CONTROL1, b.BH1790_MEAS_CONTROL1_LED_LIGHTING_FREQ_128HZ, m.BH1790_MEAS_CONTROL1_LED_LIGHTING_FREQ_MASK)"
+        ], 
+        [
+            "BH1790", 
+            65, 
+            129, 
+            "set_odr/self.set_bit_pattern(r.BH1790_MEAS_CONTROL1, odr, m.BH1790_MEAS_CONTROL1_RCYCLE_MASK)"
+        ], 
+        [
+            "BH1790", 
+            67, 
+            1, 
+            "start_measurement/self.set_bit_pattern(r.BH1790_MEAS_START, b.BH1790_MEAS_START_MEAS_ST_START, m.BH1790_MEAS_START_MEAS_ST_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            0, 
+            "set_range/self.set_bit_pattern(r.KMX62_CNTL2, range, m.KMX62_CNTL2_GSEL_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            12, 
+            "set_average/self.set_bit_pattern(r.KMX62_CNTL2, average, m.KMX62_CNTL2_RES_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            13, 
+            "set_power_on/m.KMX62_CNTL2_ACCEL_EN_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            15, 
+            "set_power_on/m.KMX62_CNTL2_MAG_EN_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            79, 
+            "set_power_on/m.KMX62_CNTL2_TEMP_EN_MASK)"
+        ]
+    ], 
+    "start_req": [
+        {
+            "msg": [
+                0, 
+                1, 
+                2, 
+                [
+                    "BH1790", 
+                    84, 
+                    4, 
+                    "KMX62", 
+                    1, 
+                    1
+                ]
+            ], 
+            "odr": 50, 
+            "fmt": "<BHHB", 
+            "type": "continuous", 
+            "hdr": "ch!Led_On!Led_Off!Int"
+        }
+    ], 
+    "configure": [
+        [
+            "KMX62", 
+            57, 
+            128, 
+            "<module>/sensor_kmx62.por()"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            0, 
+            "set_power_off/m.KMX62_CNTL2_ACCEL_EN_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            0, 
+            "set_power_off/m.KMX62_CNTL2_MAG_EN_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            0, 
+            "set_power_off/m.KMX62_CNTL2_TEMP_EN_MASK)"
+        ], 
+        [
+            "BH1790", 
+            64, 
+            128, 
+            "setup_serial_i2c/sensor.por()"
+        ], 
+        [
+            "BH1790", 
+            66, 
+            12, 
+            "set_led_current/self.set_bit_pattern(r.BH1790_MEAS_CONTROL2, led_current, m.BH1790_MEAS_CONTROL2_LED_CURRENT_MASK)"
+        ], 
+        [
+            "KMX62", 
+            56, 
+            34, 
+            "set_odr/self.set_bit_pattern(r.KMX62_ODCNTL, ODR, m.KMX62_ODCNTL_OSM_MASK)"
+        ], 
+        [
+            "KMX62", 
+            42, 
+            16, 
+            "enable_drdy/self.set_bit(r.KMX62_INC1, b.KMX62_INC1_DRDY_A1)"
+        ], 
+        [
+            "KMX62", 
+            44, 
+            0, 
+            "enable_data_logging/0xff)"
+        ]
+    ], 
+    "structure_version": "1.0", 
+    "deactivate": [
+        [
+            "BH1790", 
+            65, 
+            0, 
+            "set_power_off/self.set_bit_pattern(r.BH1790_MEAS_CONTROL1, b.BH1790_MEAS_CONTROL1_RDY_DISABLE, m.BH1790_MEAS_CONTROL1_RDY_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            90, 
+            "set_power_off/m.KMX62_CNTL2_ACCEL_EN_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            12, 
+            "set_power_off/m.KMX62_CNTL2_MAG_EN_MASK)"
+        ], 
+        [
+            "KMX62", 
+            58, 
+            14, 
+            "set_power_off/m.KMX62_CNTL2_TEMP_EN_MASK)"
+        ]
+    ], 
+    "doc": "Read pulse wave data from bh1790 at 50Hz ODR", 
+    "channels": [
+        {
+            "SI_unit": "Count", 
+            "data": "Off_Data", 
+            "name": "Led_Off", 
+            "SI_multiplier": "1"
+        }, 
+        {
+            "SI_unit": "Count", 
+            "data": "On_Data", 
+            "name": "Led_On", 
+            "SI_multiplier": "1"
+        }
+    ], 
+    "register_dump": [], 
+    "protocol_version": "1.0", 
+    "name": "BH1790 / 50Hz"
+}
