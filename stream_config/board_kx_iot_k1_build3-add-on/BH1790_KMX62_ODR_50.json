@@ -62,18 +62,18 @@
                 1, 
                 2, 
                 [
-                    "BH1790", 
-                    84, 
-                    4, 
-                    "KMX62", 
-                    1, 
+                    "BH1790",
+                    86,
+                    2,
+                    "KMX62",
+                    1,
                     1
                 ]
-            ], 
-            "odr": 50, 
-            "fmt": "<BHHB", 
-            "type": "continuous", 
-            "hdr": "ch!Led_On!Led_Off!Int"
+            ],
+            "odr": 50,
+            "fmt": "<BH",
+            "type": "continuous",
+            "hdr": "ch!Led_On"
         }
     ], 
     "configure": [
