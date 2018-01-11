@@ -159,7 +159,7 @@
             "set_power_off/m.KMX62_CNTL2_TEMP_EN_MASK)"
         ]
     ], 
-    "doc": "Read pulse wave data from bh1790 at 50Hz ODR", 
+    "doc": "Read pulse wave data from BH1790GLC at 50Hz ODR", 
     "channels": [
         {
             "SI_unit": "Count", 
@@ -176,5 +176,5 @@
     ], 
     "register_dump": [], 
     "protocol_version": "1.0", 
-    "name": "BH1790 / 50Hz"
+    "name": "BH1790GLC / 50Hz"
 }
