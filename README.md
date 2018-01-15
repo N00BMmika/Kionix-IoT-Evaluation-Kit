@@ -9,5 +9,5 @@ Kionix Multi-OS Evaluation Software, in turn, provides reference implementation 
 * [Latest release](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/releases/latest)
 * [Kionix IoT Evaluation Kit Product Page](http://www.kionix.com/iot-evaluation-and-development-kit)
 * Please check [Kionix IoT Evaluation Kit Users Guide.pdf](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/blob/master/Kionix%20IoT%20Evaluation%20Kit%20Users%20Guide.pdf) for further details.
-* Please give feedback and ask questions using issue [Feedback & Questions](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/issues/1)
+* Please give feedback and ask questions in [Issues](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/issues)
 * More information found from [Wiki page](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/wiki)
