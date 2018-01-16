@@ -33,20 +33,21 @@ class registers(register_base):
 		self.KXTJ2_INT_SOURCE1                                    = 0x16         # This register reports which function caused an interrupt.
 		self.KXTJ2_INT_SOURCE2                                    = 0x17         # This register reports the axis and direction of detected motion
 		self.KXTJ2_STATUS_REG                                     = 0x18         # This register reports the status of the interrupt
-		self.KXTJ2_INT_REL                                        = 0x1A         
+		self.KXTJ2_INT_REL                                        = 0x1A         # Latched interrupt source information
 		self.KXTJ2_CTRL_REG1                                      = 0x1B         # Read/write control register that controls the main feature set
 		self.KXTJ2_CTRL_REG2                                      = 0x1D         # Read/write control register that provides more feature set control
 		self.KXTJ2_INT_CTRL_REG1                                  = 0x1E         # This register controls the settings for the physical interrupt pin
 		self.KXTJ2_INT_CTRL_REG2                                  = 0x1F         # This register controls which axis and direction of detected motion can cause an interrupt
 		self.KXTJ2_DATA_CTRL_REG                                  = 0x21         # Read/write control register that configures the acceleration outputs
-		self.KXTJ2_WAKEUP_TIMER                                   = 0x29         
+		self.KXTJ2_WAKEUP_TIMER                                   = 0x29         # This register sets the time motion must be present before a wake-up interrupt is set
 		self.KXTJ2_SELF_TEST                                      = 0x3A         # When 0xCA is written to this register, the MEMS self-test function is enabled
-		self.KXTJ2_WAKEUP_THRESHOLD                               = 0x6A         
+		self.KXTJ2_WAKEUP_THRESHOLD                               = 0x6A         # This register sets the threshold for wake-up (motion detect) interrupt is se
+		self.KXCJB_WHO_AM_I                                       = 0x0F         # This register can be used for supplier recognition, as it can be factory written to a known byte value.
 class bits(register_base):
 	def __init__(self):
 		self.KXTJ2_DCST_RESP_COM_TEST_BEFORE                      = (0x55 << 0)  # before set
 		self.KXTJ2_DCST_RESP_COM_TEST_AFTER                       = (0xAA << 0)  # after set
-		self.KXTJ2_WHO_AM_I_WIA_ID                                = (0x09 << 0)  # WHO_AM_I -value
+		self.KXTJ2_WHO_AM_I_WIA_ID                                = (0x09 << 0)  # WHO_AM_I -value for KXTJ2
 		self.KXTJ2_INT_SOURCE1_DRDY                               = (0x01 << 4)  # indicates that new acceleration data
 		self.KXTJ2_INT_SOURCE1_WUFS                               = (0x01 << 1)  # Wake up
 		self.KXTJ2_INT_SOURCE2_XNWU                               = (0x01 << 5)  # x-
@@ -98,6 +99,7 @@ class bits(register_base):
 		self.KXTJ2_DATA_CTRL_REG_OSA_6P25                         = (0x0B << 0)  # 6.25Hz
 		self.KXTJ2_SELF_TEST_TEST_ENABLE                          = (0xCA << 0)  # charge on
 		self.KXTJ2_SELF_TEST_TEST_DISABLE                         = (0x00 << 0)  # charge off
+		self.KXCJB_WHO_AM_I_WIA_ID                                = (0x21 << 0)  # WHO_AM_I -value for KXCJB
 _b=bits()
 class enums(register_base):
 	def __init__(self):
@@ -107,33 +109,33 @@ class enums(register_base):
 		}
 		self.KXTJ2_DATA_CTRL_REG_OSA={
 			'25':_b.KXTJ2_DATA_CTRL_REG_OSA_25,
-			'0p781':_b.KXTJ2_DATA_CTRL_REG_OSA_0P781,
+			'0P781':_b.KXTJ2_DATA_CTRL_REG_OSA_0P781,
 			'200':_b.KXTJ2_DATA_CTRL_REG_OSA_200,
-			'12p5':_b.KXTJ2_DATA_CTRL_REG_OSA_12P5,
+			'12P5':_b.KXTJ2_DATA_CTRL_REG_OSA_12P5,
 			'1600':_b.KXTJ2_DATA_CTRL_REG_OSA_1600,
 			'50':_b.KXTJ2_DATA_CTRL_REG_OSA_50,
-			'1p563':_b.KXTJ2_DATA_CTRL_REG_OSA_1P563,
-			'3p125':_b.KXTJ2_DATA_CTRL_REG_OSA_3P125,
+			'1P563':_b.KXTJ2_DATA_CTRL_REG_OSA_1P563,
+			'3P125':_b.KXTJ2_DATA_CTRL_REG_OSA_3P125,
 			'400':_b.KXTJ2_DATA_CTRL_REG_OSA_400,
 			'100':_b.KXTJ2_DATA_CTRL_REG_OSA_100,
 			'800':_b.KXTJ2_DATA_CTRL_REG_OSA_800,
-			'6p25':_b.KXTJ2_DATA_CTRL_REG_OSA_6P25,
+			'6P25':_b.KXTJ2_DATA_CTRL_REG_OSA_6P25,
 		}
 		self.KXTJ2_CTRL_REG1_GSEL={
 			'4G':_b.KXTJ2_CTRL_REG1_GSEL_4G,
 			'2G':_b.KXTJ2_CTRL_REG1_GSEL_2G,
 			'8G':_b.KXTJ2_CTRL_REG1_GSEL_8G,
-			'8G_14b':_b.KXTJ2_CTRL_REG1_GSEL_8G_14B,
+			'8G_14B':_b.KXTJ2_CTRL_REG1_GSEL_8G_14B,
 		}
 		self.KXTJ2_CTRL_REG2_OWUF={
 			'25':_b.KXTJ2_CTRL_REG2_OWUF_25,
-			'0p781':_b.KXTJ2_CTRL_REG2_OWUF_0P781,
-			'12p5':_b.KXTJ2_CTRL_REG2_OWUF_12P5,
+			'0P781':_b.KXTJ2_CTRL_REG2_OWUF_0P781,
+			'12P5':_b.KXTJ2_CTRL_REG2_OWUF_12P5,
 			'50':_b.KXTJ2_CTRL_REG2_OWUF_50,
-			'1p563':_b.KXTJ2_CTRL_REG2_OWUF_1P563,
-			'3p125':_b.KXTJ2_CTRL_REG2_OWUF_3P125,
+			'1P563':_b.KXTJ2_CTRL_REG2_OWUF_1P563,
+			'3P125':_b.KXTJ2_CTRL_REG2_OWUF_3P125,
 			'100':_b.KXTJ2_CTRL_REG2_OWUF_100,
-			'6p25':_b.KXTJ2_CTRL_REG2_OWUF_6P25,
+			'6P25':_b.KXTJ2_CTRL_REG2_OWUF_6P25,
 		}
 		self.KXTJ2_DCST_RESP_COM_TEST={
 			'AFTER':_b.KXTJ2_DCST_RESP_COM_TEST_AFTER,
@@ -147,3 +149,4 @@ class masks(register_base):
 		self.KXTJ2_CTRL_REG2_OWUF_MASK                            = 0x07         # sets the Output Data Rate for the Wake Up function
 		self.KXTJ2_DATA_CTRL_REG_OSA_MASK                         = 0x0F         # sets the output data rate (ODR)
 		self.KXTJ2_SELF_TEST_TEST_MASK                            = 0xFF         
+		self.KXCJB_WHO_AM_I_WIA_MASK                              = 0xFF         

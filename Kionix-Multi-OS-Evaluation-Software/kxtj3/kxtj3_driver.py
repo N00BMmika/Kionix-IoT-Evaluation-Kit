@@ -33,7 +33,7 @@ hz = [12.5, 25.0, 50.0, 100.0, 200.0, 400.0, \
       800.0, 1600.0, 0.781, 1.563, 3.125, 6.25]   # for PC1 start delay (acc) calculation
 
 class kxtj3_driver(sensor_base):
-    _WAI = [b.KXTJ3_WHO_AM_I_WIA_ID, 0x36]   #
+    _WAI = [b.KXTJ3_WHO_AM_I_WIA_ID, b.KXCJC_WHO_AM_I_WIA_ID]   #KXTJ3,KXCJC
     
     def __init__(self):
         sensor_base.__init__(self)
@@ -49,9 +49,9 @@ class kxtj3_driver(sensor_base):
         resp = self.read_register(r.KXTJ3_WHO_AM_I)
         if resp[0] in self._WAI:
             self.WHOAMI = resp[0]
-            logger.info('KXTJ3 found')            
+            logger.info('KXTJ3/KXCJC found ')            
             return 1
-        logger.debug("wrong WHOAMI received KXTJ3: 0x%02x" % resp[0])       
+        logger.debug("wrong WHOAMI received KXTJ3/KXCJC: 0x%02x" % resp[0])       
         return 0
         
     def ic_test(self):

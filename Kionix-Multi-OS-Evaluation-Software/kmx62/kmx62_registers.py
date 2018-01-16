@@ -46,14 +46,14 @@ class registers(register_base):
 		self.KMX62_INC3                                           = 0x2C         # Interrupt control 3 GPIO pin configuration.
 		self.KMX62_INC4                                           = 0x2D         # This register controls which accelerometer axis and direction of detected motion can cause an interrupt.
 		self.KMX62_INC5                                           = 0x2E         # This register controls which magnetometer axis and direction of detected motion can cause an interrupt.
-		self.KMX62_AMI_CNTL1                                      = 0x2F         
-		self.KMX62_AMI_CNTL2                                      = 0x30         
+		self.KMX62_AMI_CNTL1                                      = 0x2F         # This register has control settings for the accelerometer motion interrupt function.
+		self.KMX62_AMI_CNTL2                                      = 0x30         # This register has control settings for the accelerometer motion interrupt function.
 		self.KMX62_AMI_CNTL3                                      = 0x31         # Accelerometer Motion Control 3: This register has control settings for the accelerometer motion interrupt function.
-		self.KMX62_MMI_CNTL1                                      = 0x32         
-		self.KMX62_MMI_CNTL2                                      = 0x33         
+		self.KMX62_MMI_CNTL1                                      = 0x32         # Magnetometer Motion Control 1 This register has control settings for the magnetometer motion interrupt function.
+		self.KMX62_MMI_CNTL2                                      = 0x33         # Magnetometer Motion Control 2 This register has control settings for the magnetometer motion interrupt function.
 		self.KMX62_MMI_CNTL3                                      = 0x34         # Magnetometer Motion Control 3 This register has control settings for the magnetometer motion interrupt function.
-		self.KMX62_FFI_CNTL1                                      = 0x35         
-		self.KMX62_FFI_CNTL2                                      = 0x36         
+		self.KMX62_FFI_CNTL1                                      = 0x35         # Free Fall Control 1 This register has control settings for the free fall interrupt function.
+		self.KMX62_FFI_CNTL2                                      = 0x36         # Free Fall Control 2 This register has control settings for the free fall interrupt function.
 		self.KMX62_FFI_CNTL3                                      = 0x37         # Free Fall Control 3 This register has control settings for the free fall interrupt function.
 		self.KMX62_ODCNTL                                         = 0x38         # Output data control register
 		self.KMX62_CNTL1                                          = 0x39         # Control register 1 Control register that controls the main feature set.
@@ -62,30 +62,38 @@ class registers(register_base):
 		self.KMX62_BUF_CTRL_1                                     = 0x77         # These registers control the buffer sample buffer operation.
 		self.KMX62_BUF_CTRL_2                                     = 0x78         # These registers control the buffer sample buffer operation.
 		self.KMX62_BUF_CTRL_3                                     = 0x79         # These registers control the buffer sample buffer operation.
-		self.KMX62_BUF_CLEAR                                      = 0x7A         
-		self.KMX62_BUF_STATUS_1                                   = 0x7B         
+		self.KMX62_BUF_CLEAR                                      = 0x7A         # Latched buffer status information and the entire sample buffer are cleared when any data is written to this register.
+		self.KMX62_BUF_STATUS_1                                   = 0x7B         # Sample Level; reports the number of data bytes that have been stored in the sample buffer.  If this register reads 0, no data has been stored in the buffer. If the buffer data is read past this level the part will return 32,767 (maximum value).
 		self.KMX62_BUF_STATUS_2                                   = 0x7C         
-		self.KMX62_BUF_STATUS_3                                   = 0x7D         
-		self.KMX62_BUF_READ                                       = 0x7E         
+		self.KMX62_BUF_STATUS_3                                   = 0x7D         # Sample over flow; reports the number of data bytes that have been missed since the sample buffer was filled.  If this register reads 0, the buffer has not over flowed. This is cleared for BUF_CLEAR command and when the data is read from BUF_READ
+		self.KMX62_BUF_READ                                       = 0x7E         # Data in the buffer can be read according to the BUF_M settings in BUF_CTRL2 by executing this command.  More samples can be retrieved by continuing to toggle SCL after the read command is executed.  Data should by using auto-increment.  Additional samples cannot be written to the buffer while data is being read from the buffer using auto-increment mode.  Output data is in 2s Complement format.
 class bits(register_base):
 	def __init__(self):
 		self.KMX62_WHO_AM_I_WIA_ID                                = (0x14 << 0)  # WHO_AM_I -value
 		self.KMX62_INS1_INT_NO_INT                                = (0x00 << 7)  # no interrupt event
 		self.KMX62_INS1_INT_INT                                   = (0x01 << 7)  # interrupt event has occurred
+		self.KMX62_INS1_INT                                       = (0x01 << 7)  # reports the combined (OR) interrupt information of all enabled interrupt.
 		self.KMX62_INS1_BFI_BUFF_NOT_FULL                         = (0x00 << 6)  # Buffer is not full
 		self.KMX62_INS1_BFI_BUFF_FULL                             = (0x01 << 6)  # Buffer is full
+		self.KMX62_INS1_BFI                                       = (0x01 << 6)  # indicates that the buffer is full.  This bit is cleared when the data is read until the buffer is not full.
 		self.KMX62_INS1_WMI_MARK_NOT_REACHED                      = (0x00 << 5)  # Buffer watermark not reached
 		self.KMX62_INS1_WMI_MARK_REACHED                          = (0x01 << 5)  # Buffer watermark reached
+		self.KMX62_INS1_WMI                                       = (0x01 << 5)  # indicates that user-defined buffer watermark has been reached.  This bit is cleared when the data is read until the sample level in the buffer is smaller than the watermark threshold.
 		self.KMX62_INS1_DRDY_A_NOT_AVAILABLE                      = (0x00 << 4)  # New acceleration data not available
 		self.KMX62_INS1_DRDY_A_AVAILABLE                          = (0x01 << 4)  # New acceleration data available
+		self.KMX62_INS1_DRDY_A                                    = (0x01 << 4)  # indicates that new acceleration data is available.  This bit is cleared when the data is read or the interrupt release register (INL Register) is read.
 		self.KMX62_INS1_DRDY_M_NOT_AVAILABLE                      = (0x00 << 3)  # New magnetomter data not available
 		self.KMX62_INS1_DRDY_M_AVAILABLE                          = (0x01 << 3)  # New magnetomter data available
+		self.KMX62_INS1_DRDY_M                                    = (0x01 << 3)  # indicates that new magnetometer data is available.  This bit is cleared when the data is read or the interrupt release register (INL Register) is read.
 		self.KMX62_INS1_FFI_NO_FFI                                = (0x00 << 2)  # No free fall
 		self.KMX62_INS1_FFI_FFI                                   = (0x01 << 2)  # Free fall has activated the interrupt
+		self.KMX62_INS1_FFI                                       = (0x01 << 2)  
 		self.KMX62_INS1_AMI_NO_MOTION                             = (0x00 << 1)  # No motion
 		self.KMX62_INS1_AMI_MOTION                                = (0x01 << 1)  # Motion has activated the interrupt
+		self.KMX62_INS1_AMI                                       = (0x01 << 1)  
 		self.KMX62_INS1_MMI_NO_MOTION                             = (0x00 << 0)  # No motion
 		self.KMX62_INS1_MMI_MOTION                                = (0x01 << 0)  # Motion has activated the interrupt
+		self.KMX62_INS1_MMI                                       = (0x01 << 0)  
 		self.KMX62_INS2_AXNI                                      = (0x01 << 5)  # x negative (x-)
 		self.KMX62_INS2_AXPI                                      = (0x01 << 4)  # x positive (x+)
 		self.KMX62_INS2_AYNI                                      = (0x01 << 3)  # y negative (y-)
@@ -114,16 +122,20 @@ class bits(register_base):
 		self.KMX62_INC2_MMI2                                      = (0x01 << 0)  # Magnetometer motion interrupt reported on GPIO2
 		self.KMX62_INC3_IED2_PUSHPULL                             = (0x00 << 7)  # push-pull
 		self.KMX62_INC3_IED2_OPENDRAIN                            = (0x01 << 7)  # open-drain
+		self.KMX62_INC3_IED2                                      = (0x01 << 7)  # Interrupt pin drive options for GPIO2
 		self.KMX62_INC3_IEA2_LOW                                  = (0x00 << 6)  # active low
 		self.KMX62_INC3_IEA2_HIGH                                 = (0x01 << 6)  # active high
+		self.KMX62_INC3_IEA2                                      = (0x01 << 6)  # Interrupt active level control for interrupt GPIO2
 		self.KMX62_INC3_IEL2_LATCHED                              = (0x00 << 4)  # latched/unlatched. Unlatched feature is available for FFI,MME and AMI. AND DRDY
 		self.KMX62_INC3_IEL2_PULSED                               = (0x01 << 4)  # pulsed.  In pulse mode the pulse width is 50us for normal mode and 10us for debug mode (high ODR rates).
 		self.KMX62_INC3_IEL2_FIFO_TRIG                            = (0x02 << 4)  # trigger input for FIFO
 		self.KMX62_INC3_IEL2_FIFO_TRIG_2                          = (0x03 << 4)  # trigger input for FIFO
 		self.KMX62_INC3_IED1_PUSHPULL                             = (0x00 << 3)  # push-pull
 		self.KMX62_INC3_IED1_OPENDRAIN                            = (0x01 << 3)  # open-drain
+		self.KMX62_INC3_IED1                                      = (0x01 << 3)  # Interrupt pin drive options for GPIO1
 		self.KMX62_INC3_IEA1_LOW                                  = (0x00 << 2)  # active low
 		self.KMX62_INC3_IEA1_HIGH                                 = (0x01 << 2)  # active high
+		self.KMX62_INC3_IEA1                                      = (0x01 << 2)  # Interrupt active level control for interrupt GPIO1
 		self.KMX62_INC3_IEL1_LATCHED                              = (0x00 << 0)  # latched/unlatched. Unlatched feature is available for FFI,MME and AMI.
 		self.KMX62_INC3_IEL1_PULSED                               = (0x01 << 0)  # pulsed.  In pulse mode the pulse width is 50us for normal mode and 10us for debug mode (high ODR rates).
 		self.KMX62_INC3_IEL1_FIFO_TRIG                            = (0x02 << 0)  # trigger input for FIFO
@@ -142,6 +154,7 @@ class bits(register_base):
 		self.KMX62_INC5_MZPIE                                     = (0x01 << 0)  # z positive (z+) enable/disable
 		self.KMX62_AMI_CNTL3_AMI_EN_DISABLED                      = (0x00 << 7)  
 		self.KMX62_AMI_CNTL3_AMI_EN_ENABLED                       = (0x01 << 7)  
+		self.KMX62_AMI_CNTL3_AMI_EN                               = (0x01 << 7)  
 		self.KMX62_AMI_CNTL3_AMIUL                                = (0x01 << 6)  
 		self.KMX62_AMI_CNTL3_OAMI_0P781                           = (0x00 << 0)  # 0.781Hz
 		self.KMX62_AMI_CNTL3_OAMI_1P563                           = (0x01 << 0)  # 1.563Hz
@@ -153,6 +166,7 @@ class bits(register_base):
 		self.KMX62_AMI_CNTL3_OAMI_100                             = (0x07 << 0)  # 100Hz
 		self.KMX62_MMI_CNTL3_MMI_EN_DISABLED                      = (0x00 << 7)  
 		self.KMX62_MMI_CNTL3_MMI_EN_ENABLED                       = (0x01 << 7)  
+		self.KMX62_MMI_CNTL3_MMI_EN                               = (0x01 << 7)  
 		self.KMX62_MMI_CNTL3_MMIUL                                = (0x01 << 6)  
 		self.KMX62_MMI_CNTL3_OMMI_0P781                           = (0x00 << 0)  # 0.781Hz
 		self.KMX62_MMI_CNTL3_OMMI_1P563                           = (0x01 << 0)  # 1.563Hz
@@ -164,6 +178,7 @@ class bits(register_base):
 		self.KMX62_MMI_CNTL3_OMMI_100                             = (0x07 << 0)  # 100Hz
 		self.KMX62_FFI_CNTL3_FFI_EN_DISABLED                      = (0x00 << 7)  
 		self.KMX62_FFI_CNTL3_FFI_EN_ENABLED                       = (0x01 << 7)  
+		self.KMX62_FFI_CNTL3_FFI_EN                               = (0x01 << 7)  
 		self.KMX62_FFI_CNTL3_FFIUL                                = (0x01 << 6)  
 		self.KMX62_FFI_CNTL3_DCRM                                 = (0x01 << 3)  
 		self.KMX62_FFI_CNTL3_OFFI_12P5                            = (0x00 << 0)  # 12.5Hz
@@ -209,10 +224,12 @@ class bits(register_base):
 		self.KMX62_CNTL1_SRST                                     = (0x01 << 7)  # Start POR routine
 		self.KMX62_CNTL1_STEN_DISABLED                            = (0x00 << 6)  
 		self.KMX62_CNTL1_STEN_ENABLED                             = (0x01 << 6)  
+		self.KMX62_CNTL1_STEN                                     = (0x01 << 6)  # This bit enables the self-test mode that will produce a change in both the accelerometer and magnetometer transducers and can be measured in the output registers
 		self.KMX62_CNTL1_STPOL                                    = (0x01 << 5)  # Accelerometer and Magnetometer ST polarity.
 		self.KMX62_CNTL1_COTC                                     = (0x01 << 3)  # enables the command test function
 		self.KMX62_CNTL2_TEMP_EN_STANDBY_MODE                     = (0x00 << 6)  # standby mode
 		self.KMX62_CNTL2_TEMP_EN_OPERATING_MODE                   = (0x01 << 6)  # operating mode, magnetometer and temperature output registers are updated at the selected output data rate
+		self.KMX62_CNTL2_TEMP_EN                                  = (0x01 << 6)  # controls the operating mode of the ASIC_AOs temperature sensors. MAG_EN must also be enabled for temperature data to be converted. Output data rate is locked to the magnetometers OSM.
 		self.KMX62_CNTL2_GSEL_2G                                  = (0x00 << 4)  
 		self.KMX62_CNTL2_GSEL_4G                                  = (0x01 << 4)  
 		self.KMX62_CNTL2_GSEL_8G                                  = (0x02 << 4)  
@@ -223,8 +240,10 @@ class bits(register_base):
 		self.KMX62_CNTL2_RES_MAX2                                 = (0x03 << 2)  
 		self.KMX62_CNTL2_MAG_EN_STANDBY_MODE                      = (0x00 << 1)  
 		self.KMX62_CNTL2_MAG_EN_OPERATING_MODE                    = (0x01 << 1)  
+		self.KMX62_CNTL2_MAG_EN                                   = (0x01 << 1)  
 		self.KMX62_CNTL2_ACCEL_EN_STANDBY_MODE                    = (0x00 << 0)  
 		self.KMX62_CNTL2_ACCEL_EN_OPERATING_MODE                  = (0x01 << 0)  
+		self.KMX62_CNTL2_ACCEL_EN                                 = (0x01 << 0)  
 		self.KMX62_COTR_TEST_RESP_DEFAULT                         = (0x55 << 0)  
 		self.KMX62_COTR_TEST_RESP_TEST                            = (0xAA << 0)  
 		self.KMX62_BUF_CTRL_2_BUF_M_FIFO                          = (0x00 << 1)  # The buffer collects 384 bytes of data until full, collecting new data only when the buffer is not full.
@@ -234,59 +253,67 @@ class bits(register_base):
 		self.KMX62_BUF_CTRL_2_SMT_TH8                             = (0x01 << 0)  # 8th bit of smt_th data
 		self.KMX62_BUF_CTRL_3_BFI_EN_DISABLED                     = (0x00 << 7)  
 		self.KMX62_BUF_CTRL_3_BFI_EN_ENABLED                      = (0x01 << 7)  
+		self.KMX62_BUF_CTRL_3_BFI_EN                              = (0x01 << 7)  # controls the buffer full interrupt
 		self.KMX62_BUF_CTRL_3_BUF_AX_DISABLED                     = (0x00 << 6)  
 		self.KMX62_BUF_CTRL_3_BUF_AX_ENABLED                      = (0x01 << 6)  
+		self.KMX62_BUF_CTRL_3_BUF_AX                              = (0x01 << 6)  # ax to be buffered
 		self.KMX62_BUF_CTRL_3_BUF_AY_DISABLED                     = (0x00 << 5)  
 		self.KMX62_BUF_CTRL_3_BUF_AY_ENABLED                      = (0x01 << 5)  
+		self.KMX62_BUF_CTRL_3_BUF_AY                              = (0x01 << 5)  # ay to be buffered
 		self.KMX62_BUF_CTRL_3_BUF_AZ_DISABLED                     = (0x00 << 4)  
 		self.KMX62_BUF_CTRL_3_BUF_AZ_ENABLED                      = (0x01 << 4)  
+		self.KMX62_BUF_CTRL_3_BUF_AZ                              = (0x01 << 4)  # az to be buffered
 		self.KMX62_BUF_CTRL_3_BUF_MX_DISABLED                     = (0x00 << 3)  
 		self.KMX62_BUF_CTRL_3_BUF_MX_ENABLED                      = (0x01 << 3)  
+		self.KMX62_BUF_CTRL_3_BUF_MX                              = (0x01 << 3)  # mx to be buffered
 		self.KMX62_BUF_CTRL_3_BUF_MY_DISABLED                     = (0x00 << 2)  
 		self.KMX62_BUF_CTRL_3_BUF_MY_ENABLED                      = (0x01 << 2)  
+		self.KMX62_BUF_CTRL_3_BUF_MY                              = (0x01 << 2)  # my to be buffered
 		self.KMX62_BUF_CTRL_3_BUF_MZ_DISABLED                     = (0x00 << 1)  
 		self.KMX62_BUF_CTRL_3_BUF_MZ_ENABLED                      = (0x01 << 1)  
+		self.KMX62_BUF_CTRL_3_BUF_MZ                              = (0x01 << 1)  # mz to be buffered
 		self.KMX62_BUF_CTRL_3_BUF_TEMP_DISABLED                   = (0x00 << 0)  
 		self.KMX62_BUF_CTRL_3_BUF_TEMP_ENABLED                    = (0x01 << 0)  
+		self.KMX62_BUF_CTRL_3_BUF_TEMP                            = (0x01 << 0)  # temperature to be buffered
 		self.KMX62_BUF_STATUS_2_BUF_TRIG                          = (0x01 << 1)  # reports the status of the buffers trigger function if this mode has been selected.  When using trigger mode, a buffer read should only be performed after a trigger event.
 		self.KMX62_BUF_STATUS_2_SMP_LEV_H                         = (0x01 << 0)  
 _b=bits()
 class enums(register_base):
 	def __init__(self):
 		self.KMX62_BUF_CTRL_3_BUF_AZ={
-			'disabled':_b.KMX62_BUF_CTRL_3_BUF_AZ_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BUF_AZ_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BUF_AZ_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BUF_AZ_ENABLED,
 		}
 		self.KMX62_MMI_CNTL3_MMI_EN={
-			'disabled':_b.KMX62_MMI_CNTL3_MMI_EN_DISABLED,
-			'enabled':_b.KMX62_MMI_CNTL3_MMI_EN_ENABLED,
+			'DISABLED':_b.KMX62_MMI_CNTL3_MMI_EN_DISABLED,
+			'ENABLED':_b.KMX62_MMI_CNTL3_MMI_EN_ENABLED,
 		}
 		self.KMX62_INC3_IEA1={
-			'high':_b.KMX62_INC3_IEA1_HIGH,
-			'low':_b.KMX62_INC3_IEA1_LOW,
+			'HIGH':_b.KMX62_INC3_IEA1_HIGH,
+			'LOW':_b.KMX62_INC3_IEA1_LOW,
 		}
 		self.KMX62_CNTL2_GSEL={
-			'4g':_b.KMX62_CNTL2_GSEL_4G,
-			'16g':_b.KMX62_CNTL2_GSEL_16G,
-			'2g':_b.KMX62_CNTL2_GSEL_2G,
-			'8g':_b.KMX62_CNTL2_GSEL_8G,
+			'4G':_b.KMX62_CNTL2_GSEL_4G,
+			'2G':_b.KMX62_CNTL2_GSEL_2G,
+			'8G':_b.KMX62_CNTL2_GSEL_8G,
+			'16G':_b.KMX62_CNTL2_GSEL_16G,
 		}
 		self.KMX62_INC3_IEA2={
-			'high':_b.KMX62_INC3_IEA2_HIGH,
-			'low':_b.KMX62_INC3_IEA2_LOW,
+			'HIGH':_b.KMX62_INC3_IEA2_HIGH,
+			'LOW':_b.KMX62_INC3_IEA2_LOW,
 		}
 		self.KMX62_BUF_CTRL_3_BUF_TEMP={
-			'disabled':_b.KMX62_BUF_CTRL_3_BUF_TEMP_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BUF_TEMP_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BUF_TEMP_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BUF_TEMP_ENABLED,
 		}
 		self.KMX62_CNTL2_MAG_EN={
-			'standby_mode':_b.KMX62_CNTL2_MAG_EN_STANDBY_MODE,
-			'operating_mode':_b.KMX62_CNTL2_MAG_EN_OPERATING_MODE,
+			'STANDBY_MODE':_b.KMX62_CNTL2_MAG_EN_STANDBY_MODE,
+			'OPERATING_MODE':_b.KMX62_CNTL2_MAG_EN_OPERATING_MODE,
 		}
 		self.KMX62_FFI_CNTL3_OFFI={
 			'25':_b.KMX62_FFI_CNTL3_OFFI_25,
 			'200':_b.KMX62_FFI_CNTL3_OFFI_200,
-			'12p5':_b.KMX62_FFI_CNTL3_OFFI_12P5,
+			'12P5':_b.KMX62_FFI_CNTL3_OFFI_12P5,
 			'1600':_b.KMX62_FFI_CNTL3_OFFI_1600,
 			'50':_b.KMX62_FFI_CNTL3_OFFI_50,
 			'400':_b.KMX62_FFI_CNTL3_OFFI_400,
@@ -294,172 +321,172 @@ class enums(register_base):
 			'800':_b.KMX62_FFI_CNTL3_OFFI_800,
 		}
 		self.KMX62_INS1_BFI={
-			'buff_full':_b.KMX62_INS1_BFI_BUFF_FULL,
-			'buff_not_full':_b.KMX62_INS1_BFI_BUFF_NOT_FULL,
+			'BUFF_FULL':_b.KMX62_INS1_BFI_BUFF_FULL,
+			'BUFF_NOT_FULL':_b.KMX62_INS1_BFI_BUFF_NOT_FULL,
 		}
 		self.KMX62_BUF_CTRL_3_BUF_MY={
-			'disabled':_b.KMX62_BUF_CTRL_3_BUF_MY_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BUF_MY_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BUF_MY_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BUF_MY_ENABLED,
 		}
 		self.KMX62_INC3_IEL2={
-			'pulsed':_b.KMX62_INC3_IEL2_PULSED,
-			'fifo_trig':_b.KMX62_INC3_IEL2_FIFO_TRIG,
-			'fifo_trig_2':_b.KMX62_INC3_IEL2_FIFO_TRIG_2,
-			'latched':_b.KMX62_INC3_IEL2_LATCHED,
+			'FIFO_TRIG':_b.KMX62_INC3_IEL2_FIFO_TRIG,
+			'PULSED':_b.KMX62_INC3_IEL2_PULSED,
+			'LATCHED':_b.KMX62_INC3_IEL2_LATCHED,
+			'FIFO_TRIG_2':_b.KMX62_INC3_IEL2_FIFO_TRIG_2,
 		}
 		self.KMX62_INS1_DRDY_A={
-			'available':_b.KMX62_INS1_DRDY_A_AVAILABLE,
-			'not_available':_b.KMX62_INS1_DRDY_A_NOT_AVAILABLE,
+			'AVAILABLE':_b.KMX62_INS1_DRDY_A_AVAILABLE,
+			'NOT_AVAILABLE':_b.KMX62_INS1_DRDY_A_NOT_AVAILABLE,
 		}
 		self.KMX62_CNTL2_TEMP_EN={
-			'standby_mode':_b.KMX62_CNTL2_TEMP_EN_STANDBY_MODE,
-			'operating_mode':_b.KMX62_CNTL2_TEMP_EN_OPERATING_MODE,
+			'STANDBY_MODE':_b.KMX62_CNTL2_TEMP_EN_STANDBY_MODE,
+			'OPERATING_MODE':_b.KMX62_CNTL2_TEMP_EN_OPERATING_MODE,
 		}
 		self.KMX62_BUF_CTRL_3_BFI_EN={
-			'disabled':_b.KMX62_BUF_CTRL_3_BFI_EN_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BFI_EN_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BFI_EN_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BFI_EN_ENABLED,
 		}
 		self.KMX62_ODCNTL_OSM={
 			'25':_b.KMX62_ODCNTL_OSM_25,
-			'0p781':_b.KMX62_ODCNTL_OSM_0P781,
+			'0P781':_b.KMX62_ODCNTL_OSM_0P781,
 			'200':_b.KMX62_ODCNTL_OSM_200,
-			'12p5':_b.KMX62_ODCNTL_OSM_12P5,
+			'12P5':_b.KMX62_ODCNTL_OSM_12P5,
 			'1600':_b.KMX62_ODCNTL_OSM_1600,
 			'50':_b.KMX62_ODCNTL_OSM_50,
-			'6p25':_b.KMX62_ODCNTL_OSM_6P25,
-			'1p563':_b.KMX62_ODCNTL_OSM_1P563,
-			'3p125':_b.KMX62_ODCNTL_OSM_3P125,
+			'6P25':_b.KMX62_ODCNTL_OSM_6P25,
+			'1P563':_b.KMX62_ODCNTL_OSM_1P563,
+			'3P125':_b.KMX62_ODCNTL_OSM_3P125,
 			'12800':_b.KMX62_ODCNTL_OSM_12800,
 			'400':_b.KMX62_ODCNTL_OSM_400,
 			'100':_b.KMX62_ODCNTL_OSM_100,
 			'800':_b.KMX62_ODCNTL_OSM_800,
-			'12800c':_b.KMX62_ODCNTL_OSM_12800C,
-			'12800b':_b.KMX62_ODCNTL_OSM_12800B,
-			'12800a':_b.KMX62_ODCNTL_OSM_12800A,
+			'12800C':_b.KMX62_ODCNTL_OSM_12800C,
+			'12800B':_b.KMX62_ODCNTL_OSM_12800B,
+			'12800A':_b.KMX62_ODCNTL_OSM_12800A,
 		}
 		self.KMX62_BUF_CTRL_3_BUF_AY={
-			'disabled':_b.KMX62_BUF_CTRL_3_BUF_AY_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BUF_AY_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BUF_AY_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BUF_AY_ENABLED,
 		}
 		self.KMX62_BUF_CTRL_3_BUF_AX={
-			'disabled':_b.KMX62_BUF_CTRL_3_BUF_AX_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BUF_AX_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BUF_AX_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BUF_AX_ENABLED,
 		}
 		self.KMX62_ODCNTL_OSA={
-			'25600st0p8':_b.KMX62_ODCNTL_OSA_25600ST0P8,
+			'25600ST0P8':_b.KMX62_ODCNTL_OSA_25600ST0P8,
 			'25':_b.KMX62_ODCNTL_OSA_25,
-			'0p781':_b.KMX62_ODCNTL_OSA_0P781,
+			'0P781':_b.KMX62_ODCNTL_OSA_0P781,
 			'200':_b.KMX62_ODCNTL_OSA_200,
-			'12p5':_b.KMX62_ODCNTL_OSA_12P5,
+			'12P5':_b.KMX62_ODCNTL_OSA_12P5,
 			'1600':_b.KMX62_ODCNTL_OSA_1600,
-			'25600st1p6':_b.KMX62_ODCNTL_OSA_25600ST1P6,
+			'25600ST1P6':_b.KMX62_ODCNTL_OSA_25600ST1P6,
 			'50':_b.KMX62_ODCNTL_OSA_50,
-			'1p563':_b.KMX62_ODCNTL_OSA_1P563,
-			'25600st3p2':_b.KMX62_ODCNTL_OSA_25600ST3P2,
+			'1P563':_b.KMX62_ODCNTL_OSA_1P563,
+			'25600ST3P2':_b.KMX62_ODCNTL_OSA_25600ST3P2,
 			'25600':_b.KMX62_ODCNTL_OSA_25600,
-			'3p125':_b.KMX62_ODCNTL_OSA_3P125,
+			'3P125':_b.KMX62_ODCNTL_OSA_3P125,
 			'400':_b.KMX62_ODCNTL_OSA_400,
 			'100':_b.KMX62_ODCNTL_OSA_100,
 			'800':_b.KMX62_ODCNTL_OSA_800,
-			'6p25':_b.KMX62_ODCNTL_OSA_6P25,
+			'6P25':_b.KMX62_ODCNTL_OSA_6P25,
 		}
 		self.KMX62_INS1_FFI={
-			'no_ffi':_b.KMX62_INS1_FFI_NO_FFI,
-			'ffi':_b.KMX62_INS1_FFI_FFI,
+			'NO_FFI':_b.KMX62_INS1_FFI_NO_FFI,
+			'FFI':_b.KMX62_INS1_FFI_FFI,
 		}
 		self.KMX62_INS1_DRDY_M={
-			'available':_b.KMX62_INS1_DRDY_M_AVAILABLE,
-			'not_available':_b.KMX62_INS1_DRDY_M_NOT_AVAILABLE,
+			'AVAILABLE':_b.KMX62_INS1_DRDY_M_AVAILABLE,
+			'NOT_AVAILABLE':_b.KMX62_INS1_DRDY_M_NOT_AVAILABLE,
 		}
 		self.KMX62_INC3_IED2={
-			'pushpull':_b.KMX62_INC3_IED2_PUSHPULL,
-			'opendrain':_b.KMX62_INC3_IED2_OPENDRAIN,
+			'PUSHPULL':_b.KMX62_INC3_IED2_PUSHPULL,
+			'OPENDRAIN':_b.KMX62_INC3_IED2_OPENDRAIN,
 		}
 		self.KMX62_INC3_IED1={
-			'pushpull':_b.KMX62_INC3_IED1_PUSHPULL,
-			'opendrain':_b.KMX62_INC3_IED1_OPENDRAIN,
+			'PUSHPULL':_b.KMX62_INC3_IED1_PUSHPULL,
+			'OPENDRAIN':_b.KMX62_INC3_IED1_OPENDRAIN,
 		}
 		self.KMX62_INS1_MMI={
-			'motion':_b.KMX62_INS1_MMI_MOTION,
-			'no_motion':_b.KMX62_INS1_MMI_NO_MOTION,
+			'MOTION':_b.KMX62_INS1_MMI_MOTION,
+			'NO_MOTION':_b.KMX62_INS1_MMI_NO_MOTION,
 		}
 		self.KMX62_INS1_WMI={
-			'mark_reached':_b.KMX62_INS1_WMI_MARK_REACHED,
-			'mark_not_reached':_b.KMX62_INS1_WMI_MARK_NOT_REACHED,
+			'MARK_REACHED':_b.KMX62_INS1_WMI_MARK_REACHED,
+			'MARK_NOT_REACHED':_b.KMX62_INS1_WMI_MARK_NOT_REACHED,
 		}
 		self.KMX62_BUF_CTRL_3_BUF_MX={
-			'disabled':_b.KMX62_BUF_CTRL_3_BUF_MX_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BUF_MX_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BUF_MX_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BUF_MX_ENABLED,
 		}
 		self.KMX62_CNTL2_RES={
-			'a32m16':_b.KMX62_CNTL2_RES_A32M16,
-			'max2':_b.KMX62_CNTL2_RES_MAX2,
-			'max1':_b.KMX62_CNTL2_RES_MAX1,
-			'a4m2':_b.KMX62_CNTL2_RES_A4M2,
+			'A32M16':_b.KMX62_CNTL2_RES_A32M16,
+			'MAX2':_b.KMX62_CNTL2_RES_MAX2,
+			'MAX1':_b.KMX62_CNTL2_RES_MAX1,
+			'A4M2':_b.KMX62_CNTL2_RES_A4M2,
 		}
 		self.KMX62_BUF_CTRL_3_BUF_MZ={
-			'disabled':_b.KMX62_BUF_CTRL_3_BUF_MZ_DISABLED,
-			'enabled':_b.KMX62_BUF_CTRL_3_BUF_MZ_ENABLED,
+			'DISABLED':_b.KMX62_BUF_CTRL_3_BUF_MZ_DISABLED,
+			'ENABLED':_b.KMX62_BUF_CTRL_3_BUF_MZ_ENABLED,
 		}
 		self.KMX62_BUF_CTRL_2_BUF_M={
-			'trigger':_b.KMX62_BUF_CTRL_2_BUF_M_TRIGGER,
-			'filo':_b.KMX62_BUF_CTRL_2_BUF_M_FILO,
-			'fifo':_b.KMX62_BUF_CTRL_2_BUF_M_FIFO,
-			'stream':_b.KMX62_BUF_CTRL_2_BUF_M_STREAM,
+			'TRIGGER':_b.KMX62_BUF_CTRL_2_BUF_M_TRIGGER,
+			'FILO':_b.KMX62_BUF_CTRL_2_BUF_M_FILO,
+			'FIFO':_b.KMX62_BUF_CTRL_2_BUF_M_FIFO,
+			'STREAM':_b.KMX62_BUF_CTRL_2_BUF_M_STREAM,
 		}
 		self.KMX62_AMI_CNTL3_OAMI={
 			'25':_b.KMX62_AMI_CNTL3_OAMI_25,
-			'0p781':_b.KMX62_AMI_CNTL3_OAMI_0P781,
-			'12p5':_b.KMX62_AMI_CNTL3_OAMI_12P5,
+			'0P781':_b.KMX62_AMI_CNTL3_OAMI_0P781,
+			'12P5':_b.KMX62_AMI_CNTL3_OAMI_12P5,
 			'50':_b.KMX62_AMI_CNTL3_OAMI_50,
-			'1p563':_b.KMX62_AMI_CNTL3_OAMI_1P563,
-			'3p125':_b.KMX62_AMI_CNTL3_OAMI_3P125,
+			'1P563':_b.KMX62_AMI_CNTL3_OAMI_1P563,
+			'3P125':_b.KMX62_AMI_CNTL3_OAMI_3P125,
 			'100':_b.KMX62_AMI_CNTL3_OAMI_100,
-			'6p25':_b.KMX62_AMI_CNTL3_OAMI_6P25,
+			'6P25':_b.KMX62_AMI_CNTL3_OAMI_6P25,
 		}
 		self.KMX62_INC3_IEL1={
-			'pulsed':_b.KMX62_INC3_IEL1_PULSED,
-			'fifo_trig':_b.KMX62_INC3_IEL1_FIFO_TRIG,
-			'fifo_trig_2':_b.KMX62_INC3_IEL1_FIFO_TRIG_2,
-			'latched':_b.KMX62_INC3_IEL1_LATCHED,
+			'FIFO_TRIG':_b.KMX62_INC3_IEL1_FIFO_TRIG,
+			'PULSED':_b.KMX62_INC3_IEL1_PULSED,
+			'LATCHED':_b.KMX62_INC3_IEL1_LATCHED,
+			'FIFO_TRIG_2':_b.KMX62_INC3_IEL1_FIFO_TRIG_2,
 		}
 		self.KMX62_INS1_INT={
 			'INT':_b.KMX62_INS1_INT_INT,
 			'NO_INT':_b.KMX62_INS1_INT_NO_INT,
 		}
 		self.KMX62_CNTL2_ACCEL_EN={
-			'standby_mode':_b.KMX62_CNTL2_ACCEL_EN_STANDBY_MODE,
-			'operating_mode':_b.KMX62_CNTL2_ACCEL_EN_OPERATING_MODE,
+			'STANDBY_MODE':_b.KMX62_CNTL2_ACCEL_EN_STANDBY_MODE,
+			'OPERATING_MODE':_b.KMX62_CNTL2_ACCEL_EN_OPERATING_MODE,
 		}
 		self.KMX62_CNTL1_STEN={
-			'disabled':_b.KMX62_CNTL1_STEN_DISABLED,
-			'enabled':_b.KMX62_CNTL1_STEN_ENABLED,
+			'DISABLED':_b.KMX62_CNTL1_STEN_DISABLED,
+			'ENABLED':_b.KMX62_CNTL1_STEN_ENABLED,
 		}
 		self.KMX62_AMI_CNTL3_AMI_EN={
-			'disabled':_b.KMX62_AMI_CNTL3_AMI_EN_DISABLED,
-			'enabled':_b.KMX62_AMI_CNTL3_AMI_EN_ENABLED,
+			'DISABLED':_b.KMX62_AMI_CNTL3_AMI_EN_DISABLED,
+			'ENABLED':_b.KMX62_AMI_CNTL3_AMI_EN_ENABLED,
 		}
 		self.KMX62_MMI_CNTL3_OMMI={
 			'25':_b.KMX62_MMI_CNTL3_OMMI_25,
-			'0p781':_b.KMX62_MMI_CNTL3_OMMI_0P781,
-			'12p5':_b.KMX62_MMI_CNTL3_OMMI_12P5,
+			'0P781':_b.KMX62_MMI_CNTL3_OMMI_0P781,
+			'12P5':_b.KMX62_MMI_CNTL3_OMMI_12P5,
 			'50':_b.KMX62_MMI_CNTL3_OMMI_50,
-			'1p563':_b.KMX62_MMI_CNTL3_OMMI_1P563,
-			'3p125':_b.KMX62_MMI_CNTL3_OMMI_3P125,
+			'1P563':_b.KMX62_MMI_CNTL3_OMMI_1P563,
+			'3P125':_b.KMX62_MMI_CNTL3_OMMI_3P125,
 			'100':_b.KMX62_MMI_CNTL3_OMMI_100,
-			'6p25':_b.KMX62_MMI_CNTL3_OMMI_6P25,
+			'6P25':_b.KMX62_MMI_CNTL3_OMMI_6P25,
 		}
 		self.KMX62_FFI_CNTL3_FFI_EN={
-			'disabled':_b.KMX62_FFI_CNTL3_FFI_EN_DISABLED,
-			'enabled':_b.KMX62_FFI_CNTL3_FFI_EN_ENABLED,
+			'DISABLED':_b.KMX62_FFI_CNTL3_FFI_EN_DISABLED,
+			'ENABLED':_b.KMX62_FFI_CNTL3_FFI_EN_ENABLED,
 		}
 		self.KMX62_INS1_AMI={
-			'motion':_b.KMX62_INS1_AMI_MOTION,
-			'no_motion':_b.KMX62_INS1_AMI_NO_MOTION,
+			'MOTION':_b.KMX62_INS1_AMI_MOTION,
+			'NO_MOTION':_b.KMX62_INS1_AMI_NO_MOTION,
 		}
 		self.KMX62_COTR_TEST_RESP={
-			'default':_b.KMX62_COTR_TEST_RESP_DEFAULT,
-			'test':_b.KMX62_COTR_TEST_RESP_TEST,
+			'DEFAULT':_b.KMX62_COTR_TEST_RESP_DEFAULT,
+			'TEST':_b.KMX62_COTR_TEST_RESP_TEST,
 		}
 class masks(register_base):
 	def __init__(self):

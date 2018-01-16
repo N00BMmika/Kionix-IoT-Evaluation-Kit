@@ -19,8 +19,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
-from lib.util_lib import evkit_config, logger
+import sys
+from lib.util_lib import evkit_config, logger, ACTIVE_LOW
 from lib.bus_base import BusException
+
 
 def setup_aardvark_spi(sensor=None):
     from lib import bus_aardvark   
@@ -68,7 +70,7 @@ def setup_socket_i2c(sensor=None):
 
 def setup_socket_adb_i2c(sensor=None):
     from lib.bus_evkit import bus_socket
-    b=bus_socket()
+    b=bus_socket(index = 1)
     cfg=b.get_configuration_template()
     b.configure(cfg)
     b.open()
@@ -108,7 +110,38 @@ def setup_serial_i2c(sensor=None):
         return None
     sensor.por()    
     return b
-    
+
+def setup_linux_ble(sensor=None):
+    from lib.bus_pygatt import bus_linux_ble
+    b=bus_linux_ble()
+    cfg=b.get_configuration_template()
+    b.configure(cfg)
+    b.open()
+    if not sensor: return b
+
+    if not b.probe_sensor(sensor):
+        b.close()
+        raise BusException('Bus not assigned to sensor.')
+        return None
+    sensor.por()
+    return b
+
+def setup_raspberry_socket(sensor=None):
+    "Socket connection to Raspberry Pi3 which is running Kionix Firmware"
+    from lib.bus_evkit import bus_socket
+    b=bus_socket(index=2)
+    cfg=b.get_configuration_template()
+    b.configure(cfg)
+    b.open()
+    if not sensor: return b
+
+    if not b.probe_sensor(sensor):        
+        b.close()
+        raise BusException('Bus not assigned to sensor.')
+        return None
+    sensor.por()    
+    return b
+
 def setup_default_connection(sensor=None, skip_board_init = False):
     # This will create connection using connection defined in settings.cfg
     bus_index_dict={
@@ -117,11 +150,14 @@ def setup_default_connection(sensor=None, skip_board_init = False):
         3:setup_socket_i2c,
         4:setup_linux_i2c,
         5:setup_socket_adb_i2c,
-        6:setup_serial_i2c
+        6:setup_serial_i2c,
+        7:setup_linux_ble,
+        8:setup_raspberry_socket,
         }
 
+    logger.debug('Python {}'.format(sys.version))
     bus_index = evkit_config.get('connection', 'bus_index')
-    if bus_index.startswith('serial_com'): 
+    if  bus_index.startswith('serial_com'): 
         evkit_config.remove_section('__com__')
         evkit_config.add_section('__com__')
         evkit_config.set('__com__','config',bus_index)
@@ -135,7 +171,7 @@ def setup_default_connection(sensor=None, skip_board_init = False):
 
     if not skip_board_init:
         ## Sensors in Kionix IoT node must be initialized to active low 
-        if evkit_config.get('connection', 'bus_index') in ['3' , '5', 'serial_com_kx_iot']:
+        if evkit_config.get('connection', 'bus_index') in ['3' , '5', '7','serial_com_kx_iot']:
             # FIXME nRF51-DK + BLE will cause board init, it is not needed
 
             logger.info('Kionix  IoT node init start')
@@ -156,54 +192,48 @@ def setup_default_connection(sensor=None, skip_board_init = False):
             from kxg03 import kxg03_driver
             kxg03 = kxg03_driver.kxg03_driver()
             if (bus.probe_sensor(kxg03)):
-                logger.debug('Reset KXG03 on main board and set interrput to active low')
+                logger.debug('Reset KXG03 and set interrput to active low')
                 kxg03.por()
                 
                 ## KXG03 inital settings for Kionix IoT Board
-                kxg03.write_register(kxg03_driver.r.KXG03_INT_PIN_CTL, \
-                                         kxg03_driver.b.KXG03_INT_PIN_CTL_IEA2_ACTIVE_LOW   | \
-                                         kxg03_driver.b.KXG03_INT_PIN_CTL_IEL2_LATCHED      | \
-                                         kxg03_driver.b.KXG03_INT_PIN_CTL_IEA1_ACTIVE_LOW   | \
-                                         kxg03_driver.b.KXG03_INT_PIN_CTL_IEL1_LATCHED)    
+                kxg03.set_interrupt_polarity(intpin = 1, polarity = ACTIVE_LOW)
+                kxg03.set_interrupt_polarity(intpin = 2, polarity = ACTIVE_LOW)
 
             from kxg08 import kxg08_driver
             kxg08 = kxg08_driver.kxg08_driver()
             if (bus.probe_sensor(kxg08)):
-                logger.debug('Reset KXG07/08 on main board and set interrput to active low')
+                logger.debug('Reset KXG07/08 and set interrput to active low')
                 kxg08.por()
 
                 ## KXG08 inital settings for Kionix IoT Board
-                kxg08.write_register(kxg08_driver.r.KXG08_INT_PIN_CTL,  \
-                                        kxg08_driver.b.KXG08_INT_PIN_CTL_IEA2_ACTIVE_LOW   | \
-                                        kxg08_driver.b.KXG08_INT_PIN_CTL_IEL2_LATCHED      | \
-                                        kxg08_driver.b.KXG08_INT_PIN_CTL_IEA1_ACTIVE_LOW   | \
-                                        kxg08_driver.b.KXG08_INT_PIN_CTL_IEL1_LATCHED) 
-
+                kxg08.set_interrupt_polarity(intpin = 1, polarity = ACTIVE_LOW)
+                kxg08.set_interrupt_polarity(intpin = 2, polarity = ACTIVE_LOW)
+                
             from kx022_kx122 import kx022_driver
             kx122 = kx022_driver.kx022_driver()
             if (bus.probe_sensor(kx122)):
-                logger.debug('Reset KX122 on main board and set interrput to active low')
+                logger.debug('Reset KX122 set interrput to active low')
                 kx122.por()
                 
                 ## KX122 inital settings for Kionix IoT Board
-                kx122.reset_bit(kx022_driver.r122.KX122_INC1, kx022_driver.b122.KX122_INC1_IEA1) # active low int1
-                kx122.reset_bit(kx022_driver.r122.KX122_INC5, kx022_driver.b122.KX122_INC5_IEA2) # active low int2
+                kx122.set_interrupt_polarity(intpin = 1, polarity = ACTIVE_LOW)
+                kx122.set_interrupt_polarity(intpin = 2, polarity = ACTIVE_LOW)
 
             from kx126 import kx126_driver
             kx126 = kx126_driver.kx126_driver()
             if (bus.probe_sensor(kx126)):
-                logger.debug('Reset KX126 on main board and set interrput to active low')
+                logger.debug('Reset KX126 and set interrput to active low')
                 kx126.por()
 
                 #KX126 inital settings for Kionix IoT Board
-                kx126.reset_bit(kx126_driver.r.KX126_INC1, kx126_driver.b.KX126_INC1_IEA1) # active low int1
-                kx126.reset_bit(kx126_driver.r.KX126_INC5, kx126_driver.b.KX126_INC5_IEA2) # active low int2
+                kx126.set_interrupt_polarity(intpin = 1, polarity = ACTIVE_LOW)
+                kx126.set_interrupt_polarity(intpin = 2, polarity = ACTIVE_LOW)
 
-            from bm1383glv import bm1383glv_driver
-            bm1383glv = bm1383glv_driver.bm1383glv_driver()
-            if (bus.probe_sensor(bm1383glv)):
-                logger.debug('Reset BM1383GLV on main board and set interrput to active low')
-                bm1383glv.por()
+            #from bm1383glv import bm1383glv_driver
+            #bm1383glv = bm1383glv_driver.bm1383glv_driver()
+            #if (bus.probe_sensor(bm1383glv)):
+            #    logger.debug('Reset BM1383GLV on main board and set interrput to active low')
+            #    bm1383glv.por()
 
             from bm1383aglv import bm1383aglv_driver
             bm1383aglv = bm1383aglv_driver.bm1383aglv_driver()
@@ -219,20 +249,14 @@ def setup_default_connection(sensor=None, skip_board_init = False):
                 
                 from kxtj3 import kxtj3_driver
                 kxtj3 = kxtj3_driver.kxtj3_driver()
-                
-                from kx126 import kx126_driver
-                kx126 = kx126_driver.kx126_driver()
-                
-                from kxg08 import kxg08_driver
-                kxg08 = kxg08_driver.kxg08_driver()
-                
+                                
                 if (bus.probe_sensor(kx224)):
                     logger.debug('Reset KX224 on add-on board and set interrput to active low')
                     kx224.por()
                     
                     ## KX224 initial settings for Kionix IoT/Add-on Board
-                    kx224.reset_bit(kx224_driver.r.KX224_INC1, kx224_driver.b.KX224_INC1_IEA1) # active low int1
-                    kx224.reset_bit(kx224_driver.r.KX224_INC5, kx224_driver.b.KX224_INC5_IEA2) # active low int2
+                    kx224.set_interrupt_polarity(intpin = 1, polarity = ACTIVE_LOW) # active low int1
+                    kx224.set_interrupt_polarity(intpin = 2, polarity = ACTIVE_LOW) # active low int2
 
                 elif (bus.probe_sensor(kxtj3)):
                     logger.debug('Reset KXTJ3 on add-on board and set interrput to active low')
@@ -241,33 +265,15 @@ def setup_default_connection(sensor=None, skip_board_init = False):
                     ## KXTJ3 initial settings for Kionix IoT/Add-on Board
                     kxtj3.reset_bit(kxtj3_driver.r.KXTJ3_INT_CTRL_REG1, kxtj3_driver.b.KXTJ3_INT_CTRL_REG1_IEA)# active low
                     
-                elif (bus.probe_sensor(kx126)):
-                    logger.debug('Reset KX126 on add-on board and set interrput to active low')
-                    kx126.por()
-
-                    ## KX126 inital settings for Kionix IoT Board
-                    kx126.reset_bit(kx126_driver.r.KX126_INC1, kx126_driver.b.KX126_INC1_IEA1) # active low int1
-                    kx126.reset_bit(kx126_driver.r.KX126_INC5, kx126_driver.b.KX126_INC5_IEA2) # active low int2
-                    
-                if (bus.probe_sensor(kxg08)):
-                    logger.debug('Reset KXG07/08 on add-on board and set interrput to active low')
-                    kxg08.por()
-
-                    ## KXG08 inital settings for Kionix IoT Board
-                    kxg08.write_register(kxg08_driver.r.KXG08_INT_PIN_CTL,  \
-                                            kxg08_driver.b.KXG08_INT_PIN_CTL_IEA2_ACTIVE_LOW   | \
-                                            kxg08_driver.b.KXG08_INT_PIN_CTL_IEL2_LATCHED      | \
-                                            kxg08_driver.b.KXG08_INT_PIN_CTL_IEA1_ACTIVE_LOW   | \
-                                            kxg08_driver.b.KXG08_INT_PIN_CTL_IEL1_LATCHED)                     
                     
             logger.info('Kionix  IoT board init done')
 
     return bus
 
-def open_bus_or_exit(sensor):
+def open_bus_or_exit(sensor, skip_board_init = False):
     # FIXME remove this function. 
     try:
-        bus = setup_default_connection(sensor)
+        bus = setup_default_connection(sensor = sensor, skip_board_init = skip_board_init )
         
     except Exception, e:
         if str(e) == 'Bus not assigned to sensor.':

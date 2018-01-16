@@ -26,7 +26,7 @@ import kxcnl_registers as sensor
 r = sensor.registers()
 b = sensor.bits()
 m = sensor.masks()
-
+e = sensor.enums()
 class kxcnl_driver(sensor_base):
     _WAI = 0x0B
 

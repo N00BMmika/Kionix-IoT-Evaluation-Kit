@@ -1,13 +1,22 @@
 # 
 # Copyright 2016 Kionix Inc.
 #
+""" This module
+- implements connectivity to all supported connections. 
+-- Kionix protocol based connectivity (kx_protocol_bus)
+-- Aardvark host adapter
+-- Linux native I2C module
+
+"""
 from time import sleep
 import array
 import os
 
 from bus_base import _i2c_bus, BusException
 from util_lib import logger, DelayedKeyboardInterrupt, evkit_config
+from proto import kx_socket_b2s, kx_socket_adb, kx_com_port, kx_socket_builtin, ProtocolEngine
 import proto
+from sys import platform as _platform
      
 class kx_protocol_bus(_i2c_bus):
     def  __init__(self):
@@ -118,7 +127,11 @@ class kx_protocol_bus(_i2c_bus):
 
 class bus_socket(kx_protocol_bus):
     def __init__(self, index = 1):
-        self.socket_module_index = [proto.kx_socket_b2s, proto.kx_socket_adb]
+        self.socket_module_index = [kx_socket_b2s, kx_socket_adb, kx_socket_builtin]
+        self.socket_config_block = ['protocol_gpio','protocol_gpio','rpi3_socket']
+        
+        #self._kx_socket_b2s = kx_socket_b2s() # For pyreverse
+        #self._kx_socket_adb = kx_socket_adb() # For pyreverse
         self.index = index
 
         kx_protocol_bus.__init__(self)        
@@ -128,16 +141,31 @@ class bus_socket(kx_protocol_bus):
         self.bus_gpio_list = []
         self._gpio_pin_index = []
 
-        for t in range(1,4):
-            if not evkit_config.has_option('protocol_gpio','pin%d_index' % t):
+        for t in range(1,4): # TODO : now only 4 int lines supported
+            if not evkit_config.has_option(
+                self.socket_config_block[self.index],'pin%d_index' % t):
                 break
+
             self._has_gpio = True
             self.bus_gpio_list.append(t)
-            self._gpio_pin_index.append(evkit_config.getint('protocol_gpio','pin%d_index' % t))
+            
+            self._gpio_pin_index.append(evkit_config.getint(
+                    self.socket_config_block[self.index],'pin%d_index' % t))
 
     def open(self):
         kx_protocol_bus.open(self)
-        self._kx_port = self.socket_module_index[self.index](timeout = 3)
+
+        if evkit_config.has_option(self.socket_config_block[self.index],'host'):
+            host = evkit_config.get(self.socket_config_block[self.index],'host')
+        else:
+            host = 'localhost'
+
+        if evkit_config.has_option(self.socket_config_block[self.index],'port'):
+            port = evkit_config.getint(self.socket_config_block[self.index],'port')
+        else:
+            port = 8100
+
+        self._kx_port = self.socket_module_index[self.index](host=host, port=port, timeout = 3)
         self._kx_connection = proto.ProtocolEngine(self._kx_port)
 
         # run version request
@@ -160,11 +188,11 @@ class bus_socket(kx_protocol_bus):
             message_type, major_version, minor_version = proto.unpack_response_data(reponse_data)
 
         self.verify_protocol_version(major_version, minor_version)
-
+                       
 class bus_serial_com(kx_protocol_bus):
     def __init__(self, index = None ):
         # FIXME consider removing index
-        kx_protocol_bus.__init__(self)        
+        kx_protocol_bus.__init__(self)
         self.config_section = evkit_config.get('__com__','config')
         self._configure_interrupts()
 
@@ -188,12 +216,17 @@ class bus_serial_com(kx_protocol_bus):
             result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'USB Serial Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
             
         elif self.config_section.startswith('serial_com_nrf51dk'):
-            result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'mbed Serial Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
+            result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'JLink CDC UART Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
             if result == None:
-                result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'JLink CDC UART Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
+                result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'USB Serial Device' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
+            if result == None:
+                result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'mbed Serial Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
 
-        else:
+        else: #Arduino
             result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'Arduino Uno' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
+            if result == None:
+                result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'USB Serial Device' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
+
 
         if result == None:
             raise BusException('Automatic search found no devices')
@@ -205,11 +238,11 @@ class bus_serial_com(kx_protocol_bus):
         try:
             import wmi
         except ImportError:
-            print "\nPlease run \'pip install wmi\'\nand \'pip install pypiwin32\'\n"
-            print "Alternatively define port manyally to settings.cfg\n"
-            print "Example for windows OS : com_port = COM10\n"
-            print "Example for Linux OS: com_port = /dev/ttyUSB0\n"
-            raise
+            logger.critical("Autofinder found no {} devices".format(self.config_section))
+            logger.critical("\nPlease run \'pip install wmi\'\nand \'pip install pypiwin32\'\n")
+            logger.critical("Alternatively define port in settings.cfg\n")
+            logger.critical("Example for windows OS : com_port = COM10\n")
+            exit()
 
         c = wmi.WMI()
         result = None
@@ -218,44 +251,106 @@ class bus_serial_com(kx_protocol_bus):
             result = foundPort.Name.partition('(')[2].partition(')')[0]
         return result
 
+    ############################################################### LINUX SERIAL DEVICE FINDER
+    def get_dev(self):
+        """Search from /dev for iot node, arduino or nrf-dk depending which config_section is in use
+
+        Returns path to the device
+        """
+
+        import glob
+
+        if self.config_section == 'serial_com_kx_iot': #IoT node
+            logger.info("Searching for Kx IoT node...")
+            dev = glob.glob("/dev/serial/by-id/*usb-FTDI*")
+
+        elif self.config_section.startswith('serial_com_nrf51dk'): #nrf-dk
+            logger.info("Searching for NRF5x-dk...")
+            dev = glob.glob("/dev/serial/by-id/*SEGGER*")
+            if dev == []:
+                dev = glob.glob("/dev/serial/by-id/*usb-MBED*")
+
+
+        elif self.config_section.startswith('serial_com_arduino'): #Arduino
+            logger.info("Searching for Arduino...")
+            dev = glob.glob("/dev/serial/by-id/*Arduino*")
+
+        else:
+            print("Autofinder does not yet support {}",self.config_section )
+
+        if len(dev) == 0:
+            logger.critical("Autofinder found no {} devices".format(self.config_section))
+            logger.critical("Please define port in settings.cfg")
+            logger.critical("Example for Linux OS: com_port = /dev/ttyUSB0")
+            exit()
+
+
+        logger.info("Found {} devices:\n{}".format(len(dev), '\n'.join(dev)))
+        logger.info("Using first device found:\n{}".format(dev[0]))
+        return dev[0]
+
+    ############################################################### OS X SERIAL DEVICE FINDER
+    def get_dev_darwin(self):
+        """Search from /dev for iot node, arduino or nrf-dk depending which config_section is in use
+
+        Returns path to the device
+        """
+
+        import glob
+
+        if self.config_section == 'serial_com_kx_iot': #IoT node
+            logger.info("Searching for Kx IoT node...")
+            dev = glob.glob("/dev/tty.usbserial*")
+
+        elif self.config_section.startswith('serial_com_nrf51dk'): #nrf-dk
+            logger.info("Searching for NRF5x-dk...")
+            dev = glob.glob("/dev/tty.usbmodem*")
+
+        elif self.config_section.startswith('serial_com_arduino'): #Arduino
+            logger.info("Searching for Arduino...")
+            dev = glob.glob("/dev/tty.usbmodem*")
+
+        else:
+            print("Autofinder does not yet support {}",self.config_section )
+
+        if len(dev) == 0:
+            logger.critical("Autofinder found no {} devices".format(self.config_section))
+            logger.critical("Please define port manually in settings.cfg")
+            logger.critical("Example: com_port = /dev/tty.usbserial-DM00336G")
+            exit()
+
+        logger.info("Found {} devices:\n{}".format(len(dev), '\n'.join(dev)))
+        logger.info("Using first device found:\n{}".format(dev[0]))
+        return dev[0]
+
     def open(self):
         kx_protocol_bus.open(self)
         config_section = evkit_config.get('__com__','config')
 
-        if evkit_config.get(config_section, 'com_port').lower() == 'auto' and os.name == 'posix':
-            logger.critical('Automatic port search does not work on linux!')
-        if evkit_config.get(config_section, 'com_port').lower() == "auto":
+        if evkit_config.get(config_section, 'com_port').lower() == 'auto' and os.name == 'posix': #Linux etc...
+            if _platform == "darwin":
+                comport = self.get_dev_darwin()
+            else:
+                comport = self.get_dev()
+
+        elif evkit_config.get(config_section, 'com_port').lower() == "auto": #windows
             comport = self.get_com_port()            
         else:    
             comport = evkit_config.get(config_section, 'com_port')
  
         baudrate = evkit_config.getint(config_section, 'baudrate')
         delay_s = evkit_config.getint(config_section, 'start_delay_s')
-        self._kx_port = proto.kx_com_port(comport,baudrate, timeout = 1)
-        self._kx_connection = proto.ProtocolEngine(self._kx_port)
+        self._kx_port = kx_com_port(comport,baudrate, timeout = 1)
+        self._kx_connection = ProtocolEngine(self._kx_port)
 
         if delay_s>0:
             logger.info('Waiting %d seconds', delay_s)
             sleep(delay_s)
 
         # run version request
-        # FIXME improve
-        try:
-            self.send_message(proto.version_req())
-            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP)
-        except proto.ProtocolException:
-            raise proto.ProtocolException('No response from %s. Please check COM port number and baudrate and that device is powered on.' % comport)
-        try:
-            message_type, major_version, minor_version = proto.unpack_response_data(reponse_data)
-        except Exception,e:
-            # retry if error
-            logger.debug('Version REQ failed. Flushing data and retry.')
-            sleep(0.1)
-            self._kx_port.flush()
-            sleep(0.1)
-            self.send_message(proto.version_req())
-            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP)
-            message_type, major_version, minor_version = proto.unpack_response_data(reponse_data)
-
+        self._kx_port.flush() # Flush com port in case there is already some unwanted data
+        self.send_message(proto.version_req())
+        reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP)
+        message_type, major_version, minor_version = proto.unpack_response_data(reponse_data)
         self.verify_protocol_version(major_version, minor_version)
         

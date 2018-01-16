@@ -29,18 +29,11 @@ b = kxtj2_registers.bits()
 m = kxtj2_registers.masks()
 e = kxtj2_registers.enums()
 
-## FIXME; kxtj2 and kxcjb to same register file
-import kxcjb_registers
-r_kxcjb = kxcjb_registers.registers()
-b_kxcjb = kxcjb_registers.bits()
-m_kxcjb = kxcjb_registers.masks()
-e_kxcjb = kxcjb_registers.enums()
-
 hz = [12.5, 25.0, 50.0, 100.0, 200.0, 400.0, \
       800.0, 1600.0, 0.781, 1.563, 3.125, 6.25]   # for PC1 start delay (acc) calculation
 
 class kxtj2_driver(sensor_base):
-    _WAI = [b.KXTJ2_WHO_AM_I_WIA_ID, b_kxcjb.KXCJB_WHO_AM_I_WIA_ID , 0x21]  # also KXCJB(early sample)
+    _WAI = [b.KXTJ2_WHO_AM_I_WIA_ID, b.KXCJB_WHO_AM_I_WIA_ID]  # KXTJ2, KXCJB
     
     def __init__(self):
         sensor_base.__init__(self)

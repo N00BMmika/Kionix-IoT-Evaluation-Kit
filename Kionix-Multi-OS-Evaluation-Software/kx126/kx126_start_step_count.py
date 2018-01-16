@@ -19,16 +19,37 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
-# common imports
-try:
-    import lib
-except ImportError:
-    import sys
-    sys.path.append('..')
+from imports import *
+from kx126_pedometer import Pedometer_parameters_odr_50,Pedometer_parameters_odr_100
+from kx126_pedometer import enable_data_logging
+'''
+Starts pedometer step count 
+Doesnt power off the sensor when finished
+'''
 
-import time
-from connection_setup   import open_bus_or_exit
-from connection_setup   import setup_default_connection
-from lib.util_lib       import *
 
-from bm1383glv_driver import *
+_CODE_FORMAT_VERSION = 2.0
+
+
+def start_step_count(sensor,
+                    cfg = Pedometer_parameters_odr_100,
+                    odr = 100, 
+                    avg = 128,
+                    power_off_on = True):
+    enable_data_logging(sensor, cfg = cfg, odr = odr, avg=avg)
+    #
+    # Power on the sensor (disables setup)
+    #
+    if power_off_on:
+        sensor.set_power_on()
+    logger.info('Step counter initialized')
+    
+def app_main():
+    sensor = kx126_driver()
+    bus = open_bus_or_exit(sensor)
+    start_step_count(sensor)
+    bus.close()
+
+    
+if __name__ == '__main__':
+    app_main()

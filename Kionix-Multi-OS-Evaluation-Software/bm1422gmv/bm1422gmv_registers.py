@@ -32,7 +32,7 @@ class registers(register_base):
 		self.BM1422GMV_DATAY_MSB                                  = 0x13         
 		self.BM1422GMV_DATAZ                                      = 0x14         # Zch Output value
 		self.BM1422GMV_DATAZ_MSB                                  = 0x15         
-		self.BM1422GMV_STA1                                       = 0x18         
+		self.BM1422GMV_STA1                                       = 0x18         # Data ready status
 		self.BM1422GMV_CNTL1                                      = 0x1B         # Control setting
 		self.BM1422GMV_CNTL2                                      = 0x1C         # Control setting 2
 		self.BM1422GMV_CNTL3                                      = 0x1D         # Control setting 3
@@ -74,23 +74,31 @@ class bits(register_base):
 	def __init__(self):
 		self.BM1422GMV_WHO_AM_I_WIA_ID                            = (0x41 << 0)  # WHO_AM_I -value
 		self.BM1422GMV_STA1_DRDY_READY                            = (0x01 << 6)  
+		self.BM1422GMV_STA1_DRDY                                  = (0x01 << 6)  # Data ready status
 		self.BM1422GMV_CNTL1_PC1_OFF                              = (0x00 << 7)  # PowerDown
 		self.BM1422GMV_CNTL1_PC1_ON                               = (0x01 << 7)  # Active
+		self.BM1422GMV_CNTL1_PC1                                  = (0x01 << 7)  # Power Control
 		self.BM1422GMV_CNTL1_OUT_BIT_12                           = (0x00 << 6)  # 12bit resolution
 		self.BM1422GMV_CNTL1_OUT_BIT_14                           = (0x01 << 6)  # 14bit resolution
+		self.BM1422GMV_CNTL1_OUT_BIT                              = (0x01 << 6)  # Output data bit setting
 		self.BM1422GMV_CNTL1_RST_LV_RELEASE                       = (0x00 << 5)  # Reset release
 		self.BM1422GMV_CNTL1_RST_LV_RESET                         = (0x01 << 5)  # Reset (POR)
+		self.BM1422GMV_CNTL1_RST_LV                               = (0x01 << 5)  # Reset release (RST_LV=0 & RSTB_LV=1)
 		self.BM1422GMV_CNTL1_ODR_10                               = (0x00 << 3)  
 		self.BM1422GMV_CNTL1_ODR_100                              = (0x01 << 3)  
 		self.BM1422GMV_CNTL1_ODR_20                               = (0x02 << 3)  
 		self.BM1422GMV_CNTL1_ODR_1000                             = (0x03 << 3)  
 		self.BM1422GMV_CNTL1_FS1_CONT                             = (0x00 << 1)  # Continuous mode
 		self.BM1422GMV_CNTL1_FS1_SINGLE                           = (0x01 << 1)  # Single mode
+		self.BM1422GMV_CNTL1_FS1                                  = (0x01 << 1)  # Measurement mode
 		self.BM1422GMV_CNTL2_DREN_DISABLED                        = (0x00 << 3)  
 		self.BM1422GMV_CNTL2_DREN_ENABLED                         = (0x01 << 3)  
+		self.BM1422GMV_CNTL2_DREN                                 = (0x01 << 3)  # DRDY enable setting. (0:Disable, 1:Enable)
 		self.BM1422GMV_CNTL2_DRP_LOWACTIVE                        = (0x00 << 2)  
 		self.BM1422GMV_CNTL2_DRP_HIGHACTIVE                       = (0x01 << 2)  
+		self.BM1422GMV_CNTL2_DRP                                  = (0x01 << 2)  # DRDY active setting. (0:Low active, 1:High active)
 		self.BM1422GMV_CNTL3_FORCE_START                          = (0x01 << 6)  
+		self.BM1422GMV_CNTL3_FORCE                                = (0x01 << 6)  # AD start measurement trigger at continuous mode and single mode. (Autocleared)
 		self.BM1422GMV_PRET_PS                                    = (0x01 << 0)  # write "0"
 		self.BM1422GMV_AVER_AVG_4TIMES                            = (0x00 << 2)  
 		self.BM1422GMV_AVER_AVG_1TIMES                            = (0x01 << 2)  
@@ -101,35 +109,35 @@ _b=bits()
 class enums(register_base):
 	def __init__(self):
 		self.BM1422GMV_CNTL1_PC1={
-			'on':_b.BM1422GMV_CNTL1_PC1_ON,
-			'off':_b.BM1422GMV_CNTL1_PC1_OFF,
+			'ON':_b.BM1422GMV_CNTL1_PC1_ON,
+			'OFF':_b.BM1422GMV_CNTL1_PC1_OFF,
 		}
 		self.BM1422GMV_AVER_AVG={
-			'4times':_b.BM1422GMV_AVER_AVG_4TIMES,
-			'2times':_b.BM1422GMV_AVER_AVG_2TIMES,
-			'8times':_b.BM1422GMV_AVER_AVG_8TIMES,
-			'16times':_b.BM1422GMV_AVER_AVG_16TIMES,
-			'1times':_b.BM1422GMV_AVER_AVG_1TIMES,
+			'4TIMES':_b.BM1422GMV_AVER_AVG_4TIMES,
+			'2TIMES':_b.BM1422GMV_AVER_AVG_2TIMES,
+			'8TIMES':_b.BM1422GMV_AVER_AVG_8TIMES,
+			'16TIMES':_b.BM1422GMV_AVER_AVG_16TIMES,
+			'1TIMES':_b.BM1422GMV_AVER_AVG_1TIMES,
 		}
 		self.BM1422GMV_CNTL2_DREN={
-			'disabled':_b.BM1422GMV_CNTL2_DREN_DISABLED,
-			'enabled':_b.BM1422GMV_CNTL2_DREN_ENABLED,
+			'DISABLED':_b.BM1422GMV_CNTL2_DREN_DISABLED,
+			'ENABLED':_b.BM1422GMV_CNTL2_DREN_ENABLED,
 		}
 		self.BM1422GMV_CNTL1_RST_LV={
-			'Release':_b.BM1422GMV_CNTL1_RST_LV_RELEASE,
-			'Reset':_b.BM1422GMV_CNTL1_RST_LV_RESET,
+			'RELEASE':_b.BM1422GMV_CNTL1_RST_LV_RELEASE,
+			'RESET':_b.BM1422GMV_CNTL1_RST_LV_RESET,
 		}
 		self.BM1422GMV_CNTL2_DRP={
-			'HighActive':_b.BM1422GMV_CNTL2_DRP_HIGHACTIVE,
-			'LowActive':_b.BM1422GMV_CNTL2_DRP_LOWACTIVE,
+			'HIGHACTIVE':_b.BM1422GMV_CNTL2_DRP_HIGHACTIVE,
+			'LOWACTIVE':_b.BM1422GMV_CNTL2_DRP_LOWACTIVE,
 		}
 		self.BM1422GMV_CNTL1_OUT_BIT={
 			'12':_b.BM1422GMV_CNTL1_OUT_BIT_12,
 			'14':_b.BM1422GMV_CNTL1_OUT_BIT_14,
 		}
 		self.BM1422GMV_CNTL1_FS1={
-			'single':_b.BM1422GMV_CNTL1_FS1_SINGLE,
-			'cont':_b.BM1422GMV_CNTL1_FS1_CONT,
+			'SINGLE':_b.BM1422GMV_CNTL1_FS1_SINGLE,
+			'CONT':_b.BM1422GMV_CNTL1_FS1_CONT,
 		}
 		self.BM1422GMV_CNTL1_ODR={
 			'10':_b.BM1422GMV_CNTL1_ODR_10,

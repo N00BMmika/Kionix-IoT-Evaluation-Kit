@@ -22,8 +22,8 @@
 class register_base: pass
 class registers(register_base):
 	def __init__(self):
-		self.KX126_MAN_ID                                         = 0x00         
-		self.KX126_PART_ID                                        = 0x01         
+		self.KX126_MAN_ID                                         = 0x00         # A burst read (reading using the auto-increment) of 4 bytes starting at address 00, returns the manufacturing ID: "K" "i" "o" "n" in ascii codes "0x4B" "0x69" "0x6F" "0x6E"
+		self.KX126_PART_ID                                        = 0x01         # A burst read (reading using the auto-increment) of 2 bytes starting at address 01, returns Who-Am-I value ("WAI") as the first byte (LSB) and a 2nd byte (MSB) that returns silicon specific ID.
 		self.KX126_XHP_L                                          = 0x02         # x - hp filter output
 		self.KX126_XHP_H                                          = 0x03         
 		self.KX126_YHP_L                                          = 0x04         # y - hp filter output
@@ -39,14 +39,14 @@ class registers(register_base):
 		self.KX126_PED_STP_L                                      = 0x0E         # 16bit pedometer step counter register
 		self.KX126_PED_STP_H                                      = 0x0F         
 		self.KX126_COTR                                           = 0x10         # Command Test Response
-		self.KX126_WHO_AM_I                                       = 0x11         # These two registers report previous and current position data that is updated at the user-defined ODR. WAI is the first byte (LSB) of the new PART ID
+		self.KX126_WHO_AM_I                                       = 0x11         # This register can be used for supplier recognition
 		self.KX126_TSCP                                           = 0x12         # This registers report current position data that is updated at the user-defined ODR frequency determined by OTP<1:0> in CNTL3
 		self.KX126_TSPP                                           = 0x13         # This register report previous and current position data that is updated at the user-defined ODR frequency determined by OTP<1:0> in CNTL3
 		self.KX126_INS1                                           = 0x14         # This register contains 2 step counter interrupts and contains the tap/double tap axis specific interrupts. Data is updated at the ODR settings determined by OTDT<2:0> in CNTL3.
 		self.KX126_INS2                                           = 0x15         # This Register tells witch function caused an interrupt.
 		self.KX126_INS3                                           = 0x16         # This register reports the axis and direction of detected motion and wake-up + back to sleep interrupts
 		self.KX126_STAT                                           = 0x17         # Status register
-		self.KX126_INT_REL                                        = 0x19         
+		self.KX126_INT_REL                                        = 0x19         # Latched interrupt source information (INS1,INS2 except WMI/BFI and STAT when WMI/BFI is zero) is cleared and physical interrupt latched pin is changed to it's inactive state when this register is read.  Read value is dummy.
 		self.KX126_CNTL1                                          = 0x1A         # Control register 1. Read/write control register that controls the main feature set.
 		self.KX126_CNTL2                                          = 0x1B         # Control settings 2. Read/write control register that primarily controls tilt position state enabling.
 		self.KX126_CNTL3                                          = 0x1C         # Control settings 3. Read/write control register that provides more feature set control.
@@ -60,51 +60,52 @@ class registers(register_base):
 		self.KX126_INC5                                           = 0x24         # Interrupt control 5. This register controls the settings for the physical interrupt pin INT2.
 		self.KX126_INC6                                           = 0x25         # Interrupt control 6. This register controls routing of interrupt reporting to physical interrupt pin INT2
 		self.KX126_INC7                                           = 0x26         # Interrupt control 7This register controls routing of interrupt reporting to physical interrupt pins INT1 and INT2
-		self.KX126_TILT_TIMER                                     = 0x27         
+		self.KX126_TILT_TIMER                                     = 0x27         # Tilt Position State Timer. This register is the initial count register for Tilt Position State timer. (0 to 255).  New state must be valid as many measurement periods before change is accepted. Reset applied for any write to TSC with TPE enabled
 		self.KX126_TDTRC                                          = 0x28         # Tap/Double Tap report control. This register is responsible for enableing/disabling reporting of Tap/Double Tap. Reset applied for any write to TDTRC with TDTE enabled
-		self.KX126_TDTC                                           = 0x29         
-		self.KX126_TTH                                            = 0x2A         
-		self.KX126_TTL                                            = 0x2B         
-		self.KX126_FTD                                            = 0x2C         
-		self.KX126_STD                                            = 0x2D         
-		self.KX126_TLT                                            = 0x2E         
-		self.KX126_TWS                                            = 0x2F         
-		self.KX126_FFTH                                           = 0x30         
-		self.KX126_FFC                                            = 0x31         
+		self.KX126_TDTC                                           = 0x29         # Tap/Double Tap Timer. TDTC - Total time for tap/double tap interrupt. (0 to 255). Default=120. For OTDT of 800Hz, the Tap/Double Tap timer is TDTC*2, and for OTDT of 1600Hz is TDTC*4. Reset applied for any write to TCTC with TDTE enabled
+		self.KX126_TTH                                            = 0x2A         # Tap Interrupt high limit threshold. TTH - High limit threshold for a tap. (0 to 255). Default=203. For all OTDT, the Tap Interrupt High Limit Threshold is TTH*2. Reset applied for any write to TTH with TDTE enabled
+		self.KX126_TTL                                            = 0x2B         # Tap Interrupt low limit threshold. TTL - Low limit threshold for a tap. (0 to 255). Default=26. Reset applied for any write to TTL with TDTE enabled
+		self.KX126_FTD                                            = 0x2C         # First Tap duration. FTD - Multiple peaks are disregarded within tap duration. FTDH - High limit. (0 to 31). Default=20. For OTDT of 800Hz, the First Tap Duration high limit is FTDH*2, and for OTDT of 1600Hz is FTDH*4.  FTDL - Low limit. (0 to 7). Default=2. For OTDT of 800Hz, the First Tap Duration low limit is FTDL*2, and for OTDT of 1600Hz is FTDL*4. Reset applied for any write to FTD with TDTE enabled
+		self.KX126_STD                                            = 0x2D         # Second Tap duration. STD - Multiple peaks are disregarded within tap duration. (0 to 63). Default=36. For OTDT of 800Hz, the Second Tap Duration is STD*2, and for OTDT of 1600Hz is STD*4. Reset applied for any write to FTD with TDTE enabled
+		self.KX126_TLT                                            = 0x2E         # Tap Latency Time. TLT - Latency time after first detected tap, where 2nd tap is ignored. (0 to 63).  Default=40. For OTDT of 800Hz, the Tap Latency Time is TLT*2, and for OTDT of 1600Hz is TLT*4. Reset applied for any write to TLT with TDTE enabled
+		self.KX126_TWS                                            = 0x2F         # TWS - Time window for 2nd tap. (0 to 255).  Default=160. For OTDT of 800Hz, the Time Window for 2nd Tap is TWS*2, and for OTDT of 1600Hz is TWS *4.
+		self.KX126_FFTH                                           = 0x30         # Freefall interrupt threshold. This value is compared to the top 8bits of the accelerometer 8g output. Reset applied for any write to FFTH with FFIE enabled
+		self.KX126_FFC                                            = 0x31         # Freefall interrupt counter. Every count is calculated as 1/ODR (ODT) delay period. Reset applied for any write to FFTH with FFIE enabled
 		self.KX126_FFCNTL                                         = 0x32         # Freefall interrupt control.
-		self.KX126_TILT_ANGLE_LL                                  = 0x34         
-		self.KX126_TILT_ANGLE_HL                                  = 0x35         
-		self.KX126_HYST_SET                                       = 0x36         
-		self.KX126_LP_CNTL                                        = 0x37         
-		self.KX126_WUFTH                                          = 0x3C         
+		self.KX126_TILT_ANGLE_LL                                  = 0x34         # Low limit threshold for tilt position detection. Reset applied for any write to LL with TPE enabled
+		self.KX126_TILT_ANGLE_HL                                  = 0x35         # High limit threshold for tilt position detection. Reset applied for any write to HL with TPE enabled
+		self.KX126_HYST_SET                                       = 0x36         # Xeg - These 6 bits will be used in the algorithm for tilt position.  Xeg<5> - Z_gap control for tilt position .Xeg<4:0> - X' and Y' gain control for tilt position. Reset applied for any write to TPGC with TPE enabled
+		self.KX126_LP_CNTL                                        = 0x37         # Averaging Filter Control
+		self.KX126_WUFTH                                          = 0x3C         # Threshold for wakeup interrupt, 11bit threshold for Resolution=3.9mg/cnt. Reset applied for any write to WUFTH with WUFE or BTSE enabled
 		self.KX126_BTSWUFTH                                       = 0x3D         # Additional threshold bits for WUF and BTS. Resolution is 8g/2^11=3.9mg/cnt    Assuming the engine gets 12bit signed data (ADC 10bits + 2bits for 16x Oversampling). Reset applied for any write to BTSWUFTH with WUFE or BTSE enabled
-		self.KX126_BTSTH                                          = 0x3E         
-		self.KX126_BTSC                                           = 0x3F         
-		self.KX126_WUFC                                           = 0x40         
+		self.KX126_BTSTH                                          = 0x3E         # Threshold for back to sleep interrupt,  11bit threshold for Resolution=3.9mg/cnt. Reset applied for any write to BTSTH with WUFE or BTSE enabled
+		self.KX126_BTSC                                           = 0x3F         # This register is the initial count register for the BTS motion detection timer (0 to 255 counts
+		self.KX126_WUFC                                           = 0x40         # This register is the initial count register for the WUF motion detection timer (0 to 255 counts).
 		self.KX126_PED_STPWM_L                                    = 0x41         # Lsb part of 16bit pedometer water-mark threshold . Reset applied for any write to PED_WM_L with PDE enabled
 		self.KX126_PED_STPWM_H                                    = 0x42         # MSB part of 16bit pedometer water-mark threshold. Reset applied for any write to PED_WM_H with PDE enabled
 		self.KX126_PED_CNTL1                                      = 0x43         # Pedometer control register 1
 		self.KX126_PED_CNTL2                                      = 0x44         # Pedometer control register 2.
 		self.KX126_PED_CNTL3                                      = 0x45         # Pedometer control register 3
 		self.KX126_PED_CNTL4                                      = 0x46         # Pedometer control register 4
-		self.KX126_PED_CNTL5                                      = 0x47         
-		self.KX126_PED_CNTL6                                      = 0x48         
-		self.KX126_PED_CNTL7                                      = 0x49         
-		self.KX126_PED_CNTL8                                      = 0x4A         
-		self.KX126_PED_CNTL9                                      = 0x4B         
-		self.KX126_PED_CNTL10                                     = 0x4C         
+		self.KX126_PED_CNTL5                                      = 0x47         # Pedometer control register 5: A_l = 60; Minimum area of the peak (minimum impact from the floor). Values: 0, 1, ..., 255: with Al_fc -> 0, 1, ..., 255. Reset applied for any write to PED_CNTL5 with PDE enabled
+		self.KX126_PED_CNTL6                                      = 0x48         # Pedometer control register 6. M_h = 20;  ~ 0.80 sec maximum time interval for the peak. Values: 0, 1, ..., 63: with Mh_fc -> 0, 4, ..., 252. Reset applied for any write to PED_CNTL6 with PDE enabled
+		self.KX126_PED_CNTL7                                      = 0x49         # Pedometer control register 7: M_l = 6;  ~ 0.06 sec minimum time interval for the peak. Values: 0, 1, ..., 255.  Reset applied for any write to PED_CNTL7 with PDE enabled
+		self.KX126_PED_CNTL8                                      = 0x4A         # Pedometer control register 8. T_l = 5; ~ 0.05 sec time window for noise and delay time. Values: 0, 1, ..., 255. Reset applied for any write to PED_CNTL7 with PDE enabled
+		self.KX126_PED_CNTL9                                      = 0x4B         # Petormeter control register 9. T_m = 22.  ~ 0.80 sec time interval to prevent overflowing. Values: 0, 1, ..., 63: with Tm_fc -> 0, 4, ..., 252.  Reset applied for any write to PED_CNTL9 with PDE enabled
+		self.KX126_PED_CNTL10                                     = 0x4C         # Pedometer control register 10. T_p = 19.  ~ 0.18 sec minimum time interval for a single stride. Values: 0, 1, ..., 63. reset applied for any write to PED_CNTL10 with PDE enabled
 		self.KX126_SELF_TEST                                      = 0x4D         # Self test initiation
-		self.KX126_BUF_CNTL1                                      = 0x5A         
+		self.KX126_BUF_CNTL1                                      = 0x5A         # SMP - sample bits (1 to 84). Sample bit indicating how many sample set can be store in the buffer. When BFRES=1, the maximum sample bit can be 41, and when BFRES=0, the maximum sample bit can be 84. Default=0.
 		self.KX126_BUF_CNTL2                                      = 0x5B         # Read/write control register that controls sample buffer operation
-		self.KX126_BUF_STATUS_1                                   = 0x5C         
+		self.KX126_BUF_STATUS_1                                   = 0x5C         # This register reports the status of the sample buffer
 		self.KX126_BUF_STATUS_2                                   = 0x5D         # This register reports the status of the sample buffer trigger function
-		self.KX126_BUF_CLEAR                                      = 0x5E         
-		self.KX126_BUF_READ                                       = 0x5F         
+		self.KX126_BUF_CLEAR                                      = 0x5E         # Latched buffer status information and the entire sample buffer are cleared when any data is written to this register.
+		self.KX126_BUF_READ                                       = 0x5F         # Buffer output register
+		self.KX127_WHO_AM_I                                       = 0x11         # This register can be used for supplier recognition
 class bits(register_base):
 	def __init__(self):
 		self.KX126_COTR_DCSTR_BEFORE                              = (0x55 << 0)  # before set
 		self.KX126_COTR_DCSTR_AFTER                               = (0xAA << 0)  # after set
-		self.KX126_WHO_AM_I_WAI_ID                                = (0x38 << 0)  # WIA value for KX126
+		self.KX126_WHO_AM_I_WAI_ID                                = (0x38 << 0)  # WAI value for KX126
 		self.KX126_TSCP_LE                                        = (0x01 << 5)  # LE - Left state X' negative (x-)
 		self.KX126_TSCP_RI                                        = (0x01 << 4)  # RI - Right state X' positive (x+)
 		self.KX126_TSCP_DO                                        = (0x01 << 3)  # DO - Down state Y' negative (y-)
@@ -227,6 +228,7 @@ class bits(register_base):
 		self.KX126_INC1_SPI3E                                     = (0x01 << 0)  # SPI3E - 3-wired SPI interface, 0=disable, 1=enable.
 		self.KX126_INC2_AOI_OR                                    = (0x00 << 6)  # 0=Or combination of selected directions
 		self.KX126_INC2_AOI_AND                                   = (0x01 << 6)  # 1=And combination of selected axes
+		self.KX126_INC2_AOI                                       = (0x01 << 6)  # AOI - And-Or configuration, 0=Or combination of selected directions, 1=And combination of selected axes
 		self.KX126_INC2_XNWUE                                     = (0x01 << 5)  # XNWUE - x negative (x-) mask for WUF, 0=disable, 1=enable.
 		self.KX126_INC2_XPWUE                                     = (0x01 << 4)  # XPWUE - x positive (x+) mask for WUF, 0=disable, 1=enable.
 		self.KX126_INC2_YNWUE                                     = (0x01 << 3)  # YNWUE - y negative (y-) mask for WUF, 0=disable, 1=enable.
@@ -318,26 +320,27 @@ class bits(register_base):
 		self.KX126_BUF_CNTL2_BUF_BM_TRIGGER                       = (0x02 << 0)  # When a trigger event occurs, the buffer holds the last data set of SMP[9:0] samples before the trigger event and then continues to collect data until full. New data is collected only when the buffer is not full.
 		self.KX126_BUF_CNTL2_BUF_BM_FILO                          = (0x03 << 0)  # The buffer holds the last 681 sets of 8-bit low resolution values or 339 sets of 16-bit high resolution values. Once the buffer is full, the oldest data is discarded to make room for newer data. Reading from the buffer in this mode will return the most recent data first.
 		self.KX126_BUF_STATUS_2_BUF_TRIG                          = (0x01 << 7)  # reports the status of the buffers trigger function if this mode has been selected
+		self.KX127_WHO_AM_I_WAI_ID                                = (0x3B << 0)  # WAI value for KX127
 _b=bits()
 class enums(register_base):
 	def __init__(self):
 		self.KX126_ODCNTL_OSA={
 			'200':_b.KX126_ODCNTL_OSA_200,
 			'6400':_b.KX126_ODCNTL_OSA_6400,
-			'0p781':_b.KX126_ODCNTL_OSA_0P781,
+			'0P781':_b.KX126_ODCNTL_OSA_0P781,
 			'3200':_b.KX126_ODCNTL_OSA_3200,
-			'12p5':_b.KX126_ODCNTL_OSA_12P5,
+			'12P5':_b.KX126_ODCNTL_OSA_12P5,
 			'1600':_b.KX126_ODCNTL_OSA_1600,
 			'50':_b.KX126_ODCNTL_OSA_50,
-			'1p563':_b.KX126_ODCNTL_OSA_1P563,
+			'1P563':_b.KX126_ODCNTL_OSA_1P563,
 			'25600':_b.KX126_ODCNTL_OSA_25600,
-			'3p125':_b.KX126_ODCNTL_OSA_3P125,
+			'3P125':_b.KX126_ODCNTL_OSA_3P125,
 			'25':_b.KX126_ODCNTL_OSA_25,
 			'12800':_b.KX126_ODCNTL_OSA_12800,
 			'400':_b.KX126_ODCNTL_OSA_400,
 			'100':_b.KX126_ODCNTL_OSA_100,
 			'800':_b.KX126_ODCNTL_OSA_800,
-			'6p25':_b.KX126_ODCNTL_OSA_6P25,
+			'6P25':_b.KX126_ODCNTL_OSA_6P25,
 		}
 		self.KX126_PED_CNTL3_FCA={
 			'16':_b.KX126_PED_CNTL3_FCA_16,
@@ -359,18 +362,18 @@ class enums(register_base):
 		}
 		self.KX126_CNTL3_OWUF={
 			'25':_b.KX126_CNTL3_OWUF_25,
-			'0p781':_b.KX126_CNTL3_OWUF_0P781,
-			'12p5':_b.KX126_CNTL3_OWUF_12P5,
+			'0P781':_b.KX126_CNTL3_OWUF_0P781,
+			'12P5':_b.KX126_CNTL3_OWUF_12P5,
 			'50':_b.KX126_CNTL3_OWUF_50,
-			'1p563':_b.KX126_CNTL3_OWUF_1P563,
-			'3p125':_b.KX126_CNTL3_OWUF_3P125,
+			'1P563':_b.KX126_CNTL3_OWUF_1P563,
+			'3P125':_b.KX126_CNTL3_OWUF_3P125,
 			'100':_b.KX126_CNTL3_OWUF_100,
-			'6p25':_b.KX126_CNTL3_OWUF_6P25,
+			'6P25':_b.KX126_CNTL3_OWUF_6P25,
 		}
 		self.KX126_CNTL3_OTDT={
 			'200':_b.KX126_CNTL3_OTDT_200,
 			'25':_b.KX126_CNTL3_OTDT_25,
-			'12p5':_b.KX126_CNTL3_OTDT_12P5,
+			'12P5':_b.KX126_CNTL3_OTDT_12P5,
 			'1600':_b.KX126_CNTL3_OTDT_1600,
 			'50':_b.KX126_CNTL3_OTDT_50,
 			'400':_b.KX126_CNTL3_OTDT_400,
@@ -378,47 +381,47 @@ class enums(register_base):
 			'800':_b.KX126_CNTL3_OTDT_800,
 		}
 		self.KX126_INC1_PW1={
-			'50us_10us':_b.KX126_INC1_PW1_50US_10US,
-			'4xODR':_b.KX126_INC1_PW1_4XODR,
-			'1xODR':_b.KX126_INC1_PW1_1XODR,
-			'2xODR':_b.KX126_INC1_PW1_2XODR,
+			'50US_10US':_b.KX126_INC1_PW1_50US_10US,
+			'4XODR':_b.KX126_INC1_PW1_4XODR,
+			'1XODR':_b.KX126_INC1_PW1_1XODR,
+			'2XODR':_b.KX126_INC1_PW1_2XODR,
 		}
 		self.KX126_PED_CNTL1_STP_TH={
-			'no_step':_b.KX126_PED_CNTL1_STP_TH_NO_STEP,
-			'step_2':_b.KX126_PED_CNTL1_STP_TH_STEP_2,
-			'step_10':_b.KX126_PED_CNTL1_STP_TH_STEP_10,
-			'step_6':_b.KX126_PED_CNTL1_STP_TH_STEP_6,
-			'step_8':_b.KX126_PED_CNTL1_STP_TH_STEP_8,
-			'step_12':_b.KX126_PED_CNTL1_STP_TH_STEP_12,
-			'step_14':_b.KX126_PED_CNTL1_STP_TH_STEP_14,
-			'step_4':_b.KX126_PED_CNTL1_STP_TH_STEP_4,
+			'NO_STEP':_b.KX126_PED_CNTL1_STP_TH_NO_STEP,
+			'STEP_2':_b.KX126_PED_CNTL1_STP_TH_STEP_2,
+			'STEP_10':_b.KX126_PED_CNTL1_STP_TH_STEP_10,
+			'STEP_14':_b.KX126_PED_CNTL1_STP_TH_STEP_14,
+			'STEP_12':_b.KX126_PED_CNTL1_STP_TH_STEP_12,
+			'STEP_8':_b.KX126_PED_CNTL1_STP_TH_STEP_8,
+			'STEP_6':_b.KX126_PED_CNTL1_STP_TH_STEP_6,
+			'STEP_4':_b.KX126_PED_CNTL1_STP_TH_STEP_4,
 		}
 		self.KX126_INC5_PW2={
-			'50us_10us':_b.KX126_INC5_PW2_50US_10US,
-			'4xODR':_b.KX126_INC5_PW2_4XODR,
-			'1xODR':_b.KX126_INC5_PW2_1XODR,
-			'2xODR':_b.KX126_INC5_PW2_2XODR,
+			'50US_10US':_b.KX126_INC5_PW2_50US_10US,
+			'4XODR':_b.KX126_INC5_PW2_4XODR,
+			'1XODR':_b.KX126_INC5_PW2_1XODR,
+			'2XODR':_b.KX126_INC5_PW2_2XODR,
 		}
 		self.KX126_FFCNTL_OFFI={
 			'25':_b.KX126_FFCNTL_OFFI_25,
-			'0p781':_b.KX126_FFCNTL_OFFI_0P781,
-			'12p5':_b.KX126_FFCNTL_OFFI_12P5,
+			'0P781':_b.KX126_FFCNTL_OFFI_0P781,
+			'12P5':_b.KX126_FFCNTL_OFFI_12P5,
 			'50':_b.KX126_FFCNTL_OFFI_50,
-			'1p563':_b.KX126_FFCNTL_OFFI_1P563,
-			'3p125':_b.KX126_FFCNTL_OFFI_3P125,
+			'1P563':_b.KX126_FFCNTL_OFFI_1P563,
+			'3P125':_b.KX126_FFCNTL_OFFI_3P125,
 			'100':_b.KX126_FFCNTL_OFFI_100,
-			'6p25':_b.KX126_FFCNTL_OFFI_6P25,
+			'6P25':_b.KX126_FFCNTL_OFFI_6P25,
 		}
 		self.KX126_CNTL1_GSEL={
-			'8g_2':_b.KX126_CNTL1_GSEL_8G_2,
-			'4g':_b.KX126_CNTL1_GSEL_4G,
-			'2g':_b.KX126_CNTL1_GSEL_2G,
-			'8g':_b.KX126_CNTL1_GSEL_8G,
+			'8G_2':_b.KX126_CNTL1_GSEL_8G_2,
+			'4G':_b.KX126_CNTL1_GSEL_4G,
+			'2G':_b.KX126_CNTL1_GSEL_2G,
+			'8G':_b.KX126_CNTL1_GSEL_8G,
 		}
 		self.KX126_CNTL3_OTP={
-			'1p563':_b.KX126_CNTL3_OTP_1P563,
-			'12p5':_b.KX126_CNTL3_OTP_12P5,
-			'6p25':_b.KX126_CNTL3_OTP_6P25,
+			'1P563':_b.KX126_CNTL3_OTP_1P563,
+			'12P5':_b.KX126_CNTL3_OTP_12P5,
+			'6P25':_b.KX126_CNTL3_OTP_6P25,
 			'50':_b.KX126_CNTL3_OTP_50,
 		}
 		self.KX126_BUF_CNTL2_BUF_BM={
@@ -449,17 +452,17 @@ class enums(register_base):
 		}
 		self.KX126_CNTL4_OBTS={
 			'25':_b.KX126_CNTL4_OBTS_25,
-			'0p781':_b.KX126_CNTL4_OBTS_0P781,
-			'12p5':_b.KX126_CNTL4_OBTS_12P5,
+			'0P781':_b.KX126_CNTL4_OBTS_0P781,
+			'12P5':_b.KX126_CNTL4_OBTS_12P5,
 			'50':_b.KX126_CNTL4_OBTS_50,
-			'1p563':_b.KX126_CNTL4_OBTS_1P563,
-			'3p125':_b.KX126_CNTL4_OBTS_3P125,
+			'1P563':_b.KX126_CNTL4_OBTS_1P563,
+			'3P125':_b.KX126_CNTL4_OBTS_3P125,
 			'100':_b.KX126_CNTL4_OBTS_100,
-			'6p25':_b.KX126_CNTL4_OBTS_6P25,
+			'6P25':_b.KX126_CNTL4_OBTS_6P25,
 		}
 class masks(register_base):
 	def __init__(self):
-		self.KX126_COTR_DCSTR_MASK                                = 0xFF         
+		self.KX126_COTR_DCSTR_MASK                                = 0xFF         # Command Test Response
 		self.KX126_WHO_AM_I_WAI_MASK                              = 0xFF         
 		self.KX126_INS1_TP_MASK                                   = 0x3F         # TPS - Tilt Position mask
 		self.KX126_INS2_TDTS_MASK                                 = 0x0C         # TDTS(1,0) - status of tap/double tap, bit is released when interrupt latch release register (INL (00h,17h)) is read.
@@ -492,3 +495,4 @@ class masks(register_base):
 		self.KX126_BUF_CNTL2_SMP_TH8_9_MASK                       = 0x0C         # watermark level bits 8 and 9
 		self.KX126_BUF_CNTL2_BUF_BM_MASK                          = 0x03         # selects the operating mode of the sample buffer
 		self.KX126_BUF_STATUS_2_SMP_LEV8_11_MASK                  = 0x0F         # level High mask
+		self.KX127_WHO_AM_I_WAI_MASK                              = 0xFF         

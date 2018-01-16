@@ -37,8 +37,9 @@ e122 = kx122_registers.enums()
 
 hz = [12.5, 25.0, 50.0, 100.0, \
       200.0, 400.0, 800.0, 1600.0, \
-      3200.0, 6400.0, 12800.0, 25600.0,\
-      0.781, 1.563, 3.125, 6.25]        # for PC1 start delay (acc) calculation
+      0.781, 1.563, 3.125, 6.25, \
+      3200.0, 6400.0, 12800.0, 25600.0
+      ]        # for PC1 start delay (acc) calculation
 
 class kx022_driver(sensor_base):
     _WAIS022 = [b.KX012_WHO_AM_I_WIA_ID,
@@ -110,15 +111,12 @@ class kx022_driver(sensor_base):
         """
         Set operating mode to "stand-by".
         """
-        assert channel == CH_ACC, 'only accelerometer available'        
-        cntl1 = self.read_register(r.KX022_CNTL1)[0]
-        self.write_register(r.KX022_CNTL1, cntl1 & ~b.KX022_CNTL1_PC1)
+        assert channel == CH_ACC, 'only accelerometer available'
+        self.reset_bit(r.KX022_CNTL1, b.KX022_CNTL1_PC1)
    
         ## When changing PC1 1->0 then 1.5/ODR delay is needed
         odr_t =1 / hz[self.read_register(r.KX022_ODCNTL,1)[0] & m.KX022_ODCNTL_OSA_MASK] * 1.5
-        if odr_t < 0.1:
-            odr_t = 0.1   
-        delay_seconds(odr_t) 
+        delay_seconds(max(odr_t, 0.1)) # wait at least 0.1 seconds
 
     def read_data(self, channel=CH_ACC):
         assert channel == CH_ACC, 'only accelerometer available'
@@ -159,6 +157,7 @@ class kx022_driver(sensor_base):
         """enables and routes dataready, but not enable physical interrupt"""
         assert channel == CH_ACC, 'only accelerometer available'
         assert intpin in self.INT_PINS
+
         self.set_bit(r.KX022_CNTL1,  b.KX022_CNTL1_DRDYE)
         if intpin==1:
             self.set_bit(r.KX022_INC4, b.KX022_INC4_DRDYI1)     # data ready to int1
@@ -185,16 +184,25 @@ class kx022_driver(sensor_base):
                                range, \
                                m.KX022_CNTL1_GSEL_MASK)
 
+    def set_interrupt_polarity(self, intpin = 1, polarity = ACTIVE_LOW):
+        assert intpin in self.INT_PINS
+        assert polarity in [ACTIVE_LOW, ACTIVE_HIGH]
+
+        if intpin == 1:
+            if polarity == ACTIVE_LOW:
+                self.reset_bit(r.KX022_INC1, b.KX022_INC1_IEA1)   # active low
+            else:
+                self.set_bit(r.KX022_INC1, b.KX022_INC1_IEA1)     # active high
+        else:
+            if polarity == ACTIVE_LOW:
+                self.reset_bit(r.KX022_INC5, b.KX022_INC5_IEA2)   # active low
+            else:
+                self.set_bit(r.KX022_INC5, b.KX022_INC5_IEA2)     # active high
+        
     def set_average(self, average, average2=0, channel=CH_ACC):    # set averaging (only for low power)
         assert channel == CH_ACC, 'only accelerometer available'
-        assert average in [b.KX022_LP_CNTL_AVC_128_SAMPLE_AVG, \
-                           b.KX022_LP_CNTL_AVC_64_SAMPLE_AVG,  \
-                           b.KX022_LP_CNTL_AVC_32_SAMPLE_AVG,  \
-                           b.KX022_LP_CNTL_AVC_16_SAMPLE_AVG,  \
-                           b.KX022_LP_CNTL_AVC_8_SAMPLE_AVG,   \
-                           b.KX022_LP_CNTL_AVC_4_SAMPLE_AVG,   \
-                           b.KX022_LP_CNTL_AVC_2_SAMPLE_AVG,   \
-                           b.KX022_LP_CNTL_AVC_NO_AVG]
+        assert average in e.KX022_LP_CNTL_AVC.values(),'Invalid value for KX022_LP_CNTL_AVC'
+        
         self.set_bit_pattern(r.KX022_LP_CNTL, average, m.KX022_LP_CNTL_AVC_MASK)
 
     def set_BW(self, lpro=b.KX022_ODCNTL_LPRO,lpro2=0, channel=CH_ACC):
@@ -216,31 +224,35 @@ class kx022_driver(sensor_base):
         """
         Latched interrupt source information is cleared and physical interrupt latched pin is changed to its inactive state.
         """
+        # FIXME, this releases both even asked to release one
         self.read_register(r.KX022_INT_REL) 
 
     def enable_fifo(self, mode=b.KX022_BUF_CNTL2_BUF_M_STREAM, res=b.KX022_BUF_CNTL2_BRES, axis_mask=0x03): # enable buffer with mode and resolution
         ### syncronized with KXxxx, KXG03
-        assert mode < 5, 'not valid buffer mode'
+        assert mode in e.KX022_BUF_CNTL2_BUF_M.values()
         assert res in [b.KX022_BUF_CNTL2_BRES, 0]       # 8 or 16bit resolution store
         assert axis_mask == 0x03, 'all axis must included to buffer storage with KXx2x'
 
-        if res > 0:
+        if res == b.KX022_BUF_CNTL2_BRES:
             self.set_bit(r.KX022_BUF_CNTL2, b.KX022_BUF_CNTL2_BRES)
         else:
             self.reset_bit(r.KX022_BUF_CNTL2, b.KX022_BUF_CNTL2_BRES)
 
-        self.set_bit(r.KX022_BUF_CNTL2, b.KX022_BUF_CNTL2_BUFE | mode)
+        # combine two settings in one register write
+        self.set_bit_pattern(r.KX022_BUF_CNTL2,
+                             b.KX022_BUF_CNTL2_BUFE | mode,
+                             m.KX022_BUF_CNTL2_BUF_M_MASK | b.KX022_BUF_CNTL2_BUFE)
 
     def disable_fifo(self):                                     # disable buffer
         self.reset_bit(r.KX022_BUF_CNTL2, b.KX022_BUF_CNTL2_BUFE)
 
-    def get_fifo_resolution(self):                              # get resolution 0= 8b, >0 = 16b
+    def get_fifo_resolution(self):
         if self.read_register(r.KX022_BUF_CNTL2, 1)[0] & b.KX022_BUF_CNTL2_BRES > 0:
-            return 1
+            return 1 # 16 bit resulution
         else:
-            return 0
+            return 0 # 8 bit resolution
 
-    def set_fifo_watermark_level(self, level, axes=3): # hox! set watermark as samples
+    def set_fifo_watermark_level(self, level, axes=3): # NOTE! set watermark as samples
         assert axes in [3], 'only 3 axes possible to store fifo buffer' 
         if self.WHOAMI in self._WAIS122:
             if self.get_fifo_resolution() > 0:
@@ -260,7 +272,7 @@ class kx022_driver(sensor_base):
                 assert level <=82,'Watermark level too high.'       # 8b resolution  
             self.write_register(r.KX022_BUF_CNTL1, level & m.KX022_BUF_CNTL1_SMP_TH0_6_MASK)
 
-    def get_fifo_level(self):                                   # hox! get fifo buffer as bytes
+    def get_fifo_level(self):                                   # NOTE! get fifo buffer as bytes
         if self.WHOAMI in self._WAIS122:
             bytes_in_buffer = self.read_register(r.KX022_BUF_STATUS_1, 2)
             bytes_in_buffer = bin2uint16(bytes_in_buffer)

@@ -19,3 +19,33 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
+from imports import *
+
+_CODE_FORMAT_VERSION = 2.0
+'''
+Reads stepcount register
+After register is read, stepcount is set to 0
+'''
+
+def read_step_count(sensor,
+                    power_off_on = False):
+
+    logger.info('read_step_count initialized')
+    steps = sensor.read_step_count()
+    if power_off_on:
+        sensor.set_power_off()
+    print 'Steps counted: %s' %steps
+    return steps
+
+def app_main():
+    sensor = kx126_driver()
+    #NOTE: Dont pass sensor instance to setup_default_connection to avoid por
+    bus = setup_default_connection(skip_board_init = True)
+    bus.probe_sensor(sensor)
+    read_step_count(sensor)
+    bus.close()
+
+if __name__ == '__main__':
+    app_main()    
+    
+

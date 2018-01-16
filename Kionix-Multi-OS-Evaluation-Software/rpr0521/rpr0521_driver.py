@@ -20,7 +20,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 from imports import *
-from lib.sensor_base import sensor_base
+
+from lib.sensor_base import sensor_base, SensorException
 
 import rpr0521_registers as sensor
 r=sensor.registers()
@@ -38,15 +39,14 @@ class rpr0521_driver(sensor_base):
         self.I2C_SUPPORT = True
         self.INT_PINS = [1,2]       #rpr0521 has only one drdy, but it can be connected to either of aardvark gpio pins.
 
-        # configurations to register_dump()
-        self._registers = dict(r.__dict__)
-        self._dump_range = (r.RPR0521_REGISTER_DUMP_START, r.RPR0521_REGISTER_DUMP_END)
-        return
 
     # Read component ID and compare it to expected value
     def probe(self):
         resp = self.read_register(self._WAIREG)
         if resp[0] == self._WAI:
+            # configurations to register_dump()
+            self._registers = dict(r.__dict__)
+            self._dump_range = (r.RPR0521_REGISTER_DUMP_START, r.RPR0521_REGISTER_DUMP_END)
             return 1
         return 0
 

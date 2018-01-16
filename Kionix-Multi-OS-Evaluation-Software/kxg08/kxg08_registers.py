@@ -36,13 +36,13 @@ class registers(register_base):
 		self.KXG08_ACCEL_YOUT_H                                   = 0x0B         
 		self.KXG08_ACCEL_ZOUT_L                                   = 0x0C         
 		self.KXG08_ACCEL_ZOUT_H                                   = 0x0D         
-		self.KXG08_AUX1_OUT_1                                     = 0x0E         
+		self.KXG08_AUX1_OUT_1                                     = 0x0E         # Auxiliary Sensor #1 output data bytes AUX1_OUT1 through AUX1_OUT6
 		self.KXG08_AUX1_OUT_2                                     = 0x0F         
 		self.KXG08_AUX1_OUT_3                                     = 0x10         
 		self.KXG08_AUX1_OUT_4                                     = 0x11         
 		self.KXG08_AUX1_OUT_5                                     = 0x12         
 		self.KXG08_AUX1_OUT_6                                     = 0x13         
-		self.KXG08_AUX2_OUT_1                                     = 0x14         
+		self.KXG08_AUX2_OUT_1                                     = 0x14         # Auxiliary Sensor #2 output data bytes AUX2_OUT1 through AUX2_OUT6
 		self.KXG08_AUX2_OUT_2                                     = 0x15         
 		self.KXG08_AUX2_OUT_3                                     = 0x16         
 		self.KXG08_AUX2_OUT_4                                     = 0x17         
@@ -52,13 +52,13 @@ class registers(register_base):
 		self.KXG08_TIMESTAMP15_8                                  = 0x1B         
 		self.KXG08_TIMESTAMP18_16                                 = 0x1C         
 		self.KXG08_BUF_PAST                                       = 0x1D         
-		self.KXG08_BUF_SMPLEV_L                                   = 0x1E         
+		self.KXG08_BUF_SMPLEV_L                                   = 0x1E         # Reports the number of data packets (ODR cycles) currently stored in the buffer.
 		self.KXG08_BUF_SMPLEV_H                                   = 0x1F         
 		self.KXG08_TSCP                                           = 0x20         # Current Tilt Position Register.
 		self.KXG08_TSPP                                           = 0x21         # Previous Tilt Positon Register.
 		self.KXG08_AUX_STATUS                                     = 0x22         # Reports the status of Auxiliary Sensors AUX1 and AUX2.
 		self.KXG08_WHO_AM_I                                       = 0x23         # WHO_AM_I
-		self.KXG08_SN7_0                                          = 0x24         
+		self.KXG08_SN7_0                                          = 0x24         # Individual Identification (serial number).
 		self.KXG08_SN15_8                                         = 0x25         
 		self.KXG08_SN23_16                                        = 0x26         
 		self.KXG08_SN31_24                                        = 0x27         
@@ -67,17 +67,17 @@ class registers(register_base):
 		self.KXG08_INT1_SRC2                                      = 0x32         # Interrupt 1 source register 2 (WUF direction)
 		self.KXG08_INT1_SRC3                                      = 0x33         # Interrupt 1 source register 3 (Double Tap direction)
 		self.KXG08_INT1_SRC4                                      = 0x34         # Interrupt 1 source register 4
-		self.KXG08_INT1_L                                         = 0x35         
+		self.KXG08_INT1_L                                         = 0x35         # Reading this register releases int1 source registers
 		self.KXG08_STATUS2                                        = 0x36         # Status register 2
 		self.KXG08_INT2_SRC1                                      = 0x37         # Interrupt 2 source register 1
 		self.KXG08_INT2_SRC2                                      = 0x38         # Interrupt 2 source register 2 (WUF direction)
 		self.KXG08_INT2_SRC3                                      = 0x39         # Interrupt 2 source register 3 (Double Tap direction)
 		self.KXG08_INT2_SRC4                                      = 0x3A         # Interrupt 2 source register 4
-		self.KXG08_INT2_L                                         = 0x3B         
+		self.KXG08_INT2_L                                         = 0x3B         # Reading this register releases int2 source registers
 		self.KXG08_ACCEL_ODR                                      = 0x3C         # Accelerometer Control register
 		self.KXG08_ACCEL_CTL                                      = 0x3D         # Accelerometer range control register
 		self.KXG08_GYRO_ODR                                       = 0x3E         # Gyroscope Control register
-		self.KXG08_GYRO_CTL                                       = 0x3F         
+		self.KXG08_GYRO_CTL                                       = 0x3F         # Gyro range control register.
 		self.KXG08_INT_PIN_CTL                                    = 0x40         # This register controls the settings for the physical interrupt pins INT1 and INT2
 		self.KXG08_INT_PIN_SEL1                                   = 0x41         # Physical interrupt pin INT1 select register.
 		self.KXG08_INT_PIN_SEL2                                   = 0x42         # Physical interrupt pin INT2 select register.
@@ -87,52 +87,52 @@ class registers(register_base):
 		self.KXG08_INT_MASK3                                      = 0x46         # This register controls which axis and direction of tap/double tap can cause an interrupt.
 		self.KXG08_INT_MASK4                                      = 0x47         # This register controls which axis and direction of tilt position can cause an interrupt
 		self.KXG08_FSYNC_CTL                                      = 0x48         # External Synchronous control register.
-		self.KXG08_BTS_TH                                         = 0x49         
-		self.KXG08_BTSWUF_TH                                      = 0x4A         
-		self.KXG08_WUF_TH                                         = 0x4B         
-		self.KXG08_WUF_COUNTER                                    = 0x4C         
-		self.KXG08_BTS_COUNTER                                    = 0x4D         
+		self.KXG08_BTS_TH                                         = 0x49         # This register sets the threshold for Back-to-sleep (motion detect) interrupt.
+		self.KXG08_BTSWUF_TH                                      = 0x4A         # This register contains additional bits for BTS and WUF threshold.
+		self.KXG08_WUF_TH                                         = 0x4B         # This register sets the Active Threshold for wake-up (motion detect) interrupt.
+		self.KXG08_BTS_COUNTER                                    = 0x4C         # This register sets the time motion must be present before a wake-up interrupt is set.
+		self.KXG08_WUF_COUNTER                                    = 0x4D         # This register sets the time motion must be present before a Back-to-sleep interrupt is set.
 		self.KXG08_WAKE_SLEEP_CTL1                                = 0x4E         # Wake and Sleep control register 1.
 		self.KXG08_WAKE_SLEEP_CTL2                                = 0x4F         # WUF and BTS threshold mode.
 		self.KXG08_AUX_I2C_CTL_REG                                = 0x50         # Read/Write control register
-		self.KXG08_AUX_I2C_SAD1                                   = 0x51         
-		self.KXG08_AUX_I2C_REG1                                   = 0x52         
-		self.KXG08_AUX_I2C_CTL1                                   = 0x53         
-		self.KXG08_AUX_I2C_BIT1                                   = 0x54         
+		self.KXG08_AUX_I2C_SAD1                                   = 0x51         # Read/Write that should be used to store the SAD for auxiliary I2C device 1.
+		self.KXG08_AUX_I2C_REG1                                   = 0x52         # Read/Write that should be used to store the starting data register address for auxiliary I2C device 1.
+		self.KXG08_AUX_I2C_CTL1                                   = 0x53         # Register address for enable/disable control register for auxiliary I2C device 1.
+		self.KXG08_AUX_I2C_BIT1                                   = 0x54         # Defines bits to toggle in the control register for auxiliary I2C device 1.
 		self.KXG08_AUX_I2C_ODR                                    = 0x55         # Defines register read controls for auxiliary I2C device.
-		self.KXG08_AUX_I2C_SAD2                                   = 0x56         
-		self.KXG08_AUX_I2C_REG2                                   = 0x57         
-		self.KXG08_AUX_I2C_CTL2                                   = 0x58         
-		self.KXG08_AUX_I2C_BIT2                                   = 0x59         
+		self.KXG08_AUX_I2C_SAD2                                   = 0x56         # Read/Write that should be used to store the SAD for auxiliary I2C device 2.
+		self.KXG08_AUX_I2C_REG2                                   = 0x57         # Read/Write that should be used to store the starting data register address for auxiliary I2C device 2.
+		self.KXG08_AUX_I2C_CTL2                                   = 0x58         # Register address for enable/disable control register for auxiliary I2C device 2.
+		self.KXG08_AUX_I2C_BIT2                                   = 0x59         # Defines bits to toggle in the control register for auxiliary I2C device 2.
 		self.KXG08_AUX_I2C_ODR2                                   = 0x5A         # Defines register read controls for auxiliary I2C device.
-		self.KXG08_HYST_SET                                       = 0x5B         
-		self.KXG08_TILT_ANGLE_HL                                  = 0x5C         
-		self.KXG08_TILT_ANGLE_LL                                  = 0x5D         
-		self.KXG08_TILT_TIMER                                     = 0x5E         
+		self.KXG08_HYST_SET                                       = 0x5B         # This register sets the Hysteresis that is placed in between the Screen Rotation states.
+		self.KXG08_TILT_ANGLE_HL                                  = 0x5C         # This register sets the high level threshold for tilt angle detection.
+		self.KXG08_TILT_ANGLE_LL                                  = 0x5D         # This register sets the high level threshold for tilt angle detection.
+		self.KXG08_TILT_TIMER                                     = 0x5E         # This register sets the high level threshold for tilt angle detection.
 		self.KXG08_TILT_TAP_ODR                                   = 0x5F         # This register sets the high level threshold for tilt angle detection.
 		self.KXG08_TDTRC                                          = 0x60         # This register is responsible for enabling/disabling reporting of Tap/Double Tap
-		self.KXG08_TDTC                                           = 0x61         
-		self.KXG08_TTH                                            = 0x62         
-		self.KXG08_TTL                                            = 0x63         
-		self.KXG08_FTD                                            = 0x64         
-		self.KXG08_STD                                            = 0x65         
-		self.KXG08_TLT                                            = 0x66         
-		self.KXG08_TWS                                            = 0x67         
-		self.KXG08_FFTH                                           = 0x68         
-		self.KXG08_FFC                                            = 0x69         
+		self.KXG08_TDTC                                           = 0x61         # This register contains counter information for the detection of a double tap event.
+		self.KXG08_TTH                                            = 0x62         # This register represents the 8-bit jerk high threshold to determine if a tap is detected.
+		self.KXG08_TTL                                            = 0x63         # This register represents the 8-bit (0d 255d) jerk low threshold to determine if a tap is detected.
+		self.KXG08_FTD                                            = 0x64         # This register contains counter information for the detection of any tap event.
+		self.KXG08_STD                                            = 0x65         # This register contains counter information for the detection of a double tap event.
+		self.KXG08_TLT                                            = 0x66         # This register contains counter information for the detection of a tap event.
+		self.KXG08_TWS                                            = 0x67         # This register contains counter information for the detection of single and double taps.
+		self.KXG08_FFTH                                           = 0x68         # Free Fall Threshold
+		self.KXG08_FFC                                            = 0x69         # Free Fall Counter
 		self.KXG08_FFCTL                                          = 0x6A         # Free Fall Control
 		self.KXG08_CTL_REG_1                                      = 0x6B         # Special control register 1
 		self.KXG08_STDBY                                          = 0x6E         # Stand-by and operational control register.
-		self.KXG08_BUF_WMITH_L                                    = 0x72         
-		self.KXG08_BUF_WMITH_H                                    = 0x73         
-		self.KXG08_BUF_TRIGTH_L                                   = 0x74         
-		self.KXG08_BUF_TRIGTH_H                                   = 0x75         
+		self.KXG08_BUF_WMITH_L                                    = 0x72         # Read/write control register that controls the buffer sample threshold.
+		self.KXG08_BUF_WMITH_H                                    = 0x73         # Read/write control register that controls the buffer sample threshold.
+		self.KXG08_BUF_TRIGTH_L                                   = 0x74         # Buffer Trigger mode threshold L
+		self.KXG08_BUF_TRIGTH_H                                   = 0x75         # Buffer Trigger mode threshold H
 		self.KXG08_BUF_CTL1                                       = 0x76         # Read/write control register that controls sample buffer input
 		self.KXG08_BUF_CTL2                                       = 0x77         # Read/write control register that controls aux1 and aux2 buffer input
 		self.KXG08_BUF_EN                                         = 0x78         # Read/write control register that controls sample buffer operation
-		self.KXG08_BUF_STATUS                                     = 0x79         
-		self.KXG08_BUF_CLEAR                                      = 0x7A         
-		self.KXG08_BUF_READ                                       = 0x7B         
+		self.KXG08_BUF_STATUS                                     = 0x79         # reports the status of the buffers trigger function if this mode has been selected.
+		self.KXG08_BUF_CLEAR                                      = 0x7A         # Latched buffer status information and the entire buffer contents are cleared when a non-zero value is written to this register
+		self.KXG08_BUF_READ                                       = 0x7B         # Data in the buffer can be read by executing this command.
 		self.KXG08_2080_WHO_AM_I                                  = 0x23         # WHO_AM_I
 		self.KXG07_1080_WHO_AM_I                                  = 0x23         # WHO_AM_I
 		self.KXG07_2080_WHO_AM_I                                  = 0x23         # WHO_AM_I
@@ -171,6 +171,7 @@ class bits(register_base):
 		self.KXG08_STATUS1_AUX_ERR                                = (0x01 << 3)  # Auxiliary communication error
 		self.KXG08_STATUS1_WAKE_SLEEP_SLEEP_MODE                  = (0x00 << 2)  # Sleep mode status
 		self.KXG08_STATUS1_WAKE_SLEEP_WAKE_MODE                   = (0x01 << 2)  # Wake mode status
+		self.KXG08_STATUS1_WAKE_SLEEP                             = (0x01 << 2)  # Wake/sleep status flag
 		self.KXG08_STATUS1_GYRO_RUN                               = (0x01 << 0)  # Gyro's start status
 		self.KXG08_INT1_SRC1_INT1_BFI                             = (0x01 << 7)  # Buffer full interrupt.
 		self.KXG08_INT1_SRC1_INT1_WMI                             = (0x01 << 6)  # Buffer water mark interrupt.
@@ -204,6 +205,7 @@ class bits(register_base):
 		self.KXG08_STATUS2_AUX_ERR                                = (0x01 << 3)  # Auxiliary communications error.
 		self.KXG08_STATUS2_WAKE_SLEEP_SLEEP_MODE                  = (0x00 << 2)  
 		self.KXG08_STATUS2_WAKE_SLEEP_WAKE_MODE                   = (0x01 << 2)  
+		self.KXG08_STATUS2_WAKE_SLEEP                             = (0x01 << 2)  # Wake/sleep status flag
 		self.KXG08_STATUS2_GYRO_RUN                               = (0x01 << 0)  # Gyroscope run flag.
 		self.KXG08_INT2_SRC1_INT2_BFI                             = (0x01 << 7)  # Buffer full interrupt.
 		self.KXG08_INT2_SRC1_INT2_WMI                             = (0x01 << 6)  # Buffer water mark interrupt.
@@ -259,6 +261,7 @@ class bits(register_base):
 		self.KXG08_ACCEL_CTL_ACC_ST                               = (0x01 << 4)  # Accelerometer self test enable control.
 		self.KXG08_ACCEL_CTL_ACC_BW_ODR_2                         = (0x00 << 3)  # BW = ODR/2
 		self.KXG08_ACCEL_CTL_ACC_BW_ODR_8                         = (0x01 << 3)  # BW = ODR/8
+		self.KXG08_ACCEL_CTL_ACC_BW                               = (0x01 << 3)  # Accelerometer bandwidth control.
 		self.KXG08_ACCEL_CTL_ACC_FS_2G                            = (0x00 << 0)  
 		self.KXG08_ACCEL_CTL_ACC_FS_4G                            = (0x01 << 0)  
 		self.KXG08_ACCEL_CTL_ACC_FS_8G                            = (0x02 << 0)  
@@ -290,6 +293,7 @@ class bits(register_base):
 		self.KXG08_GYRO_ODR_ODRG_12800_1                          = (0x0F << 0)  # 12800Hz
 		self.KXG08_GYRO_CTL_GYRO_BW_ODR_8                         = (0x00 << 3)  # BW = ODR/8
 		self.KXG08_GYRO_CTL_GYRO_BW_ODR_2                         = (0x01 << 3)  # BW = ODR/2
+		self.KXG08_GYRO_CTL_GYRO_BW                               = (0x01 << 3)  
 		self.KXG08_GYRO_CTL_GYRO_FS_64                            = (0x00 << 0)  
 		self.KXG08_GYRO_CTL_GYRO_FS_128                           = (0x01 << 0)  
 		self.KXG08_GYRO_CTL_GYRO_FS_256                           = (0x02 << 0)  
@@ -301,6 +305,7 @@ class bits(register_base):
 		self.KXG08_INT_PIN_CTL_IEN2                               = (0x01 << 7)  # Active high enable for INT2 pin.
 		self.KXG08_INT_PIN_CTL_IEA2_ACTIVE_LOW                    = (0x00 << 6)  
 		self.KXG08_INT_PIN_CTL_IEA2_ACTIVE_HIGH                   = (0x01 << 6)  
+		self.KXG08_INT_PIN_CTL_IEA2                               = (0x01 << 6)  # Interrupt polarity select for INT2 pin.
 		self.KXG08_INT_PIN_CTL_IEL2_LATCHED                       = (0x00 << 4)  # Latched
 		self.KXG08_INT_PIN_CTL_IEL2_PULSED_50US                   = (0x01 << 4)  # Pulsed 50uS
 		self.KXG08_INT_PIN_CTL_IEL2_PULSED_200US                  = (0x02 << 4)  # Pulsed 200uS
@@ -308,6 +313,7 @@ class bits(register_base):
 		self.KXG08_INT_PIN_CTL_IEN1                               = (0x01 << 3)  # Active high enable for INT1 pin.
 		self.KXG08_INT_PIN_CTL_IEA1_ACTIVE_LOW                    = (0x00 << 2)  
 		self.KXG08_INT_PIN_CTL_IEA1_ACTIVE_HIGH                   = (0x01 << 2)  
+		self.KXG08_INT_PIN_CTL_IEA1                               = (0x01 << 2)  # Interrupt polarity select for INT1 pin.
 		self.KXG08_INT_PIN_CTL_IEL1_LATCHED                       = (0x00 << 0)  # Latched
 		self.KXG08_INT_PIN_CTL_IEL1_PULSED_50US                   = (0x01 << 0)  # Pulsed 50uS
 		self.KXG08_INT_PIN_CTL_IEL1_PULSED_200US                  = (0x02 << 0)  # Pulsed 200uS
@@ -358,8 +364,9 @@ class bits(register_base):
 		self.KXG08_INT_MASK4_TUPM                                 = (0x01 << 2)  # y positive (y+): 0 = disabled, 1 = enabled
 		self.KXG08_INT_MASK4_TFDM                                 = (0x01 << 1)  # z negative (z-): 0 = disabled, 1 = enabled
 		self.KXG08_INT_MASK4_TFUM                                 = (0x01 << 0)  # z positive (z+): 0 = disabled, 1 = enabled
-		self.KXG08_FSYNC_CTL_FSYNC_TRIG_INT2                      = (0x00 << 7)  # INT2 = interrupt-2.
-		self.KXG08_FSYNC_CTL_FSYNC_TRIG_FSYNC                     = (0x01 << 7)  # INT2 = fsync function
+		self.KXG08_FSYNC_CTL_FSYNC_TRIG_INT2                      = (0x00 << 6)  # INT2 = interrupt-2.
+		self.KXG08_FSYNC_CTL_FSYNC_TRIG_FSYNC                     = (0x01 << 6)  # INT2 = fsync function
+		self.KXG08_FSYNC_CTL_FSYNC_TRIG                           = (0x01 << 6)  # Defines INT2 and SYNC_TRIG pin functionality
 		self.KXG08_FSYNC_CTL_FSYNC_MODE_DISABLED                  = (0x00 << 4)  # FSYNC is disabled. SYNC pin is tri-stated.
 		self.KXG08_FSYNC_CTL_FSYNC_MODE_INPUT_EXT                 = (0x01 << 4)  # FSYNC is enabled. Sync pin is configured as input pin. Buffer is updated in sync with external clock applied at SYNC pin.
 		self.KXG08_FSYNC_CTL_FSYNC_MODE_INPUT                     = (0x02 << 4)  # FSYNC is enabled. Sync pin is configured as input pin. State of SYNC pin is stored in selected sensor's LSB bit.
@@ -374,8 +381,10 @@ class bits(register_base):
 		self.KXG08_FSYNC_CTL_FSYNC_SEL_SEL111                     = (0x07 << 0)  # Definition according FSYNC_MODE selection
 		self.KXG08_WAKE_SLEEP_CTL1_TH_MODE_ABSOLUTE_THRESHOLD     = (0x00 << 5)  # Absolute threshold. ASIC compares current output to threshold.
 		self.KXG08_WAKE_SLEEP_CTL1_TH_MODE_RELATIVE_THRESHOLD     = (0x01 << 5)  # Relative threshold. ASIC compares difference between current output and previous output to threshold.
+		self.KXG08_WAKE_SLEEP_CTL1_TH_MODE                        = (0x01 << 5)  
 		self.KXG08_WAKE_SLEEP_CTL1_C_MODE_COUNTER_CLEAR           = (0x00 << 4)  # Counter is cleared once activity level is outside the threshold.
 		self.KXG08_WAKE_SLEEP_CTL1_C_MODE_COUNTER_DECREMENT       = (0x01 << 4)  # Counter is decremented by one when activity level is outside the threshold.
+		self.KXG08_WAKE_SLEEP_CTL1_C_MODE                         = (0x01 << 4)  # Defines de-bounce counter clear mode.
 		self.KXG08_WAKE_SLEEP_CTL1_OWUF_0P781                     = (0x00 << 0)  # 0.78Hz
 		self.KXG08_WAKE_SLEEP_CTL1_OWUF_1P563                     = (0x01 << 0)  # 1.563Hz
 		self.KXG08_WAKE_SLEEP_CTL1_OWUF_3P125                     = (0x02 << 0)  # 3.125Hz
@@ -408,8 +417,10 @@ class bits(register_base):
 		self.KXG08_AUX_I2C_CTL_REG_AUX_CTL_POL1                   = (0x01 << 4)  # Defines control bit polarity for aux1 enable/disable command sequences.
 		self.KXG08_AUX_I2C_CTL_REG_AUX_BUS_SPD_100                = (0x00 << 3)  # 100kHz
 		self.KXG08_AUX_I2C_CTL_REG_AUX_BUS_SPD_400                = (0x01 << 3)  # 400kHz
+		self.KXG08_AUX_I2C_CTL_REG_AUX_BUS_SPD                    = (0x01 << 3)  # Sets I2C bus speed.
 		self.KXG08_AUX_I2C_CTL_REG_AUX_PULL_UP_DISABLED           = (0x00 << 2)  
 		self.KXG08_AUX_I2C_CTL_REG_AUX_PULL_UP_ENABLED            = (0x01 << 2)  
+		self.KXG08_AUX_I2C_CTL_REG_AUX_PULL_UP                    = (0x01 << 2)  # Active pullup
 		self.KXG08_AUX_I2C_CTL_REG_AUX_BYPASS                     = (0x01 << 1)  
 		self.KXG08_AUX_I2C_ODR_AUX1_D_0                           = (0x00 << 4)  
 		self.KXG08_AUX_I2C_ODR_AUX1_D_1                           = (0x01 << 4)  
@@ -480,8 +491,10 @@ class bits(register_base):
 		self.KXG08_FFCTL_FFIE                                     = (0x01 << 7)  # Free fall engine enable
 		self.KXG08_FFCTL_ULMODE_LATCHED                           = (0x00 << 6)  
 		self.KXG08_FFCTL_ULMODE_UNLATCHED                         = (0x01 << 6)  
+		self.KXG08_FFCTL_ULMODE                                   = (0x01 << 6)  # Free fall interrupt latch/un-latch control
 		self.KXG08_FFCTL_DCRM_UP_DOWN                             = (0x00 << 3)  # count up/down
 		self.KXG08_FFCTL_DCRM_UP_RESET                            = (0x01 << 3)  # count up/reset
+		self.KXG08_FFCTL_DCRM                                     = (0x01 << 3)  # Debounce methodology control
 		self.KXG08_FFCTL_OFFI_12P5                                = (0x04 << 0)  # 12.5Hz
 		self.KXG08_FFCTL_OFFI_25                                  = (0x05 << 0)  # 25Hz
 		self.KXG08_FFCTL_OFFI_50                                  = (0x06 << 0)  # 50Hz
@@ -497,16 +510,22 @@ class bits(register_base):
 		self.KXG08_STDBY_I2C_DIS                                  = (0x01 << 7)  # Active high I2C disable bit
 		self.KXG08_STDBY_TEMP_STDBY_ENABLED                       = (0x00 << 5)  # Temperature sensor is enabled.
 		self.KXG08_STDBY_TEMP_STDBY_DISABLED                      = (0x01 << 5)  # Temperature sensor is disabled.
+		self.KXG08_STDBY_TEMP_STDBY                               = (0x01 << 5)  # Active low Temperature sensor enable.
 		self.KXG08_STDBY_AUX2_STDBY_ENABLED                       = (0x00 << 4)  # Aux2 sensor is enabled.
 		self.KXG08_STDBY_AUX2_STDBY_DISABLED                      = (0x01 << 4)  # Aux2 sensor is disabled.
+		self.KXG08_STDBY_AUX2_STDBY                               = (0x01 << 4)  # Active low aux2 sensor enable.
 		self.KXG08_STDBY_AUX1_STDBY_ENABLED                       = (0x00 << 3)  # Aux1 sensor is enabled.
 		self.KXG08_STDBY_AUX1_STDBY_DISABLED                      = (0x01 << 3)  # Aux1 sensor is disabled.
+		self.KXG08_STDBY_AUX1_STDBY                               = (0x01 << 3)  # Active low aux1 sensor enable.
 		self.KXG08_STDBY_GYRO_FSTART_DISABLED                     = (0x00 << 2)  # Gyro fast start function is disabled.
 		self.KXG08_STDBY_GYRO_FSTART_ENABLED                      = (0x01 << 2)  # Gyro fast start function is enabled.
+		self.KXG08_STDBY_GYRO_FSTART                              = (0x01 << 2)  # Active high gyroscope fast start sensor enable
 		self.KXG08_STDBY_GYRO_STDBY_ENABLED                       = (0x00 << 1)  # Gyro sensor is enabled.
 		self.KXG08_STDBY_GYRO_STDBY_DISABLED                      = (0x01 << 1)  # Gyro sensor is disabled.
+		self.KXG08_STDBY_GYRO_STDBY                               = (0x01 << 1)  # Active low gyroscope sensor enable.
 		self.KXG08_STDBY_ACC_STDBY_ENABLED                        = (0x00 << 0)  # Accelerometer sensor is enabled.
 		self.KXG08_STDBY_ACC_STDBY_DISABLED                       = (0x01 << 0)  # Accelerometer sensor is disabled.
+		self.KXG08_STDBY_ACC_STDBY                                = (0x01 << 0)  # Active low Accelerometer sensor enable.
 		self.KXG08_BUF_CTL1_BUF_TEMP                              = (0x01 << 6)  
 		self.KXG08_BUF_CTL1_BUF_ACC_X                             = (0x01 << 5)  
 		self.KXG08_BUF_CTL1_BUF_ACC_Y                             = (0x01 << 4)  
@@ -537,48 +556,48 @@ class enums(register_base):
 			'NOT_VALID':_b.KXG08_BUF_EN_BUF_M_NOT_VALID,
 		}
 		self.KXG08_FFCTL_ULMODE={
-			'latched':_b.KXG08_FFCTL_ULMODE_LATCHED,
-			'unlatched':_b.KXG08_FFCTL_ULMODE_UNLATCHED,
+			'LATCHED':_b.KXG08_FFCTL_ULMODE_LATCHED,
+			'UNLATCHED':_b.KXG08_FFCTL_ULMODE_UNLATCHED,
 		}
 		self.KXG08_STDBY_ACC_STDBY={
 			'DISABLED':_b.KXG08_STDBY_ACC_STDBY_DISABLED,
 			'ENABLED':_b.KXG08_STDBY_ACC_STDBY_ENABLED,
 		}
 		self.KXG08_WAKE_SLEEP_CTL2_OBTS={
-			'0p19531':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P19531,
-			'0p3906':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P3906,
-			'0p781':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P781,
+			'0P19531':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P19531,
+			'0P3906':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P3906,
+			'0P781':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P781,
+			'6P25':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_6P25,
 			'25':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_25,
-			'12p5':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_12P5,
-			'0p048828':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P048828,
+			'12P5':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_12P5,
+			'0P048828':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P048828,
 			'100_2':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_100_2,
 			'100_5':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_100_5,
 			'100_4':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_100_4,
 			'50':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_50,
-			'1p563':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_1P563,
-			'3p125':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_3P125,
-			'0p097656':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P097656,
+			'1P563':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_1P563,
+			'3P125':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_3P125,
+			'0P097656':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_0P097656,
 			'100':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_100,
-			'6p25':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_6P25,
 			'100_3':_b.KXG08_WAKE_SLEEP_CTL2_OBTS_100_3,
 		}
 		self.KXG08_GYRO_ODR_ODRG={
 			'200':_b.KXG08_GYRO_ODR_ODRG_200,
 			'6400':_b.KXG08_GYRO_ODR_ODRG_6400,
-			'0p781':_b.KXG08_GYRO_ODR_ODRG_0P781,
+			'0P781':_b.KXG08_GYRO_ODR_ODRG_0P781,
 			'12800_1':_b.KXG08_GYRO_ODR_ODRG_12800_1,
 			'3200':_b.KXG08_GYRO_ODR_ODRG_3200,
-			'12p5':_b.KXG08_GYRO_ODR_ODRG_12P5,
+			'12P5':_b.KXG08_GYRO_ODR_ODRG_12P5,
 			'1600':_b.KXG08_GYRO_ODR_ODRG_1600,
 			'50':_b.KXG08_GYRO_ODR_ODRG_50,
-			'1p563':_b.KXG08_GYRO_ODR_ODRG_1P563,
-			'3p125':_b.KXG08_GYRO_ODR_ODRG_3P125,
+			'1P563':_b.KXG08_GYRO_ODR_ODRG_1P563,
+			'3P125':_b.KXG08_GYRO_ODR_ODRG_3P125,
 			'25':_b.KXG08_GYRO_ODR_ODRG_25,
 			'12800':_b.KXG08_GYRO_ODR_ODRG_12800,
 			'400':_b.KXG08_GYRO_ODR_ODRG_400,
 			'100':_b.KXG08_GYRO_ODR_ODRG_100,
 			'800':_b.KXG08_GYRO_ODR_ODRG_800,
-			'6p25':_b.KXG08_GYRO_ODR_ODRG_6P25,
+			'6P25':_b.KXG08_GYRO_ODR_ODRG_6P25,
 		}
 		self.KXG08_AUX_I2C_CTL_REG_AUX_BUS_SPD={
 			'100':_b.KXG08_AUX_I2C_CTL_REG_AUX_BUS_SPD_100,
@@ -591,7 +610,7 @@ class enums(register_base):
 		self.KXG08_FFCTL_OFFI={
 			'25':_b.KXG08_FFCTL_OFFI_25,
 			'200':_b.KXG08_FFCTL_OFFI_200,
-			'12p5':_b.KXG08_FFCTL_OFFI_12P5,
+			'12P5':_b.KXG08_FFCTL_OFFI_12P5,
 			'1600':_b.KXG08_FFCTL_OFFI_1600,
 			'50':_b.KXG08_FFCTL_OFFI_50,
 			'400':_b.KXG08_FFCTL_OFFI_400,
@@ -601,20 +620,20 @@ class enums(register_base):
 		self.KXG08_ACCEL_ODR_ODRA={
 			'200':_b.KXG08_ACCEL_ODR_ODRA_200,
 			'6400':_b.KXG08_ACCEL_ODR_ODRA_6400,
-			'0p781':_b.KXG08_ACCEL_ODR_ODRA_0P781,
+			'0P781':_b.KXG08_ACCEL_ODR_ODRA_0P781,
 			'3200':_b.KXG08_ACCEL_ODR_ODRA_3200,
-			'12p5':_b.KXG08_ACCEL_ODR_ODRA_12P5,
+			'12P5':_b.KXG08_ACCEL_ODR_ODRA_12P5,
 			'1600':_b.KXG08_ACCEL_ODR_ODRA_1600,
 			'50':_b.KXG08_ACCEL_ODR_ODRA_50,
-			'1p563':_b.KXG08_ACCEL_ODR_ODRA_1P563,
+			'1P563':_b.KXG08_ACCEL_ODR_ODRA_1P563,
 			'25600':_b.KXG08_ACCEL_ODR_ODRA_25600,
-			'3p125':_b.KXG08_ACCEL_ODR_ODRA_3P125,
+			'3P125':_b.KXG08_ACCEL_ODR_ODRA_3P125,
 			'25':_b.KXG08_ACCEL_ODR_ODRA_25,
 			'12800':_b.KXG08_ACCEL_ODR_ODRA_12800,
 			'400':_b.KXG08_ACCEL_ODR_ODRA_400,
 			'100':_b.KXG08_ACCEL_ODR_ODRA_100,
 			'800':_b.KXG08_ACCEL_ODR_ODRA_800,
-			'6p25':_b.KXG08_ACCEL_ODR_ODRA_6P25,
+			'6P25':_b.KXG08_ACCEL_ODR_ODRA_6P25,
 		}
 		self.KXG08_FSYNC_CTL_FSYNC_SEL={
 			'SEL101':_b.KXG08_FSYNC_CTL_FSYNC_SEL_SEL101,
@@ -628,20 +647,20 @@ class enums(register_base):
 		}
 		self.KXG08_AUX_I2C_ODR2_AUX2ODR={
 			'25':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_25,
-			'0p781':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_0P781,
+			'0P781':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_0P781,
 			'200':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_200,
-			'12p5':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_12P5,
+			'12P5':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_12P5,
 			'1600':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_1600,
 			'50':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_50,
 			'1600_3':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_1600_3,
-			'1p563':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_1P563,
-			'3p125':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_3P125,
+			'1P563':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_1P563,
+			'3P125':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_3P125,
 			'400':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_400,
 			'100':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_100,
 			'1600_4':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_1600_4,
 			'800':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_800,
 			'1600_2':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_1600_2,
-			'6p25':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_6P25,
+			'6P25':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_6P25,
 			'1600_1':_b.KXG08_AUX_I2C_ODR2_AUX2ODR_1600_1,
 		}
 		self.KXG08_FSYNC_CTL_FSYNC_TRIG={
@@ -656,11 +675,11 @@ class enums(register_base):
 			'50_2':_b.KXG08_TILT_TAP_ODR_OTP_50_2,
 			'25':_b.KXG08_TILT_TAP_ODR_OTP_25,
 			'50_1':_b.KXG08_TILT_TAP_ODR_OTP_50_1,
-			'12p5':_b.KXG08_TILT_TAP_ODR_OTP_12P5,
+			'12P5':_b.KXG08_TILT_TAP_ODR_OTP_12P5,
 			'50':_b.KXG08_TILT_TAP_ODR_OTP_50,
-			'1p563':_b.KXG08_TILT_TAP_ODR_OTP_1P563,
-			'3p125':_b.KXG08_TILT_TAP_ODR_OTP_3P125,
-			'6p25':_b.KXG08_TILT_TAP_ODR_OTP_6P25,
+			'1P563':_b.KXG08_TILT_TAP_ODR_OTP_1P563,
+			'3P125':_b.KXG08_TILT_TAP_ODR_OTP_3P125,
+			'6P25':_b.KXG08_TILT_TAP_ODR_OTP_6P25,
 		}
 		self.KXG08_STDBY_GYRO_STDBY={
 			'DISABLED':_b.KXG08_STDBY_GYRO_STDBY_DISABLED,
@@ -692,10 +711,10 @@ class enums(register_base):
 			'32_SAMPLE_AVG':_b.KXG08_GYRO_ODR_NAVGG_32_SAMPLE_AVG,
 		}
 		self.KXG08_ACCEL_CTL_ACC_FS={
-			'4g':_b.KXG08_ACCEL_CTL_ACC_FS_4G,
-			'16g':_b.KXG08_ACCEL_CTL_ACC_FS_16G,
-			'2g':_b.KXG08_ACCEL_CTL_ACC_FS_2G,
-			'8g':_b.KXG08_ACCEL_CTL_ACC_FS_8G,
+			'4G':_b.KXG08_ACCEL_CTL_ACC_FS_4G,
+			'2G':_b.KXG08_ACCEL_CTL_ACC_FS_2G,
+			'8G':_b.KXG08_ACCEL_CTL_ACC_FS_8G,
+			'16G':_b.KXG08_ACCEL_CTL_ACC_FS_16G,
 		}
 		self.KXG08_INT1_SRC4_INT1_TDTS={
 			'DOUBLE':_b.KXG08_INT1_SRC4_INT1_TDTS_DOUBLE,
@@ -717,8 +736,8 @@ class enums(register_base):
 			'WAITING_TO_BE_ENABLED':_b.KXG08_AUX_STATUS_AUX1ST_WAITING_TO_BE_ENABLED,
 		}
 		self.KXG08_FFCTL_DCRM={
-			'up_reset':_b.KXG08_FFCTL_DCRM_UP_RESET,
-			'up_down':_b.KXG08_FFCTL_DCRM_UP_DOWN,
+			'UP_RESET':_b.KXG08_FFCTL_DCRM_UP_RESET,
+			'UP_DOWN':_b.KXG08_FFCTL_DCRM_UP_DOWN,
 		}
 		self.KXG08_INT_PIN_CTL_IEA1={
 			'ACTIVE_HIGH':_b.KXG08_INT_PIN_CTL_IEA1_ACTIVE_HIGH,
@@ -730,9 +749,9 @@ class enums(register_base):
 		}
 		self.KXG08_GYRO_CTL_GYRO_FS={
 			'1024':_b.KXG08_GYRO_CTL_GYRO_FS_1024,
-			'tbd2':_b.KXG08_GYRO_CTL_GYRO_FS_TBD2,
+			'TBD2':_b.KXG08_GYRO_CTL_GYRO_FS_TBD2,
 			'2048':_b.KXG08_GYRO_CTL_GYRO_FS_2048,
-			'tbd1':_b.KXG08_GYRO_CTL_GYRO_FS_TBD1,
+			'TBD1':_b.KXG08_GYRO_CTL_GYRO_FS_TBD1,
 			'64':_b.KXG08_GYRO_CTL_GYRO_FS_64,
 			'128':_b.KXG08_GYRO_CTL_GYRO_FS_128,
 			'512':_b.KXG08_GYRO_CTL_GYRO_FS_512,
@@ -741,7 +760,7 @@ class enums(register_base):
 		self.KXG08_TILT_TAP_ODR_OTDT={
 			'25':_b.KXG08_TILT_TAP_ODR_OTDT_25,
 			'200':_b.KXG08_TILT_TAP_ODR_OTDT_200,
-			'12p5':_b.KXG08_TILT_TAP_ODR_OTDT_12P5,
+			'12P5':_b.KXG08_TILT_TAP_ODR_OTDT_12P5,
 			'1600':_b.KXG08_TILT_TAP_ODR_OTDT_1600,
 			'50':_b.KXG08_TILT_TAP_ODR_OTDT_50,
 			'400':_b.KXG08_TILT_TAP_ODR_OTDT_400,
@@ -749,14 +768,14 @@ class enums(register_base):
 			'800':_b.KXG08_TILT_TAP_ODR_OTDT_800,
 		}
 		self.KXG08_FSYNC_CTL_FSYNC_MODE={
-			'disabled':_b.KXG08_FSYNC_CTL_FSYNC_MODE_DISABLED,
-			'input_ext':_b.KXG08_FSYNC_CTL_FSYNC_MODE_INPUT_EXT,
-			'input':_b.KXG08_FSYNC_CTL_FSYNC_MODE_INPUT,
-			'output':_b.KXG08_FSYNC_CTL_FSYNC_MODE_OUTPUT,
+			'DISABLED':_b.KXG08_FSYNC_CTL_FSYNC_MODE_DISABLED,
+			'INPUT_EXT':_b.KXG08_FSYNC_CTL_FSYNC_MODE_INPUT_EXT,
+			'INPUT':_b.KXG08_FSYNC_CTL_FSYNC_MODE_INPUT,
+			'OUTPUT':_b.KXG08_FSYNC_CTL_FSYNC_MODE_OUTPUT,
 		}
 		self.KXG08_STATUS2_WAKE_SLEEP={
-			'sleep_mode':_b.KXG08_STATUS2_WAKE_SLEEP_SLEEP_MODE,
-			'wake_mode':_b.KXG08_STATUS2_WAKE_SLEEP_WAKE_MODE,
+			'SLEEP_MODE':_b.KXG08_STATUS2_WAKE_SLEEP_SLEEP_MODE,
+			'WAKE_MODE':_b.KXG08_STATUS2_WAKE_SLEEP_WAKE_MODE,
 		}
 		self.KXG08_GYRO_CTL_GYRO_BW={
 			'ODR_8':_b.KXG08_GYRO_CTL_GYRO_BW_ODR_8,
@@ -778,17 +797,17 @@ class enums(register_base):
 		}
 		self.KXG08_WAKE_SLEEP_CTL1_OWUF={
 			'25':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_25,
-			'0p781':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_0P781,
-			'12p5':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_12P5,
+			'0P781':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_0P781,
+			'12P5':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_12P5,
 			'50':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_50,
-			'1p563':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_1P563,
-			'3p125':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_3P125,
+			'1P563':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_1P563,
+			'3P125':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_3P125,
 			'100':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_100,
-			'6p25':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_6P25,
+			'6P25':_b.KXG08_WAKE_SLEEP_CTL1_OWUF_6P25,
 		}
 		self.KXG08_STATUS1_WAKE_SLEEP={
-			'sleep_mode':_b.KXG08_STATUS1_WAKE_SLEEP_SLEEP_MODE,
-			'wake_mode':_b.KXG08_STATUS1_WAKE_SLEEP_WAKE_MODE,
+			'SLEEP_MODE':_b.KXG08_STATUS1_WAKE_SLEEP_SLEEP_MODE,
+			'WAKE_MODE':_b.KXG08_STATUS1_WAKE_SLEEP_WAKE_MODE,
 		}
 		self.KXG08_AUX_I2C_ODR2_AUX2_D={
 			'DNE':_b.KXG08_AUX_I2C_ODR2_AUX2_D_DNE,
@@ -802,20 +821,20 @@ class enums(register_base):
 		}
 		self.KXG08_AUX_I2C_ODR_AUX1ODR={
 			'25':_b.KXG08_AUX_I2C_ODR_AUX1ODR_25,
-			'0p781':_b.KXG08_AUX_I2C_ODR_AUX1ODR_0P781,
+			'0P781':_b.KXG08_AUX_I2C_ODR_AUX1ODR_0P781,
 			'200':_b.KXG08_AUX_I2C_ODR_AUX1ODR_200,
-			'12p5':_b.KXG08_AUX_I2C_ODR_AUX1ODR_12P5,
+			'12P5':_b.KXG08_AUX_I2C_ODR_AUX1ODR_12P5,
 			'1600':_b.KXG08_AUX_I2C_ODR_AUX1ODR_1600,
 			'50':_b.KXG08_AUX_I2C_ODR_AUX1ODR_50,
 			'1600_3':_b.KXG08_AUX_I2C_ODR_AUX1ODR_1600_3,
-			'1p563':_b.KXG08_AUX_I2C_ODR_AUX1ODR_1P563,
-			'3p125':_b.KXG08_AUX_I2C_ODR_AUX1ODR_3P125,
+			'1P563':_b.KXG08_AUX_I2C_ODR_AUX1ODR_1P563,
+			'3P125':_b.KXG08_AUX_I2C_ODR_AUX1ODR_3P125,
 			'400':_b.KXG08_AUX_I2C_ODR_AUX1ODR_400,
 			'100':_b.KXG08_AUX_I2C_ODR_AUX1ODR_100,
 			'1600_4':_b.KXG08_AUX_I2C_ODR_AUX1ODR_1600_4,
 			'800':_b.KXG08_AUX_I2C_ODR_AUX1ODR_800,
 			'1600_2':_b.KXG08_AUX_I2C_ODR_AUX1ODR_1600_2,
-			'6p25':_b.KXG08_AUX_I2C_ODR_AUX1ODR_6P25,
+			'6P25':_b.KXG08_AUX_I2C_ODR_AUX1ODR_6P25,
 			'1600_1':_b.KXG08_AUX_I2C_ODR_AUX1ODR_1600_1,
 		}
 		self.KXG08_AUX_I2C_CTL_REG_AUX_PULL_UP={
@@ -865,13 +884,13 @@ class masks(register_base):
 		self.KXG08_ACCEL_CTL_ACC_FS_MASK                          = 0x03         # Accelerometer full scale range select.
 		self.KXG08_GYRO_ODR_NAVGG_MASK                            = 0x70         
 		self.KXG08_GYRO_ODR_ODRG_MASK                             = 0x0F         
-		self.KXG08_GYRO_CTL_GYRO_BW_MASK                          = 0x08         # Gyro range control register.
+		self.KXG08_GYRO_CTL_GYRO_BW_MASK                          = 0x08         
 		self.KXG08_GYRO_CTL_GYRO_FS_MASK                          = 0x07         
 		self.KXG08_INT_PIN_CTL_IEA2_MASK                          = 0x40         # Interrupt polarity select for INT2 pin.
 		self.KXG08_INT_PIN_CTL_IEL2_MASK                          = 0x30         # Interrupt latch mode select for INT2 pin
 		self.KXG08_INT_PIN_CTL_IEA1_MASK                          = 0x04         # Interrupt polarity select for INT1 pin.
 		self.KXG08_INT_PIN_CTL_IEL1_MASK                          = 0x03         # Interrupt latch mode select for INT1 pin
-		self.KXG08_FSYNC_CTL_FSYNC_TRIG_MASK                      = 0x80         # Defines INT2 and SYNC_TRIG pin functionality
+		self.KXG08_FSYNC_CTL_FSYNC_TRIG_MASK                      = 0x40         # Defines INT2 and SYNC_TRIG pin functionality
 		self.KXG08_FSYNC_CTL_FSYNC_MODE_MASK                      = 0x30         # FSYNC enable and mode select.
 		self.KXG08_FSYNC_CTL_FSYNC_SEL_MASK                       = 0x07         
 		self.KXG08_WAKE_SLEEP_CTL1_TH_MODE_MASK                   = 0x20         

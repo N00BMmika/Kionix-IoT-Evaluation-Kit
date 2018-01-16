@@ -130,19 +130,6 @@ class sensor_base(object):
 #
     #Write value to sensor register via bus.
     def write_register(self, register, value):
-        if args.streamfile:
-            stack_list = traceback.extract_stack()[-3]
-            #print stack_list
-            s2 = stack_list[-1]
-            s1 = stack_list[-2]
-            stack = s1+'/'+s2
-            #name = str(self).split('.')[1].split(' ')[0].upper()
-            name = self.__module__.split('_driver')[0].upper()
-            
-            #print 'b.write_register(%s,0x%02X,0x%02X)\t# %s' % (name, register, value, stack)
-            print '<reg_write>%s,0x%02X,0x%02X</reg_write><!-- %s -->' % (name, register, value, stack)
-            #print '<reg_write>%s,%d,%d</reg_write><!-- %s -->' % (name, register, value, stack)
-
         self._bus.write_register(self, register, value)
 
 
@@ -170,8 +157,13 @@ class sensor_base(object):
         value = value & ~bit
         self.write_register(register, value)
 
-    #Change masked bits in target register by read/change/write -cycle. Keep other bits.
     def set_bit_pattern(self, register, bit_pattern, mask):
+        # Mask out "mask" bits and apply "bit_pattern" bits.
+        # Note: bit_pattern may contain also bits outside the mask
+        if bit_pattern & ~mask != 0:
+            logger.warning('Bit pattern defined outside from the mask.'+
+                           'Bit pattern 0b{0:08b}, mask 0b{1:08b}'.format(bit_pattern, mask))
+            
         value = self.read_register(register)[0] & ~ mask
         value |= bit_pattern
         self.write_register(register, value)
@@ -238,7 +230,7 @@ class sensor_base(object):
                 return -1
             
         if count == 0:
-            logger.error('Data overflow. ODR too high for host adapter.')
+            logger.warning('Possible data overflow. ODR may be too high for host adapter or GPIO lines may not be connected.')
             return -1
         return 0
 
@@ -268,7 +260,7 @@ class sensor_base(object):
             if timeout and count > timeout:
                 assert 0,'No interrupts received. Please check interrupt line connections and sensor configuration.'
         if count == 0:
-            logger.warning('Data overflow. ODR too high for host adapter or GPIO lines not connected')
+            logger.warning('Possible data overflow. ODR may be too high for host adapter or GPIO lines may not be connected.')
             return -1
         return 0
 

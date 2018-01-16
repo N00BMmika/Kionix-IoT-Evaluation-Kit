@@ -24,19 +24,22 @@
 ## logging polling or stream
 ###
 
+
+"""
+BH1726 ALS sensor data logger application
+"""
+
 from imports import *
 from kmx62 import kmx62_data_logger, kmx62_driver
 from kmx62.kmx62_driver import r as kmx62_reg
-from lib.data_stream import stream_config, start_time_str, end_time_str
 
 class bh1726_data_stream(stream_config):
     def __init__(self, sensor, sensor_kmx62):
-        stream_config.__init__(self)
-        # TODO make this dictionary
+        stream_config.__init__(self, sensor)
         assert evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT','Only Int1 supported.'
         pin_index = 0
 
-        self.define_request_message(sensor,
+        self.define_request_message(\
                                     fmt = "<BHHB",
                                     hdr = "ch!Als0!Als1!Int",
                                     reg = [sensor.address(), r.BH1726_DATA0LOW, 4,
@@ -57,12 +60,14 @@ def enable_data_logging(sensor, odr=218):
     ## select ODR
     sensor.set_odr(odr)                 # odr setting for basic data logging.
 
+    # TODO use enums
     ## Select adc gain
     sensor.set_gain0(b.BH1726_GAIN_GAIN0_X1)
     # sensor.set_gain(b.BH1726_GAIN_GAIN0_X2)
     # sensor.set_gain(b.BH1726_GAIN_GAIN0_X64)
     # sensor.set_gain(b.BH1726_GAIN_GAIN0_X128)
 
+    # TODO use enums
     sensor.set_gain1(b.BH1726_GAIN_GAIN1_X1)
     # sensor.set_gain(b.BH1726_GAIN_GAIN1_X2)
     # sensor.set_gain(b.BH1726_GAIN_GAIN1_X64)

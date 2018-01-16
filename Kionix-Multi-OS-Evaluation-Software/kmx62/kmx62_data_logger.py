@@ -19,64 +19,89 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
-## KMX62 logger application
-##
-###
-
+"""
+KMX62 accelerometer/magnetomter sensor data logger application
+"""
+_CODE_FORMAT_VERSION = 2.0
 from imports import *
-from lib.data_stream import stream_config, start_time_str, end_time_str
+
 
 class kmx62_data_stream(stream_config):
-    def __init__(self, sensor):
-        stream_config.__init__(self)
-        assert evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT','This example for KMX62 supports only int1 on iot node'
-        self.define_request_message(sensor,
-                                    fmt = "<Bhhhhhhh",
-                                    hdr = "ch!ax!ay!az!mx!my!mz!temp",
-                                    reg = r.KMX62_ACCEL_XOUT_L,
-                                    pin_index=0)
-    
-def enable_data_logging(sensor, odr = 25, int_number = None):
-    """ Configure sensor for data reading
-    
-    pin_index = None means use pin definition in settings.cfg"""
-    assert int_number in [None,1,2] # Note Kionix IoT Node has only kmx62 int1 connected
-    
-    logger.debug('enable_data_logging start')
-    
-    sensor.set_power_off()                          # this sensor request PC=0 to PC=1 before valid settings
-    # Select acc ODRs
-    odr = convert_to_enumkey(odr)
-    sensor.set_odr(e.KMX62_ODCNTL_OSA[odr], CH_ACC)                   # set ODR
 
+    def __init__(self, sensor, pin_index=None):
+        stream_config.__init__(self, sensor)
+
+        if pin_index is None:
+            pin_index = get_pin_index()
+
+        assert pin_index in [0, 1]
+        self.define_request_message(
+            fmt="<Bhhhhhhh",
+            hdr="ch!ax!ay!az!mx!my!mz!temp",
+            reg=r.KMX62_ACCEL_XOUT_L,
+            pin_index=pin_index)
+
+
+def enable_data_logging(sensor,
+                        odr=25,
+                        max_range_acc='2G',
+                        lp_mode=False,
+                        power_off_on=True,
+                        int_number=None):
+
+    logger.info('enable_data_logging start')
+
+    #
+    # parameter validation
+    #
+
+    assert convert_to_enumkey(odr) in e.KMX62_ODCNTL_OSA.keys(),\
+    'Invalid odr_OSA value "{}". Support values are {}'.format(
+    odr,e.KMX62_ODCNTL_OSA.keys())
+    
+    assert max_range_acc in e.KMX62_CNTL2_GSEL, \
+   'Invalid range value "{}". Support values are {}'.format(
+    max_range_acc, e.KMX62_CNTL2_GSEL.keys())
+    
+    assert lp_mode in e.KMX62_CNTL2_RES.keys() + [False],\
+    'Invalid lp_mode value "{}". Support values are {} and False'.format(
+    lp_mode, e.KMX62_CNTL2_RES.keys())
+
+    # Set sensor to stand-by to enable setup change
+    if power_off_on:
+        sensor.set_power_off()
+
+    #
+    # Configure sensor
+    #
+    # Select acc ODRs
+    sensor.set_odr(e.KMX62_ODCNTL_OSA[convert_to_enumkey(odr)], CH_ACC)
     # Select mag ODRs
-    sensor.set_odr(e.KMX62_ODCNTL_OSM[odr], CH_MAG)                   # set ODR
+    sensor.set_odr(e.KMX62_ODCNTL_OSM[convert_to_enumkey(odr)], CH_MAG)
     
     # select g-range (for acc)
-    sensor.set_range(b.KMX62_CNTL2_GSEL_2G, CH_ACC)
-    #sensor.set_range(b.KMX62_CNTL2_GSEL_4G, CH_ACC)
-    #sensor.set_range(b.KMX62_CNTL2_GSEL_8G, CH_ACC)
-    #sensor.set_range(b.KMX62_CNTL2_GSEL_16G, C_ACC)
-    
-    ## power mode (accelerometer and magnetometer)
-    LOW_POWER_MODE = False
-    if LOW_POWER_MODE == True:
-        sensor.set_average(b.KMX62_CNTL2_RES_A4M2, None, CH_ACC)
-        sensor.set_average(b.KMX62_CNTL2_RES_A32M16, None, CH_ACC)
-    else:
-        sensor.set_average(b.KMX62_CNTL2_RES_MAX2,None, CH_ACC)
+    sensor.set_range(e.KMX62_CNTL2_GSEL[max_range_acc])
 
-    ## interrupt settings            
+    # power mode (accelerometer and magnetometer)
+    if lp_mode not in ['MAX1','MAX2',False]:
+        # Low power mode
+        sensor.set_average(e.KMX62_CNTL2_RES[lp_mode], None, CH_ACC)
+    else:
+        # Full power mode
+        sensor.set_average(b.KMX62_CNTL2_RES_MAX2, None, CH_ACC)
+
+    #
+    # interrupt pin routings and settings
+    #
     if evkit_config.get('generic', 'int1_active_high') == 'TRUE':
         IEA1 = b.KMX62_INC3_IEA1_HIGH
     else:
-        IEA1 = b.KMX62_INC3_IEA1_LOW    
+        IEA1 = b.KMX62_INC3_IEA1_LOW
     if evkit_config.get('generic', 'int2_active_high') == 'TRUE':
         IEA2 = b.KMX62_INC3_IEA2_HIGH
     else:
         IEA2 = b.KMX62_INC3_IEA2_LOW
 
-    
     if int_number is None:
         ## KMX62: interrupt source selection activates also physical interrupt pin    
         if evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT':
@@ -90,8 +115,8 @@ def enable_data_logging(sensor, odr = 25, int_number = None):
             #sensor.enable_drdy(1, CH_MAG)                       # mag data ready to int1
     else:
         sensor.enable_drdy(int_number, CH_ACC)
-        
-    ## interrupt signal parameters
+
+    # interrupt signal parameters
     # TODO replace with write_register since whole byte is written
     sensor.set_bit_pattern(r.KMX62_INC3, b.KMX62_INC3_IEL1_LATCHED   |  \
                                          IEA1                        |  \
@@ -100,58 +125,63 @@ def enable_data_logging(sensor, odr = 25, int_number = None):
                                          IEA2                        |  \
                                          b.KMX62_INC3_IED2_PUSHPULL,    \
                                          0xff)
+    #
+    # Turn on operating mode (disables setup)
+    #
 
-    ## start measurement
+    # start measurement
     #sensor.set_power_on(CH_MAG )                       # mag ON
     #sensor.set_power_on(CH_ACC | CH_MAG )              # acc + mag ON
-    sensor.set_power_on(CH_ACC | CH_MAG | CH_TEMP)     # acc + mag + temp ON
-
+    if power_off_on:
+        sensor.set_power_on(CH_ACC | CH_MAG | CH_TEMP)
     #sensor.register_dump()#;sys.exit()
     
-    sensor.read_data(CH_ACC | CH_MAG | CH_TEMP)     # this latches data ready interrupt register and signal
+    #sensor.read_data(CH_ACC | CH_MAG | CH_TEMP)     # this latches data ready interrupt register and signal
     
-    sensor.release_interrupts()                     # clear all internal function interrupts
+    #sensor.release_interrupts()                     # clear all internal function interrupts
+    
+    logger.info('enable_data_logging done')
 
-    logger.debug('enable_data_logging done')
 
 def read_with_polling(sensor, loop):
     count = 0
-
-    print start_time_str()
+    timing.reset()
+    print (start_time_str())
 
     # print log header
-    print DELIMITER.join(['#timestamp','10','ax','ay','az','mx','my','mz','temp'])
-    
+    print DELIMITER.join(['#timestamp', '10', 'ax', 'ay', 'az', 'mx', 'my', 'mz', 'temp'])
+
     try:
         while count < loop or loop is None:
             count += 1
             sensor.drdy_function()
             now = timing.time_elapsed()
-            ax, ay, az, mx, my, mz, temp = sensor.read_data(CH_ACC | CH_MAG | CH_TEMP)
+            ax, ay, az, mx, my, mz, temp = sensor.read_data(
+                CH_ACC | CH_MAG | CH_TEMP)
             print '{:.7f}{}10{}'.format(now, DELIMITER, DELIMITER) + DELIMITER.join('{:d}'.format(t) for t in [ax, ay, az, mx, my, mz, temp])
 
-    except KeyboardInterrupt:
-        print end_time_str()
+    except (KeyboardInterrupt):
+        print (end_time_str())
+
 
 def read_with_stream(sensor, loop):
     stream = kmx62_data_stream(sensor)
-    stream.read_data_stream(sensor, loop)
+    stream.read_data_stream(loop)
     return stream
 
-if __name__ == '__main__':
+def app_main(odr=25):
     sensor = kmx62_driver()
     bus = open_bus_or_exit(sensor)
-    
-    enable_data_logging(sensor)
-    
-    timing.reset()
+    enable_data_logging(sensor, odr=odr)
+
     if args.stream_mode:
-        if stream_config_check() is True:            
-            read_with_stream(sensor, args.loop)
-        else:
-            logger.error(stream_config_check())
+        read_with_stream(sensor, args.loop)
     else:
         read_with_polling(sensor, args.loop)
 
     sensor.set_power_off()
     bus.close()
+
+
+if __name__ == '__main__':
+    app_main()

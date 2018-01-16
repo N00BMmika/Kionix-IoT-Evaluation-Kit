@@ -21,26 +21,37 @@
 # THE SOFTWARE.
 from imports import *
 
-def init_data_logging(sensor):
-    logger.debug('init_data_logging start')
-    sensor.set_power_off()                          # this sensor request PC=0 to PC=1 before valid settings
+_CODE_FORMAT_VERSION = 2.0
+
+def enable_data_logging(sensor,
+                        odr = 25,
+                        max_range = '2G',
+                        power_off_on = True):
+    logger.info('enable_data_logging start')
+    #
+    # parameter validations
+    #
+    
+    assert convert_to_enumkey(odr) in e.KXCNL_CNTL1_ODR.keys(),\
+    'Invalid odr value "{}". Valid values are {}'.format(
+    odr,e.KXCNL_CNTL1_ODR.keys())
+    
+    assert max_range in e.KXCNL_CNTL1_SC.keys(),\
+    'Invalid max_range value "{}". Valid values are {}'.format(
+    max_range,e.KXCNL_CNTL1_SC.keys())
+    
+    # Set sensor to stand-by to enable setup change
+    if power_off_on:
+        sensor.set_power_off()                          # this sensor request PC=0 to PC=1 before valid settings
+    #  
+    # Configure sensor  
+    #    
     ## set odr
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_0P781)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_1P563)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_3P125)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_6P25)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_12P5)
-    sensor.set_odr(b.KXCNL_CNTL1_ODR_25)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_50)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_100)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_400)
-    #sensor.set_odr(b.KXCNL_CNTL1_ODR_1600)
+    sensor.set_odr(e.KXCNL_CNTL1_ODR[convert_to_enumkey(odr)])
 
     ## set range
-    sensor.set_range(b.KXCNL_CNTL1_SC_2G)
-    #sensor.set_range(b.KXCNL_CNTL1_SC_4G)
-    #sensor.set_range(b.KXCNL_CNTL1_SC_6G)
-    #sensor.set_range(b.KXCNL_CNTL1_SC_8G)
+    sensor.set_range(e.KXCNL_CNTL1_SC[max_range])
+
 
     ## interrupts settings
     ## KXCNL not dataready not true latch capable, any polling of signal or register not possible
@@ -60,8 +71,13 @@ def init_data_logging(sensor):
 
     # sensor.register_dump()
 
-    sensor.set_power_on()
-    logger.debug('init_data_logging done')
+    #
+    #Turn on operating mode (disables setup)
+    #
+    if power_off_on:
+        sensor.set_power_on()
+        
+    logger.info('init_data_logging done')
 
 def readAndPrint(sensor):
     sensor.drdy_function()
@@ -84,12 +100,16 @@ def read_with_polling(sensor, loop):
         pass
     finally:
         sensor.set_power_off()
-if __name__ == '__main__':
+        
+def app_main():
     sensor = kxcnl_driver()
     bus = open_bus_or_exit(sensor)
-    init_data_logging(sensor)
+    enable_data_logging(sensor)
     timing.reset()
     assert args.stream_mode == False, 'Streaming not implemented yet'
     read_with_polling(sensor, args.loop)
     sensor.set_power_off()
     bus.close()
+
+if __name__ == '__main__':
+    app_main()

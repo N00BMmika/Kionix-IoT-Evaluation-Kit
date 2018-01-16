@@ -135,10 +135,10 @@ class bm1422gmv_driver(sensor_base):
 
     #input valuex is b.BM1422GMV_MODE_CONTROL_REG_AVE_NUM_*
     def set_averaging(self, valuex):
-        assert (valuex) in [b.BM1422GMV_AVER_AVG_4TIMES,   \
-                            b.BM1422GMV_AVER_AVG_2TIMES,  \
-                            b.BM1422GMV_AVER_AVG_8TIMES,  \
-                            b.BM1422GMV_AVER_AVG_16TIMES,  \
+        assert (valuex) in [b.BM1422GMV_AVER_AVG_4TIMES,\
+                            b.BM1422GMV_AVER_AVG_2TIMES,\
+                            b.BM1422GMV_AVER_AVG_8TIMES,\
+                            b.BM1422GMV_AVER_AVG_16TIMES,\
                             b.BM1422GMV_AVER_AVG_1TIMES]
         self.set_bit_pattern(r.BM1422GMV_AVER, valuex, m.BM1422GMV_AVER_AVG_MASK)
         return

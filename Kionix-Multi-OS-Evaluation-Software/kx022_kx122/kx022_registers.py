@@ -53,27 +53,27 @@ class registers(register_base):
 		self.KX022_INC4                                           = 0x1F         # This register controls routing of an interrupt reporting to physical interrupt pin INT1
 		self.KX022_INC5                                           = 0x20         # This register controls the settings for the physical interrupt pin INT2.
 		self.KX022_INC6                                           = 0x21         # This register controls routing of interrupt reporting to physical interrupt pin INT2
-		self.KX022_TILT_TIMER                                     = 0x22         
-		self.KX022_WUFC                                           = 0x23         
+		self.KX022_TILT_TIMER                                     = 0x22         # This register is the initial count register for the tilt position state timer
+		self.KX022_WUFC                                           = 0x23         # This register is the initial count register for the motion detection timer
 		self.KX022_TDTRC                                          = 0x24         # This register is responsible for enableing/disabling reporting of Tap/Double Tap.
-		self.KX022_TDTC                                           = 0x25         
-		self.KX022_TTH                                            = 0x26         
-		self.KX022_TTL                                            = 0x27         
-		self.KX022_FTD                                            = 0x28         
-		self.KX022_STD                                            = 0x29         
-		self.KX022_TLT                                            = 0x2A         
-		self.KX022_TWS                                            = 0x2B         
-		self.KX022_ATH                                            = 0x30         
-		self.KX022_TILT_ANGLE_LL                                  = 0x32         
-		self.KX022_TILT_ANGLE_HL                                  = 0x33         
+		self.KX022_TDTC                                           = 0x25         # This register contains counter information for the detection of a double tap event.
+		self.KX022_TTH                                            = 0x26         # This register represents the 8-bit jerk high threshold to determine if a tap is detected.
+		self.KX022_TTL                                            = 0x27         # This register represents the 8-bit (0d 255d) jerk low threshold to determine if a tap is detected.
+		self.KX022_FTD                                            = 0x28         # This register contains counter information for the detection of any tap event.
+		self.KX022_STD                                            = 0x29         # This register contains counter information for the detection of a double tap event
+		self.KX022_TLT                                            = 0x2A         # This register contains counter information for the detection of a tap event.
+		self.KX022_TWS                                            = 0x2B         # This register contains counter information for the detection of single and double taps.
+		self.KX022_ATH                                            = 0x30         # This register sets the threshold for wake-up (motion detect) interrupt is set.
+		self.KX022_TILT_ANGLE_LL                                  = 0x32         # This register sets the low level threshold for tilt angle detection.
+		self.KX022_TILT_ANGLE_HL                                  = 0x33         # This register sets the high level threshold for tilt angle detection.
 		self.KX022_HYST_SET                                       = 0x34         
 		self.KX022_LP_CNTL                                        = 0x35         # Low Power Control sets the number of samples of accelerometer output to be average
 		self.KX022_BUF_CNTL1                                      = 0x3A         # Read/write control register that controls the buffer sample threshold
 		self.KX022_BUF_CNTL2                                      = 0x3B         # Read/write control register that controls sample buffer operation
 		self.KX022_BUF_STATUS_1                                   = 0x3C         # This register reports the status of the sample buffer
 		self.KX022_BUF_STATUS_2                                   = 0x3D         # This register reports the status of the sample buffer trigger function
-		self.KX022_BUF_CLEAR                                      = 0x3E         
-		self.KX022_BUF_READ                                       = 0x3F         
+		self.KX022_BUF_CLEAR                                      = 0x3E         # Latched buffer status information and the entire sample buffer are cleared when any data is written to this register.
+		self.KX022_BUF_READ                                       = 0x3F         # Buffer output register
 		self.KX022_SELF_TEST                                      = 0x60         # When 0xCA is written to this register, the MEMS self-test function is enabled. Electrostatic-actuation of the accelerometer, results in a DC shift of the X, Y and Z axis outputs. Writing 0x00 to this register will return the accelerometer to normal operation
 		self.KX012_WHO_AM_I                                       = 0x0F         
 		self.KX023_WHO_AM_I                                       = 0x0F         
@@ -154,8 +154,12 @@ class bits(register_base):
 		self.KX022_CNTL3_OWUF_25                                  = (0x05 << 0)  # 25Hz
 		self.KX022_CNTL3_OWUF_50                                  = (0x06 << 0)  # 50Hz
 		self.KX022_CNTL3_OWUF_100                                 = (0x07 << 0)  # 100Hz
-		self.KX022_ODCNTL_IIR_BYPASS                              = (0x01 << 7)  # low-pass filter roll off control
-		self.KX022_ODCNTL_LPRO                                    = (0x01 << 6)  # low pass filter enable
+		self.KX022_ODCNTL_IIR_BYPASS_APPLY                        = (0x00 << 7)  # filtering applied
+		self.KX022_ODCNTL_IIR_BYPASS_BYPASS                       = (0x01 << 7)  # filter bypassed
+		self.KX022_ODCNTL_IIR_BYPASS                              = (0x01 << 7)  # filter bypass mode
+		self.KX022_ODCNTL_LPRO_ODR_9                              = (0x00 << 6)  # filter corner frequency set to ODR/9
+		self.KX022_ODCNTL_LPRO_ODR_2                              = (0x01 << 6)  # filter corner frequency set to ODR/2
+		self.KX022_ODCNTL_LPRO                                    = (0x01 << 6)  # low-pass filter roll off control
 		self.KX022_ODCNTL_OSA_12P5                                = (0x00 << 0)  # 12.5Hz
 		self.KX022_ODCNTL_OSA_25                                  = (0x01 << 0)  # 25Hz
 		self.KX022_ODCNTL_OSA_50                                  = (0x02 << 0)  # 50Hz
@@ -229,22 +233,22 @@ class enums(register_base):
 	def __init__(self):
 		self.KX022_ODCNTL_OSA={
 			'25':_b.KX022_ODCNTL_OSA_25,
-			'0p781':_b.KX022_ODCNTL_OSA_0P781,
+			'0P781':_b.KX022_ODCNTL_OSA_0P781,
 			'200':_b.KX022_ODCNTL_OSA_200,
-			'12p5':_b.KX022_ODCNTL_OSA_12P5,
+			'12P5':_b.KX022_ODCNTL_OSA_12P5,
 			'1600':_b.KX022_ODCNTL_OSA_1600,
 			'50':_b.KX022_ODCNTL_OSA_50,
-			'1p563':_b.KX022_ODCNTL_OSA_1P563,
-			'3p125':_b.KX022_ODCNTL_OSA_3P125,
+			'1P563':_b.KX022_ODCNTL_OSA_1P563,
+			'3P125':_b.KX022_ODCNTL_OSA_3P125,
 			'400':_b.KX022_ODCNTL_OSA_400,
 			'100':_b.KX022_ODCNTL_OSA_100,
 			'800':_b.KX022_ODCNTL_OSA_800,
-			'6p25':_b.KX022_ODCNTL_OSA_6P25,
+			'6P25':_b.KX022_ODCNTL_OSA_6P25,
 		}
 		self.KX022_CNTL3_OTDT={
 			'200':_b.KX022_CNTL3_OTDT_200,
 			'25':_b.KX022_CNTL3_OTDT_25,
-			'12p5':_b.KX022_CNTL3_OTDT_12P5,
+			'12P5':_b.KX022_CNTL3_OTDT_12P5,
 			'1600':_b.KX022_CNTL3_OTDT_1600,
 			'50':_b.KX022_CNTL3_OTDT_50,
 			'400':_b.KX022_CNTL3_OTDT_400,
@@ -257,21 +261,25 @@ class enums(register_base):
 			'NOTAP':_b.KX022_INS2_TDTS_NOTAP,
 			'NA':_b.KX022_INS2_TDTS_NA,
 		}
+		self.KX022_ODCNTL_IIR_BYPASS={
+			'APPLY':_b.KX022_ODCNTL_IIR_BYPASS_APPLY,
+			'BYPASS':_b.KX022_ODCNTL_IIR_BYPASS_BYPASS,
+		}
 		self.KX022_CNTL3_OTP={
-			'1p563':_b.KX022_CNTL3_OTP_1P563,
-			'12p5':_b.KX022_CNTL3_OTP_12P5,
-			'6p25':_b.KX022_CNTL3_OTP_6P25,
+			'1P563':_b.KX022_CNTL3_OTP_1P563,
+			'12P5':_b.KX022_CNTL3_OTP_12P5,
+			'6P25':_b.KX022_CNTL3_OTP_6P25,
 			'50':_b.KX022_CNTL3_OTP_50,
 		}
 		self.KX022_CNTL3_OWUF={
 			'25':_b.KX022_CNTL3_OWUF_25,
-			'0p781':_b.KX022_CNTL3_OWUF_0P781,
-			'12p5':_b.KX022_CNTL3_OWUF_12P5,
+			'0P781':_b.KX022_CNTL3_OWUF_0P781,
+			'12P5':_b.KX022_CNTL3_OWUF_12P5,
 			'50':_b.KX022_CNTL3_OWUF_50,
-			'1p563':_b.KX022_CNTL3_OWUF_1P563,
-			'3p125':_b.KX022_CNTL3_OWUF_3P125,
+			'1P563':_b.KX022_CNTL3_OWUF_1P563,
+			'3P125':_b.KX022_CNTL3_OWUF_3P125,
 			'100':_b.KX022_CNTL3_OWUF_100,
-			'6p25':_b.KX022_CNTL3_OWUF_6P25,
+			'6P25':_b.KX022_CNTL3_OWUF_6P25,
 		}
 		self.KX022_SELF_TEST_MEMS_TEST={
 			'ON':_b.KX022_SELF_TEST_MEMS_TEST_ON,
@@ -292,9 +300,9 @@ class enums(register_base):
 			'BEFORE':_b.KX022_COTR_DCSTR_BEFORE,
 		}
 		self.KX022_CNTL1_GSEL={
-			'4g':_b.KX022_CNTL1_GSEL_4G,
-			'2g':_b.KX022_CNTL1_GSEL_2G,
-			'8g':_b.KX022_CNTL1_GSEL_8G,
+			'4G':_b.KX022_CNTL1_GSEL_4G,
+			'2G':_b.KX022_CNTL1_GSEL_2G,
+			'8G':_b.KX022_CNTL1_GSEL_8G,
 			'NA':_b.KX022_CNTL1_GSEL_NA,
 		}
 		self.KX022_BUF_CNTL2_BUF_M={
@@ -302,6 +310,10 @@ class enums(register_base):
 			'FILO':_b.KX022_BUF_CNTL2_BUF_M_FILO,
 			'FIFO':_b.KX022_BUF_CNTL2_BUF_M_FIFO,
 			'STREAM':_b.KX022_BUF_CNTL2_BUF_M_STREAM,
+		}
+		self.KX022_ODCNTL_LPRO={
+			'ODR_9':_b.KX022_ODCNTL_LPRO_ODR_9,
+			'ODR_2':_b.KX022_ODCNTL_LPRO_ODR_2,
 		}
 class masks(register_base):
 	def __init__(self):
@@ -312,6 +324,8 @@ class masks(register_base):
 		self.KX022_CNTL3_OTP_MASK                                 = 0xC0         # sets the output data rate for the Tilt Position function
 		self.KX022_CNTL3_OTDT_MASK                                = 0x38         # sets the output data rate for the Directional TapTM function
 		self.KX022_CNTL3_OWUF_MASK                                = 0x07         # sets the output data rate for the general motion detection function and the high-pass filtered outputs
+		self.KX022_ODCNTL_IIR_BYPASS_MASK                         = 0x80         # filter bypass mode
+		self.KX022_ODCNTL_LPRO_MASK                               = 0x40         # low-pass filter roll off control
 		self.KX022_ODCNTL_OSA_MASK                                = 0x0F         # acceleration output data rate.
 		self.KX022_INC2_WUE_MASK                                  = 0x3F         
 		self.KX022_INC3_TM_MASK                                   = 0x3F         # tap directions

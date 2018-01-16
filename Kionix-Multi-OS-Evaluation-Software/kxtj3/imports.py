@@ -29,5 +29,6 @@ except ImportError:
 from connection_setup   import open_bus_or_exit
 from connection_setup   import setup_default_connection
 from lib.util_lib       import *
+from lib.data_stream    import stream_config, start_time_str, end_time_str, ext
 
-from kxtj3_driver import *
+from kxtj3.kxtj3_driver import *

@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 import sys, time
 from lib.bus_base import BusException
-from lib.util_lib import logger, evkit_config
+from lib.util_lib import logger, evkit_config, timing
 from connection_setup import setup_default_connection
 
 #import all supported sensor drivers
@@ -39,7 +39,6 @@ from bh1726.imports import bh1726_driver
 from bh1730.imports import bh1730_driver
 from bh1745.imports import bh1745_driver
 from bh1790.imports import bh1790_driver
-from bm1383glv.imports import bm1383glv_driver
 from bm1383aglv.imports import bm1383aglv_driver
 from bm1422gmv.imports import bm1422gmv_driver
 from rpr0521.imports import rpr0521_driver
@@ -66,7 +65,6 @@ def test_default():
         bh1730_driver(),
         bh1745_driver(),
         bh1790_driver(),
-        bm1383glv_driver(),
         bm1383aglv_driver(),
         bm1422gmv_driver(),
         rpr0521_driver(),
@@ -119,6 +117,8 @@ def read_sensor_data(sensor):
         sensor.por()
         sensor.set_default_on()
         #sensor.register_dump()
+
+        timing.reset()
         
         for t in range(10):
             print t,sensor.read_data()
@@ -131,10 +131,15 @@ def read_sensor_data(sensor):
                 time.sleep(0.1)
                 pass
 
+        print 'Data received at %0.2fHz' % ( 10.0 / timing.time_elapsed())
+
+    except Exception, e:
+        print 'Exception received',e
 
     finally:
         sensor.set_power_off()    
 
+    
 if __name__ == '__main__':
     if evkit_config.get('generic', 'drdy_operation') != 'INTERVAL_READ':
         logger.warning('***** drdy_operation != INTERVAL_READ. If interrupts not configured properly then data is not received')

@@ -24,7 +24,7 @@ class registers(register_base):
 	def __init__(self):
 		self.BH1726_REGISTER_DUMP_START                           = 0x80         
 		self.BH1726_CONTROL                                       = 0x80         
-		self.BH1726_TIMING                                        = 0x81         
+		self.BH1726_TIMING                                        = 0x81         # ITIME. Integration time is (256-ITIME)*2,7ms (0 means manual integration)
 		self.BH1726_INTERRUPT                                     = 0x82         
 		self.BH1726_THLLOW                                        = 0x83         
 		self.BH1726_THLHIGH                                       = 0x84         
@@ -44,16 +44,21 @@ class bits(register_base):
 	def __init__(self):
 		self.BH1726_CONTROL_ADC_INTR_INACTIVE                     = (0x00 << 5)  
 		self.BH1726_CONTROL_ADC_INTR_ACTIVE                       = (0x01 << 5)  
+		self.BH1726_CONTROL_ADC_INTR                              = (0x01 << 5)  
 		self.BH1726_CONTROL_ADC_VALID                             = (0x01 << 4)  
 		self.BH1726_CONTROL_ADC_EN_DISABLE                        = (0x00 << 1)  
 		self.BH1726_CONTROL_ADC_EN_ENABLE                         = (0x01 << 1)  
+		self.BH1726_CONTROL_ADC_EN                                = (0x01 << 1)  
 		self.BH1726_CONTROL_POWER_DISABLE                         = (0x00 << 0)  
 		self.BH1726_CONTROL_POWER_ENABLE                          = (0x01 << 0)  
+		self.BH1726_CONTROL_POWER                                 = (0x01 << 0)  
 		self.BH1726_INTERRUPT_RES7                                = (0x01 << 7)  # reset by writing 0
 		self.BH1726_INTERRUPT_INT_LATCH_YES                       = (0x00 << 5)  
 		self.BH1726_INTERRUPT_INT_LATCH_NO                        = (0x01 << 5)  
+		self.BH1726_INTERRUPT_INT_LATCH                           = (0x01 << 5)  
 		self.BH1726_INTERRUPT_INT_EN_INVALID                      = (0x00 << 4)  
 		self.BH1726_INTERRUPT_INT_EN_VALID                        = (0x01 << 4)  
+		self.BH1726_INTERRUPT_INT_EN                              = (0x01 << 4)  
 		self.BH1726_INTERRUPT_PERSIST_TOGGLE_AFTER_MEASUREMENT    = (0x00 << 0)  
 		self.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_MEASUREMENT    = (0x01 << 0)  
 		self.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_2_SAME         = (0x02 << 0)  
@@ -69,50 +74,51 @@ class bits(register_base):
 		self.BH1726_OPART_ID_WIA_ID                               = (0x72 << 0)  # WHO_AM_I -value
 		self.BH1726_WAIT_WAIT_NO                                  = (0x00 << 0)  
 		self.BH1726_WAIT_WAIT_300MS                               = (0x01 << 0)  # after each measurement (low current consumption mode)
+		self.BH1726_WAIT_WAIT                                     = (0x01 << 0)  
 _b=bits()
 class enums(register_base):
 	def __init__(self):
 		self.BH1726_INTERRUPT_INT_LATCH={
-			'yes':_b.BH1726_INTERRUPT_INT_LATCH_YES,
-			'no':_b.BH1726_INTERRUPT_INT_LATCH_NO,
+			'YES':_b.BH1726_INTERRUPT_INT_LATCH_YES,
+			'NO':_b.BH1726_INTERRUPT_INT_LATCH_NO,
 		}
 		self.BH1726_CONTROL_ADC_EN={
-			'Disable':_b.BH1726_CONTROL_ADC_EN_DISABLE,
-			'Enable':_b.BH1726_CONTROL_ADC_EN_ENABLE,
+			'DISABLE':_b.BH1726_CONTROL_ADC_EN_DISABLE,
+			'ENABLE':_b.BH1726_CONTROL_ADC_EN_ENABLE,
 		}
 		self.BH1726_GAIN_GAIN0={
-			'x2':_b.BH1726_GAIN_GAIN0_X2,
-			'x1':_b.BH1726_GAIN_GAIN0_X1,
-			'x64':_b.BH1726_GAIN_GAIN0_X64,
-			'x128':_b.BH1726_GAIN_GAIN0_X128,
+			'X2':_b.BH1726_GAIN_GAIN0_X2,
+			'X1':_b.BH1726_GAIN_GAIN0_X1,
+			'X64':_b.BH1726_GAIN_GAIN0_X64,
+			'X128':_b.BH1726_GAIN_GAIN0_X128,
 		}
 		self.BH1726_INTERRUPT_INT_EN={
-			'valid':_b.BH1726_INTERRUPT_INT_EN_VALID,
-			'invalid':_b.BH1726_INTERRUPT_INT_EN_INVALID,
+			'VALID':_b.BH1726_INTERRUPT_INT_EN_VALID,
+			'INVALID':_b.BH1726_INTERRUPT_INT_EN_INVALID,
 		}
 		self.BH1726_GAIN_GAIN1={
-			'x2':_b.BH1726_GAIN_GAIN1_X2,
-			'x1':_b.BH1726_GAIN_GAIN1_X1,
-			'x64':_b.BH1726_GAIN_GAIN1_X64,
-			'x128':_b.BH1726_GAIN_GAIN1_X128,
+			'X2':_b.BH1726_GAIN_GAIN1_X2,
+			'X1':_b.BH1726_GAIN_GAIN1_X1,
+			'X64':_b.BH1726_GAIN_GAIN1_X64,
+			'X128':_b.BH1726_GAIN_GAIN1_X128,
 		}
 		self.BH1726_CONTROL_ADC_INTR={
-			'active':_b.BH1726_CONTROL_ADC_INTR_ACTIVE,
-			'inactive':_b.BH1726_CONTROL_ADC_INTR_INACTIVE,
+			'ACTIVE':_b.BH1726_CONTROL_ADC_INTR_ACTIVE,
+			'INACTIVE':_b.BH1726_CONTROL_ADC_INTR_INACTIVE,
 		}
 		self.BH1726_CONTROL_POWER={
-			'Disable':_b.BH1726_CONTROL_POWER_DISABLE,
-			'Enable':_b.BH1726_CONTROL_POWER_ENABLE,
+			'DISABLE':_b.BH1726_CONTROL_POWER_DISABLE,
+			'ENABLE':_b.BH1726_CONTROL_POWER_ENABLE,
 		}
 		self.BH1726_WAIT_WAIT={
-			'300ms':_b.BH1726_WAIT_WAIT_300MS,
-			'no':_b.BH1726_WAIT_WAIT_NO,
+			'300MS':_b.BH1726_WAIT_WAIT_300MS,
+			'NO':_b.BH1726_WAIT_WAIT_NO,
 		}
 		self.BH1726_INTERRUPT_PERSIST={
-			'update_after_3_same':_b.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_3_SAME,
-			'update_after_measurement':_b.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_MEASUREMENT,
-			'update_after_2_same':_b.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_2_SAME,
-			'toggle_after_measurement':_b.BH1726_INTERRUPT_PERSIST_TOGGLE_AFTER_MEASUREMENT,
+			'UPDATE_AFTER_3_SAME':_b.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_3_SAME,
+			'UPDATE_AFTER_MEASUREMENT':_b.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_MEASUREMENT,
+			'UPDATE_AFTER_2_SAME':_b.BH1726_INTERRUPT_PERSIST_UPDATE_AFTER_2_SAME,
+			'TOGGLE_AFTER_MEASUREMENT':_b.BH1726_INTERRUPT_PERSIST_TOGGLE_AFTER_MEASUREMENT,
 		}
 class masks(register_base):
 	def __init__(self):

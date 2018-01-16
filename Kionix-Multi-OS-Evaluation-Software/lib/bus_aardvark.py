@@ -135,6 +135,10 @@ class bus_aadvark_i2c(_i2c_bus):
             data = list(data)
             length = 1+len(data)
             data_out = array('B', [register] + data)
+        elif data is None:
+            # special case : one byte write
+            length = 1
+            data_out = array('B', [register])
         else:
             raise BusException('Datatype "%s" not supported.' % type(data))
         
@@ -252,6 +256,10 @@ class bus_aadvark_spi(_spi_bus):
         elif isinstance(data, int): # normal address set and data write
             length = 2  ## FIXME multiwrite
             data_out = array('B', [register, data])
+        elif data is None:
+            # special case : one byte write
+            length = 1
+            data_out = array('B', [register])
         else:
             raise BusException('Datatype "%s" not supported.' % type(data))
           

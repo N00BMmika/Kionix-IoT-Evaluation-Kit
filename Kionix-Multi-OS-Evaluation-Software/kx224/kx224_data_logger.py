@@ -19,103 +19,137 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
-## basic logger application for KX224
-###
-## logging polling or stream
-###
-
+"""
+KX224 data logger application
+"""
+_CODE_FORMAT_VERSION = 2.0
 from imports import *
-from lib.data_stream import stream_config, start_time_str, end_time_str
 
 class kx224_data_stream(stream_config):
-    def __init__(self, sensor):
-        stream_config.__init__(self)
-        # TODO make this dictionary
-        if evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT':
-            pin_index = 0
-        else:
-            pin_index = 1
+    def __init__(self, sensor, pin_index=None):
+        stream_config.__init__(self, sensor)
 
-        self.define_request_message(sensor,
+        if pin_index is None:
+            pin_index = get_pin_index()
+
+        assert pin_index in [0, 1]
+
+        self.define_request_message(\
                                     fmt = "<Bhhh",
                                     hdr = "ch!ax!ay!az",
                                     reg = r.KX224_XOUT_L,
                                     pin_index=pin_index)
 
-def enable_data_logging(sensor, odr=25, acc_fs = '8g', lp_mode=False):
-    assert acc_fs in [ '8g','16g','32g'], 'Invalid value for acc_fs'
 
-    assert lp_mode in [
-        False,
-        'NO_AVG',
-        '2_SAMPLE_AVG',
-        '4_SAMPLE_AVG',
-        '8_SAMPLE_AVG',
-        '16_SAMPLE_AVG',
-        '32_SAMPLE_AVG',
-        '64_SAMPLE_AVG',
-        '128_SAMPLE_AVG',
-        ], 'Invalid value for lp_mode'
-
-    logger.debug('enable_data_logging start')
-    sensor.set_power_off()                                  # this sensor request PC=0 to PC=1 before valid settings
-
-    ## select ODR
-    odr = convert_to_enumkey(odr)
-    sensor.set_odr(e.KX224_ODCNTL_OSA[odr])                 # odr setting for basic data logging
     
-    ## select g-range
-    sensor.set_range(e.KX224_CNTL1_GSEL[acc_fs])    
-    #sensor.set_range(b.KX224_CNTL1_GSEL_8G)
+def enable_data_logging(sensor,
+                        odr=25,
+                        max_range='8G',
+                        lp_mode=False,
+                        power_off_on=True       # set to False if this function is part of other configuration
+                        ):
+    logger.info('enable_data_logging start')
 
-    ## resolution / power mode selection
-    ## Set performance mode (To change value, the PC1 must be first cleared to set stand-by mode)
+    #
+    # parameter validation
+    #
 
-    if lp_mode != False:
-        sensor.reset_bit(r.KX224_CNTL1, b.KX224_CNTL1_RES)  # low current
+    assert max_range in e.KX224_CNTL1_GSEL, \
+    'Invalid max_range value "{}". Valid values are {}'.format(
+    max_range,e.KX224_CNTL1_GSEL.keys())
+
+    assert lp_mode in e.KX224_LP_CNTL_AVC.keys() + [False], \
+    'Invalid lp_mode value "{}". Valid values are: False or {}'.format(
+    lp_mode,e.KX224_LP_CNTL_AVC.keys())
+    
+    assert convert_to_enumkey(odr) in e.KX224_ODCNTL_OSA.keys(),\
+    'Invalid odr value "{}". Valid values are {}'.format(
+    odr,e.KX224_ODCNTL_OSA.keys())
+
+    # Set sensor to stand-by to enable setup change
+    if power_off_on:
+        sensor.set_power_off()
+        
+
+    #
+    # Configure sensor
+    #
+
+    # odr setting for data logging
+    sensor.set_odr(e.KX224_ODCNTL_OSA[convert_to_enumkey(odr)])
+
+    # select g-range
+    sensor.set_range(e.KX224_CNTL1_GSEL[max_range])
+
+
+    # resolution / power mode selection
+
+    if lp_mode is not False:
+        # enable low current mode
+        sensor.reset_bit(r.KX224_CNTL1, b.KX224_CNTL1_RES)
+        # define averaging value
         sensor.set_average(e.KX224_LP_CNTL_AVC[lp_mode])
     else:
-        sensor.set_bit(r.KX224_CNTL1, b.KX224_CNTL1_RES)    # high resolution
+        # full resolution
+        sensor.set_bit(r.KX224_CNTL1, b.KX224_CNTL1_RES)
 
-    ## set bandwitdh
-    #sensor.set_BW(b.KX224_ODCNTL_LPRO, 0, CH_ACC)           # odr / 2
-    sensor.set_BW(0, 0, CH_ACC)                             # odr / 9
-    
-    ## interrupts settings
-    ## select dataready routing for sensor = int1, int2 or register polling
-    if evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO1_INT':
-        sensor.enable_drdy(intpin = 1)
-        sensor.set_bit(r.KX224_INC1, b.KX224_INC1_IEN1)     # interrupt 1 set        
-    elif evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO2_INT':   
-        sensor.enable_drdy(intpin = 2)
-        sensor.set_bit(r.KX224_INC5, b.KX224_INC5_IEN2)     # interrupt 2 set           
-    elif evkit_config.get('generic','drdy_operation') == 'DRDY_REG_POLL':
-        sensor.enable_drdy(intpin = 1)                      # drdy must be enabled also when register polling
-    ## interrupt signal parameters
-    sensor.reset_bit(r.KX224_INC1, b.KX224_INC1_IEL1)       # latched interrupt int1
-    sensor.reset_bit(r.KX224_INC5, b.KX224_INC5_IEL2)       # latched interrupt int2
-    if evkit_config.get('generic','int1_active_high') == 'TRUE':
-        sensor.set_bit(r.KX224_INC1, b.KX224_INC1_IEA1)     # active high
-    else:
-        sensor.reset_bit(r.KX224_INC1, b.KX224_INC1_IEA1)   # active low
-    if evkit_config.get('generic','int2_active_high') == 'TRUE':
-        sensor.set_bit(r.KX224_INC5, b.KX224_INC5_IEA2)     # active high
-    else:
-        sensor.reset_bit(r.KX224_INC5, b.KX224_INC5_IEA2)   # active low
+    # set bandwitdh
 
-    sensor.set_power_on()                                   # settings coming to valid and start measurements
-    
-    #sensor.register_dump()
-    
+    sensor.set_BW(0, 0, CH_ACC)             # odr / 9 (default)
+    # sensor.set_BW(b.KX224_ODCNTL_LPRO, 0, CH_ACC)     # odr / 2
+    sensor.enable_iir()                                 # default value
+
+    #
+    # interrupt pin routings and settings
+    #
+
+    # select dataready routing for sensor = int1, int2 or register polling
+
+    if evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT':
+        # latched interrupt int1
+        sensor.enable_drdy(intpin=1)
+        sensor.reset_bit(r.KX224_INC1, b.KX224_INC1_IEL1)
+        sensor.set_bit(r.KX224_INC1, b.KX224_INC1_IEN1)     # interrupt 1 set
+
+        if evkit_config.get('generic', 'int1_active_high') == 'TRUE':
+            sensor.set_interrupt_polarity(intpin=1, polarity=ACTIVE_HIGH)
+        else:
+            sensor.set_interrupt_polarity(intpin=1, polarity=ACTIVE_LOW)
+
+    elif evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO2_INT':
+        # latched interrupt int2
+        sensor.enable_drdy(intpin=2)
+        sensor.reset_bit(r.KX224_INC5, b.KX224_INC5_IEL2)
+        sensor.set_bit(r.KX224_INC5, b.KX224_INC5_IEN2)     # interrupt 2 set
+
+        if evkit_config.get('generic', 'int2_active_high') == 'TRUE':
+            sensor.set_interrupt_polarity(intpin=2, polarity=ACTIVE_HIGH)
+        else:
+            sensor.set_interrupt_polarity(intpin=2, polarity=ACTIVE_LOW)
+
+    else:  # evkit_config.get('generic','drdy_operation') == 'DRDY_REG_POLL':
+        # drdy must be enabled also when register polling
+        sensor.enable_drdy(intpin=1)
+
+    #
+    # Turn on operating mode (disables setup)
+    #
+
+    if power_off_on:
+        sensor.set_power_on()
+
+    # sensor.register_dump()#;sys.exit()
+
     logger.debug('enable_data_logging done')
-    
+
+
 def read_with_polling(sensor, loop):
     count = 0
-
-    print start_time_str()
+    timing.reset()
+    print (start_time_str())
 
     # print log header. 10 is channel number
-    print DELIMITER.join(['#timestamp','10','ax','ay','az'])
+    print (DELIMITER.join(['#timestamp', '10', 'ax', 'ay', 'az']))
 
     try:
         while count < loop or loop is None:
@@ -123,30 +157,32 @@ def read_with_polling(sensor, loop):
             sensor.drdy_function()
             now = timing.time_elapsed()
             ax, ay, az = sensor.read_data()
-            print '{:.6f}{}10{}'.format(now, DELIMITER, DELIMITER) + DELIMITER.join('{:d}'.format(t) for t in [ax, ay, az])
+            print ('{:.6f}{}10{}'.format(now, DELIMITER, DELIMITER) +
+                   DELIMITER.join('{:d}'.format(t) for t in [ax, ay, az]))
 
-    except KeyboardInterrupt:
-        print end_time_str()       
+    except (KeyboardInterrupt):
+        print (end_time_str())
+
 
 def read_with_stream(sensor, loop):
     stream = kx224_data_stream(sensor)
-    stream.read_data_stream(sensor, loop)
+    stream.read_data_stream(loop)
     return stream
 
-if __name__ == '__main__':
+
+def app_main(odr=25):
     sensor = kx224_driver()
     bus = open_bus_or_exit(sensor)
-    
-    enable_data_logging(sensor)
+    enable_data_logging(sensor, odr=odr)
 
-    timing.reset()
     if args.stream_mode:
-        if stream_config_check() is True:            
-            read_with_stream(sensor, args.loop)
-        else:
-            logger.error(stream_config_check())
+        read_with_stream(sensor, args.loop)
     else:
         read_with_polling(sensor, args.loop)
 
     sensor.set_power_off()
     bus.close()
+
+
+if __name__ == '__main__':
+    app_main()

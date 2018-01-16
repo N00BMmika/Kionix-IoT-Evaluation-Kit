@@ -27,16 +27,15 @@
 from imports import *
 from kmx62 import kmx62_data_logger, kmx62_driver
 from kmx62.kmx62_driver import r as kmx62_reg
-from lib.data_stream import stream_config, start_time_str, end_time_str
 
 class bh1790_data_stream(stream_config):
     def __init__(self, sensor):
-        stream_config.__init__(self)
+        stream_config.__init__(self, sensor)
         # TODO make this dictionary
         assert evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT','Only Int1 supported.'
         pin_index = 0
 
-        self.define_request_message(sensor,
+        self.define_request_message(\
                                     fmt = "<BHHB",
                                     hdr = "ch!Led_On!Led_Off!Int",
                                     reg = [sensor.address(), r.BH1790_DATAOUT_LEDOFF_L, 4,
@@ -123,7 +122,7 @@ def read_with_polling(sensor, sensor_kmx62, loop):
 def read_with_stream(sensor, loop):
     stream = bh1790_data_stream(sensor)
     kmx62_data_logger.enable_data_logging(sensor_kmx62, odr=25, int_number = 1)
-    stream.read_data_stream(sensor, loop)
+    stream.read_data_stream(loop)
     return stream
 
 if __name__ == '__main__':

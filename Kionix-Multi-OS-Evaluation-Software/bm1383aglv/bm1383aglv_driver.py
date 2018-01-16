@@ -20,7 +20,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
 from imports import *
-from lib.sensor_base import sensor_base
+
+from lib.sensor_base import sensor_base, SensorException
 
 import bm1383aglv_registers as sensor
 r=sensor.registers()
@@ -37,33 +38,24 @@ class bm1383aglv_driver(sensor_base):
     def __init__(self):
         sensor_base.__init__(self)
         self.I2C_SAD_LIST = [0x5d]
+        self.SPI_SUPPORT = False
         self.I2C_SUPPORT = True
         self.INT_PINS = [1,2]       #bm1383aglv has only one drdy, but it can be connected to either of aardvark gpio pins.
 
-        # configurations to register_dump()
-        self._registers = dict(r.__dict__)
-        self._dump_range = (r.BM1383AGLV_REGISTER_DUMP_START, r.BM1383AGLV_REGISTER_DUMP_END)
-        return
-
     # Read component ID and compare it to expected value
     def probe(self):
-        #return self.probe_glv()    ##fixme: remove this line when aglv component is available and in use
-
         resp = self.read_register(self._WAIREG)
         if resp[0] == self._WAI:
             resp = self.read_register(self._WAIREG2)
             if resp[0] == self._WAI2:
+                # configurations to register_dump()
+                self._registers = dict(r.__dict__)
+                self._dump_range = (r.BM1383AGLV_REGISTER_DUMP_START, r.BM1383AGLV_REGISTER_DUMP_END)
                 return 1
         return 0
 
-    # fixme: This is workaround for using glv component instead of aglv. Remove when aglv is available.
-    def probe_glv(self):
-        resp = self.read_register(self._WAIREG2)
-        if resp[0] == 0x31:
-            return 1
-        return 0
 
-        # Read value, modify and write it back, read again. Make sure the value changed. Restore original value.
+    # Read value, modify and write it back, read again. Make sure the value changed. Restore original value.
     def ic_test(self):#
          #ic should be powered on before trying this, otherwise it will fail.
         datain1 = self.read_register(r.BM1383AGLV_MODE_CONTROL_REG)[0]
@@ -78,7 +70,7 @@ class bm1383aglv_driver(sensor_base):
     def set_default_on(self):#
         self.set_power_on()
         self.set_averaging(b.BM1383AGLV_MODE_CONTROL_REG_AVE_NUM_AVG_16_50MS)
-        self.disable_drdy_pin()
+        self.enable_drdy_pin()
         self.start_continuous_measurement()
         return
 

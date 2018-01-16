@@ -1,7 +1,7 @@
 # 
 # Copyright 2016 Kionix Inc.
 #
-"""Bus definitions for kionix command line evaluation kit"""
+"""Bus definitions for Kionix Multi-OS Evaluation Kit"""
 from util_lib import evkit_config, logger
 
 class BusException(Exception): pass

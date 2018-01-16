@@ -31,8 +31,9 @@ e = kx224_registers.enums()
 
 hz = [12.5, 25.0, 50.0, 100.0, \
       200.0, 400.0, 800.0, 1600.0, \
-      3200.0, 6400.0, 12800.0, 25600.0,\
-      0.781, 1.563, 3.125, 6.25]        # for PC1 start delay (acc) calculation
+      0.781, 1.563, 3.125, 6.25, \
+      3200.0, 6400.0, 12800.0, 25600.0
+      ]        # for PC1 start delay (acc) calculation
 
 class kx224_driver(sensor_base):
     _WAIS224 =[b.KX224_WHO_AM_I_WIA_ID,
@@ -166,6 +167,21 @@ class kx224_driver(sensor_base):
         self.set_bit_pattern(r.KX224_CNTL1, \
                                range, \
                                m.KX224_CNTL1_GSEL_MASK)
+
+    def set_interrupt_polarity(self, intpin = 1, polarity = ACTIVE_LOW):
+        assert intpin in [1,2]
+        assert polarity in [ACTIVE_LOW, ACTIVE_HIGH]
+
+        if intpin == 1:
+            if polarity == ACTIVE_LOW:
+                self.reset_bit(r.KX224_INC1, b.KX224_INC1_IEA1)   # active low
+            else:
+                self.set_bit(r.KX224_INC1, b.KX224_INC1_IEA1)     # active high
+        else:
+            if polarity == ACTIVE_LOW:
+                self.reset_bit(r.KX224_INC5, b.KX224_INC5_IEA2)   # active low
+            else:
+                self.set_bit(r.KX224_INC5, b.KX224_INC5_IEA2)     # active high
 
     def set_average(self, average, average2=0, channel=CH_ACC):    # set averaging (only for low power)
         assert channel == CH_ACC, 'only accelerometer available'

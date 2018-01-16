@@ -19,59 +19,66 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 # THE SOFTWARE.
-## basic logger application
-###
-## logging polling or stream
-###
-
+"""
+RPR0521 proximity/ALS sensor data logger application
+"""
+_CODE_FORMAT_VERSION = 2.0
 from imports import *
-from lib.data_stream import stream_config, start_time_str, end_time_str
 
 class rpr0521_data_stream(stream_config):
-    def __init__(self, sensor):
-        stream_config.__init__(self)
-        assert evkit_config.get('generic', 'drdy_operation') == 'ADAPTER_GPIO1_INT','Only Int1 supported.'
-        pin_index = 0
 
-        self.define_request_message(sensor,
-                                    fmt = "<BHHHB",
-                                    hdr = "ch!Prox!Als_0!Als_1!Int",
-                                    reg = r.RPR0521_PS_DATA_LSBS,
-                                    pin_index=pin_index)
+    def __init__(self, sensor, pin_index=None):
+        stream_config.__init__(self, sensor)
 
-def enable_data_logging(sensor, odr='100ms_100ms'):
-    logger.debug('enable_data_logging start')
+        if pin_index is None:
+            pin_index=0
 
-    if evkit_config.get('generic','int1_active_high') == 'TRUE' or evkit_config.get('generic','int2_active_high')  == 'TRUE':
-        logger.warning('Active high interrupt not supported. Using active low interrupt.')
+        assert pin_index in [0], 'Sensor can only be connected to adapter logical int pin 0'
+
+        self.define_request_message(\
+            fmt = "<BHHHB",
+            hdr = "ch!Prox!Als_0!Als_1!Int",
+            reg = r.RPR0521_PS_DATA_LSBS,
+            pin_index=pin_index)
+
+def enable_data_logging(sensor, odr='100MS_100MS'):
+    logger.info('enable_data_logging start')
+
+    #
+    # parameter validation
+    #
+    if evkit_config.get('generic','int1_active_high') == 'TRUE':
+        logger.warning('Active high interrupt not supported. Use active low interrupt.')
         
     sensor.set_default_on()
 
+    #
+    # Configure sensor
+    #
+
     ## select ODR
     odr = convert_to_enumkey(odr)
-    sensor.set_measurement_time(e.RPR0521_MODE_CONTROL_MEASUREMENT_TIME[odr])                 # odr setting for basic data logging
+    sensor.set_measurement_time(e.RPR0521_MODE_CONTROL_MEASUREMENT_TIME[odr])
     
     ## select gain
     #sensor.set_ps_gain(b.RPR0521_PS_CONTROL_PS_GAIN_X1)
-    
-    ## interrupts settings
-    ## select dataready routing for sensor = int1, int2 or register polling
+    #
+    # interrupt settings
+    #
+
     if evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO1_INT':
-        sensor.enable_drdy_int()     # interrupt 1 set        
-    elif evkit_config.get('generic','drdy_operation') == 'ADAPTER_GPIO2_INT':   
-        sensor.enable_drdy_int()           
+        sensor.enable_drdy_int()
     elif evkit_config.get('generic','drdy_operation') == 'DRDY_REG_POLL':
         sensor.disable_drdy_int()
-    
-    #sensor.register_dump()
 
-    sensor.set_power_on()
+    # sensor.register_dump()#;sys.exit()
     
     logger.debug('enable_data_logging done')
 
+
 def read_with_polling(sensor, loop):
     count = 0
-
+    timing.reset()
     print start_time_str()
 
     # print log header
@@ -94,16 +101,16 @@ def read_with_polling(sensor, loop):
 
 def read_with_stream(sensor, loop):
     stream = rpr0521_data_stream(sensor)
-    stream.read_data_stream(sensor, loop)
+    stream.read_data_stream(loop)
     return stream
 
-if __name__ == '__main__':
+
+def app_main():
     sensor = rpr0521_driver()
     bus = open_bus_or_exit(sensor)
     
     enable_data_logging(sensor)
 
-    timing.reset()
     if args.stream_mode:
         if stream_config_check() is True:            
             read_with_stream(sensor, args.loop)
@@ -114,3 +121,7 @@ if __name__ == '__main__':
 
     sensor.set_power_off()
     bus.close()
+
+
+if __name__ == '__main__':
+    app_main()

@@ -251,17 +251,8 @@ class kxg03_driver(sensor_base):
     def set_range(self, range_W, range_S, channel = CH_ACC):    # set separately for acc or gyro
         assert channel in [CH_ACC, CH_GYRO]        
         if channel & CH_ACC > 0:
-            assert range_W in [
-                b.KXG03_ACCEL_CTL_ACC_FS_W_2G, 
-                b.KXG03_ACCEL_CTL_ACC_FS_W_4G, 
-                b.KXG03_ACCEL_CTL_ACC_FS_W_8G, 
-                b.KXG03_ACCEL_CTL_ACC_FS_W_16G], 'Invalid value for KXG03_ACCEL_CTL_ACC_FS_W'
-
-            assert (range_S) in [
-                b.KXG03_ACCEL_CTL_ACC_FS_S_2G, 
-                b.KXG03_ACCEL_CTL_ACC_FS_S_4G, 
-                b.KXG03_ACCEL_CTL_ACC_FS_S_8G, 
-                b.KXG03_ACCEL_CTL_ACC_FS_S_16G], 'Invalid value for KXG03_ACCEL_CTL_ACC_FS_S'
+            assert range_W in e.KXG03_ACCEL_CTL_ACC_FS_W.values(), 'Invalid value for KXG03_ACCEL_CTL_ACC_FS_W'
+            assert range_S in e.KXG03_ACCEL_CTL_ACC_FS_S.values(), 'Invalid value for KXG03_ACCEL_CTL_ACC_FS_S'
             
             self.set_bit_pattern(r.KXG03_ACCEL_CTL, range_W, m.KXG03_ACCEL_CTL_ACC_FS_W_MASK)
             self.set_bit_pattern(r.KXG03_ACCEL_CTL, range_S, m.KXG03_ACCEL_CTL_ACC_FS_S_MASK)
@@ -281,6 +272,30 @@ class kxg03_driver(sensor_base):
             
             self.set_bit_pattern(r.KXG03_GYRO_ODR_WAKE, range_W, m.KXG03_GYRO_ODR_WAKE_GYRO_FS_W_MASK)
             self.set_bit_pattern(r.KXG03_GYRO_ODR_WAKE, range_S, m.KXG03_GYRO_ODR_SLEEP_GYRO_FS_S_MASK)
+
+    def set_interrupt_polarity(self, intpin = 1, polarity = ACTIVE_LOW):
+        assert intpin in [1,2]
+        assert polarity in [ACTIVE_LOW, ACTIVE_HIGH]
+
+        if intpin == 1:
+            if polarity == ACTIVE_LOW:
+                self.set_bit_pattern(r.KXG03_INT_PIN_CTL,
+                                     b.KXG03_INT_PIN_CTL_IEA1_ACTIVE_LOW,
+                                     m.KXG03_INT_PIN_CTL_IEA1_MASK)   # active low
+            else:
+                self.set_bit_pattern(r.KXG03_INT_PIN_CTL,
+                                     b.KXG03_INT_PIN_CTL_IEA1_ACTIVE_HIGH,
+                                     m.KXG03_INT_PIN_CTL_IEA1_MASK)# active high
+        else:
+            if polarity == ACTIVE_LOW:
+                self.set_bit_pattern(r.KXG03_INT_PIN_CTL,
+                                     b.KXG03_INT_PIN_CTL_IEA2_ACTIVE_LOW,
+                                     m.KXG03_INT_PIN_CTL_IEA2_MASK)# active low
+            else:
+                self.set_bit_pattern(r.KXG03_INT_PIN_CTL,
+                                     b.KXG03_INT_PIN_CTL_IEA2_ACTIVE_HIGH,
+                                     m.KXG03_INT_PIN_CTL_IEA2_MASK)# active high
+
 
     def set_average(self, average_W, average_S, channel = CH_ACC):                  # oversampling setting for low power mode
         assert channel in [CH_ACC, CH_GYRO]          
@@ -435,22 +450,3 @@ def directions(dir):            # print wuf+bts source directions
                 pos = wufbts_direction[dir & mask]
                 fst = False
     return pos
-
-def wait_drdy_reg(sensor, intpin, channel=CH_ACC):
-    ## poll DRDY register (acc or gyro) for test polling communication capability
-    count = 0
-    if channel == CH_ACC:                                           # release drdy bit just in case
-        data = sensor.read_register(r.KXG03_ACC_XOUT_L, 1)[0]       # acc releases drdy latch
-    else:
-        data = sensor.read_register(r.KXG03_GYRO_XOUT_L, 1)[0]      # gyro releases drdy latch
-    while not sensor.read_drdy(intpin, channel): pass               # wait until next sample is ready
-    while sensor.read_drdy(intpin, channel):                        # wait until sample ready and release drdy bit
-        if channel == CH_ACC:
-            data = sensor.read_register(r.KXG03_ACC_XOUT_L, 1)[0]   # acc releases drdy latch
-        else:
-            data = sensor.read_register(r.KXG03_GYRO_XOUT_L, 1)[0]  # gyro releases drdy latch
-    while not sensor.read_drdy(intpin, channel):                    # finally wait beginning of drdy not ready (transition edge)
-        count += 1
-    assert count > 0,'Data overflow. Maybe ODR is too high for host adapter'
-
-
