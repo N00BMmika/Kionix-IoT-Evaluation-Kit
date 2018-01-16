@@ -6,7 +6,7 @@ Kionix Windows Sensor Evaluation Software consists of an easy to use graphical u
 
 Kionix Multi-OS Evaluation Software, in turn, provides reference implementation for driver sw and also a convenient way to access sensor low level features and versatile data logging functionality.
 
-* [Latest release](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/releases/latest)
+* [Latest release: (1.2.9, Jan 16 2018)](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/releases/latest)
 * [Kionix IoT Evaluation Kit Product Page](http://www.kionix.com/iot-evaluation-and-development-kit)
 * Please check [Kionix IoT Evaluation Kit Users Guide.pdf](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/blob/master/Kionix%20IoT%20Evaluation%20Kit%20Users%20Guide.pdf) for further details.
 * Please give feedback and ask questions in [Issues](https://github.com/RohmSemiconductor/Kionix-IoT-Evaluation-Kit/issues)
