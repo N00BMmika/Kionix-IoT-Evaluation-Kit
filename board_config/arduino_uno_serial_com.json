@@ -46,7 +46,13 @@
                     "name": "KX03A",
                     "SAD": 60,
                     "int1_gpio": 3
-                }]
+                },
+                {
+                    "name": "KX224",
+                    "SAD": 30,
+                    "int1_gpio": 16
+                }
+                ]
             }]
         },
         "bus2": {

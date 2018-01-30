@@ -28,7 +28,12 @@
                     "name": "BM1383AGLV",
                     "SAD": 93,
                     "int1_gpio": 13
-                }				
+                },
+                {
+                    "name": "KX224",
+                    "SAD": 30,
+                    "int1_gpio": 16
+                }                
 				]
 			}]
 		},
