@@ -1,0 +1,36 @@
+{
+    "activate": [ ], 
+    "start_req": [
+        {
+            "msg": [
+                0, 
+                0, 
+                0, 
+                [
+                    "CYPRESS", 
+                    0, 
+                    6
+                ]
+            ], 
+            "odr": 1600, 
+            "fmt": "<Bhhh", 
+            "type": "continuous", 
+            "hdr": "ch!x!y!z"
+        }
+    ], 
+    "configure": [ ], 
+    "structure_version": "1.0", 
+    "deactivate": [ ], 
+    "doc": "Read the analog sensor data from Cypress", 
+    "channels": [
+        {
+            "SI_unit": "mV", 
+            "data": "X,Y,Z", 
+            "name": "Voltage", 
+            "SI_multiplier": "1"
+        }
+    ], 
+    "register_dump": [], 
+    "protocol_version": "1.1", 
+    "name": "Analog sensor data from Cypress"
+}
