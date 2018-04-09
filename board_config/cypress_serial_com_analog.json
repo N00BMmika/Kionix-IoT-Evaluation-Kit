@@ -1,0 +1,61 @@
+{
+	"structure_version": 1.0,
+    "protocol_version": 1.1,
+	"configuration": {
+		"name": "Cypress serial com for analog setup",
+        "doc": "Read analog sensor data with Cypress",
+		"bus1": {
+			"connections": [{
+				"connection": "i2c",
+				"part_list": [{
+					"name": "KX126",
+					"SAD": 31,
+					"int1_gpio": 13,
+					"int2_gpio": 13
+				},
+                {
+					"name": "KMX62",
+					"SAD": 14,
+					"int1_gpio": 13
+				},
+				{
+					"name": "KXG03",
+					"SAD": 79,
+					"int1_gpio": 13,
+					"int2_gpio": 13
+				},
+				{
+                    "name": "BM1383AGLV",
+                    "SAD": 93,
+                    "int1_gpio": 13
+                },
+                {
+                    "name": "KX224",
+                    "SAD": 30,
+                    "int1_gpio": 16
+                },
+                {
+                    "name": "CYPRESS",
+                    "SAD": 0,
+                    "int1_gpio": 0
+                }                
+				]
+			}]
+		},
+		"bus2": {
+			"connections": [{
+				"connection": "USB",
+				"packet_per_second": 400,
+				"baud_rate": 115200,
+				"start_up_delay_ms": 2000,				
+				"com_port_name": ["Cypress USB UART"]
+			}]
+		},
+		"stream_config": {                                        
+			"directory": "stream_config/board_cypress_serial_com_analog"
+		},
+        "board_init": {
+            "reg_write": []
+        }
+	}
+}
