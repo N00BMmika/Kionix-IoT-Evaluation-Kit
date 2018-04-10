@@ -42,6 +42,7 @@ def app_main():
     #NOTE: Dont pass sensor instance to setup_default_connection to avoid por
     bus = setup_default_connection(skip_board_init = True)
     bus.probe_sensor(sensor)
+    sensor.register_dump()
     read_step_count(sensor)
     bus.close()
 

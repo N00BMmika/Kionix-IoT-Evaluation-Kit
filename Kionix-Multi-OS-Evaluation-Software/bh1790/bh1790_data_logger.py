@@ -137,6 +137,7 @@ if __name__ == '__main__':
         kmx62_data_logger.enable_data_logging(sensor_kmx62, odr='12p5', int_number = 1)
         
     timing.reset()
+    args = get_datalogger_args()  
     if args.stream_mode:
         if stream_config_check() is True:
             print "\nBH1790 does not support interrupt pin. Using KMX62 to get drdy.\n"

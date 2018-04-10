@@ -1,0 +1,1 @@
+..\\KionixEvaluationKit.exe --cli --socket --quaternion -c "usb"

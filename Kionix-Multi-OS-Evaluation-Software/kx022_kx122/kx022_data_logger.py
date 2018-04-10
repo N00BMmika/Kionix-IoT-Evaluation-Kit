@@ -26,7 +26,6 @@ _CODE_FORMAT_VERSION = 2.0
 from imports import *
 
 
-
 class kx022_data_stream(stream_config):
 
     def __init__(self, sensor, pin_index=None):
@@ -191,6 +190,7 @@ def app_main(odr=25):
     sensor = kx022_driver()
     bus = open_bus_or_exit(sensor)
     enable_data_logging(sensor, odr=odr)
+    args = get_datalogger_args()
     if args.stream_mode:
         read_with_stream(sensor, args.loop)
     else:

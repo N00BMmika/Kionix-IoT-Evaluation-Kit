@@ -232,7 +232,7 @@ def app_main():
     bus = open_bus_or_exit(sensor)
 
     enable_tilt_position(sensor)
-
+    args = get_datalogger_args()   
     if args.stream_mode:
         read_with_stream(sensor, args.loop)
     else:

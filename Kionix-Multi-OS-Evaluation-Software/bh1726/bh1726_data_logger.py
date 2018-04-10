@@ -134,6 +134,7 @@ if __name__ == '__main__':
     enable_data_logging(sensor)
 
     timing.reset()
+    args = get_datalogger_args()
     if args.stream_mode:
         if stream_config_check() is True:
             sensor_kmx62 = kmx62_driver.kmx62_driver()

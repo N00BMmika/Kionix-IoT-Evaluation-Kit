@@ -124,7 +124,7 @@ def logger_main(odr=20):
     bus = open_bus_or_exit(sensor)
     
     enable_data_logging(sensor, odr=odr)
-
+    args = get_datalogger_args()  
     timing.reset()
     if args.stream_mode:
         if stream_config_check() is True:            

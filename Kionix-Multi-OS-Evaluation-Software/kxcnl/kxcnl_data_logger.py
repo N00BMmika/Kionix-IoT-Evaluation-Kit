@@ -106,6 +106,7 @@ def app_main():
     bus = open_bus_or_exit(sensor)
     enable_data_logging(sensor)
     timing.reset()
+    args = get_datalogger_args()  
     assert args.stream_mode == False, 'Streaming not implemented yet'
     read_with_polling(sensor, args.loop)
     sensor.set_power_off()

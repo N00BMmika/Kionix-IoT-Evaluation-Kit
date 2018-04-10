@@ -2,12 +2,12 @@
 # Copyright 2016 Kionix Inc.
 #
 import sys
+import os
 import time
 from datetime import datetime
 from array import array, ArrayType
 import struct
 import logging as __logging
-
 #
 # Constants
 #
@@ -30,12 +30,49 @@ evkit_config.read(['../settings.cfg','settings.cfg', 'port.cfg']) # try to find 
 #
 
 #TODO move logger spesific arguments somewhere else
-import argparse as __argparse
-_argparser = __argparse.ArgumentParser(description='Example: %(prog)s -s')
-_argparser.add_argument('-l','--loop',default=None,type=int, help='How many samples to read in loop (default None = infinite loop).')
-_argparser.add_argument('-s','--stream_mode',action='store_true', help='Use high speed streaming mode (not active by default)')
-args = _argparser.parse_args()
+import argparse 
 
+
+def get_datalogger_args():
+    argparser = argparse.ArgumentParser(description='Example: %(prog)s -s')
+    argparser.add_argument('-l','--loop',default=None,type=int, help='How many samples to read in loop (default None = infinite loop).')
+    argparser.add_argument('-s','--stream_mode',action='store_true', help='Use high speed streaming mode (not active by default)')
+    argparser.add_argument('-o', '--filename_prefix',default = None,type=str,help='Filename where to log data')
+    args = argparser.parse_args()   
+    if args.filename_prefix != None:
+        fname = args.filename_prefix
+        name,extension = os.path.splitext(fname)
+        i = 0
+        while True:
+            if os.path.isfile(fname):
+                fname = '{}_{:04d}{}'.format(name,i,extension)
+                i += 1
+            else:
+                #NOTE: fname is redirected to stdout
+                logger.debug('Logging to file %s' % fname)
+                sys.stdout = open(fname,'w')#debug
+                break
+                
+    if args.stream_mode:
+        stream_config_check()    
+        
+    return args
+    
+def stream_config_check():
+    "Verify that needed settings are in place when streaming mode is used"
+    if not(evkit_config.get('generic', 'drdy_operation') in ['ADAPTER_GPIO1_INT','ADAPTER_GPIO2_INT']):
+        logger.error('Stream mode requires GPIO drdy_operation in settings.cfg')
+        sys.exit(1)
+
+    if not ( evkit_config.get('connection', 'bus_index') in ['3','5','7','8'] or  \
+           evkit_config.get('connection', 'bus_index').startswith('serial_')):
+        logger.error('Stream mode requires serial connection or connection type 3 or 5 in settings.cfg')
+        sys.exit(1)
+
+    return True
+    
+ 
+  
 #
 # Definitions for debug logging
 # 
@@ -80,18 +117,7 @@ if evkit_config.getint('generic', 'log_to_console'):
 #
 # Parameter validations
 #
-def stream_config_check():
-    "Verify that needed settings are in place when streaming mode is used"
-    if not(evkit_config.get('generic', 'drdy_operation') in ['ADAPTER_GPIO1_INT','ADAPTER_GPIO2_INT']):
-        logger.error('Stream mode requires GPIO drdy_operation in settings.cfg')
-        sys.exit(1)
 
-    if not ( evkit_config.get('connection', 'bus_index') in ['3','5','7','8'] or  \
-           evkit_config.get('connection', 'bus_index').startswith('serial_')):
-        logger.error('Stream mode requires serial connection or connection type 3 or 5 in settings.cfg')
-        sys.exit(1)
-
-    return True
 
 def validate_parameters():
     assert evkit_config.get('generic','drdy_operation') in \
@@ -100,9 +126,7 @@ def validate_parameters():
     assert evkit_config.get('generic', 'int1_active_high') in ['TRUE', 'FALSE']
     assert evkit_config.get('generic', 'int2_active_high') in ['TRUE', 'FALSE']
     
-validate_parameters()    
-if args.stream_mode:
-    stream_config_check()    
+validate_parameters()     
 
 #
 # Timing function definitions and selection based on OS

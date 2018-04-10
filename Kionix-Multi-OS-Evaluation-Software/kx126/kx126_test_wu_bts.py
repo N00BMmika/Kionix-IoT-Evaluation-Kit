@@ -274,7 +274,7 @@ def read_with_polling(sensor, loop):
 def app_main():
     sensor = kx126_driver()
     bus = open_bus_or_exit(sensor)
-    
+    args = get_datalogger_args()   
     enable_wu_bts(sensor)
     read_with_polling(sensor, args.loop)
     

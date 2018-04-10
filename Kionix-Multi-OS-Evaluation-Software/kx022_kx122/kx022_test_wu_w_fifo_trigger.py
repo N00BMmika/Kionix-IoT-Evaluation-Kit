@@ -254,7 +254,7 @@ def app_main():
     max_range='8G',
     lp_mode='NO_AVG'
     )
-
+    args = get_datalogger_args()
     if args.stream_mode:
         assert 0, 'Feature not implemented.'
     else:

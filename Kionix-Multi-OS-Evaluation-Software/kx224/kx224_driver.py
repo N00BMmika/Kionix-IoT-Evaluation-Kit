@@ -55,7 +55,7 @@ class kx224_driver(sensor_base):
                 self._registers = dict(r.__dict__)
                 self._dump_range = (r.KX224_CNTL1, r.KX224_BUF_CNTL2)
             return 1
-        logger.debug("wrong WHOAMI received for KX224: 0x%02x" % resp[0])
+        logger.debug("wrong WHOAMI received for KX222/KX224: 0x%02x" % resp[0])
         return 0
 
     def ic_test(self):                      # communication self test
@@ -94,9 +94,8 @@ class kx224_driver(sensor_base):
         """
         Set operating mode to "stand-by".
         """
-        assert channel == CH_ACC, 'only accelerometer available'        
-        cntl1 = self.read_register(r.KX224_CNTL1)[0]
-        self.write_register(r.KX224_CNTL1, cntl1 & ~b.KX224_CNTL1_PC1)
+        assert channel == CH_ACC, 'only accelerometer available'
+        self.reset_bit(r.KX224_CNTL1, b.KX224_CNTL1_PC1)
    
         ## When changing PC1 1->0 then 1.5/ODR delay is needed
         odr_t =1 / hz[self.read_register(r.KX224_ODCNTL,1)[0] & m.KX224_ODCNTL_OSA_MASK] * 1.5
@@ -133,6 +132,7 @@ class kx224_driver(sensor_base):
         self.enable_drdy(intpin=1)                      # drdy to INT1
         self.reset_bit(r.KX224_CNTL1, b.KX224_INC1_IEL1)# latched interrupt
         self.reset_bit(r.KX224_INC1, b.KX224_INC1_IEA1) # active low
+        self.set_bit(r.KX224_INC1, b.KX224_INC1_IEN1)   # interrupt 1 set
 
         ## power on sensor
         self.set_power_on()
@@ -169,7 +169,7 @@ class kx224_driver(sensor_base):
                                m.KX224_CNTL1_GSEL_MASK)
 
     def set_interrupt_polarity(self, intpin = 1, polarity = ACTIVE_LOW):
-        assert intpin in [1,2]
+        assert intpin in self.INT_PINS
         assert polarity in [ACTIVE_LOW, ACTIVE_HIGH]
 
         if intpin == 1:
@@ -185,14 +185,8 @@ class kx224_driver(sensor_base):
 
     def set_average(self, average, average2=0, channel=CH_ACC):    # set averaging (only for low power)
         assert channel == CH_ACC, 'only accelerometer available'
-        assert average in [b.KX224_LP_CNTL_AVC_128_SAMPLE_AVG, \
-                           b.KX224_LP_CNTL_AVC_64_SAMPLE_AVG,  \
-                           b.KX224_LP_CNTL_AVC_32_SAMPLE_AVG,  \
-                           b.KX224_LP_CNTL_AVC_16_SAMPLE_AVG,  \
-                           b.KX224_LP_CNTL_AVC_8_SAMPLE_AVG,   \
-                           b.KX224_LP_CNTL_AVC_4_SAMPLE_AVG,   \
-                           b.KX224_LP_CNTL_AVC_2_SAMPLE_AVG,   \
-                           b.KX224_LP_CNTL_AVC_NO_AVG]
+        assert average in e.KX224_LP_CNTL_AVC.values(),'Invalid value for KX224_LP_CNTL_AVC'
+
         self.set_bit_pattern(r.KX224_LP_CNTL, average, m.KX224_LP_CNTL_AVC_MASK)
 
     def set_BW(self, lpro=b.KX224_ODCNTL_LPRO,lpro2=0, channel=CH_ACC):
@@ -218,27 +212,29 @@ class kx224_driver(sensor_base):
 
     def enable_fifo(self, mode=b.KX224_BUF_CNTL2_BUF_M_STREAM, res=b.KX224_BUF_CNTL2_BRES, axis_mask=0x03): # enable buffer with mode and resolution
         ### syncronized with KXxxx, KXG03
-        assert mode < 5, 'not valid buffer mode'
+        assert mode in e.KX224_BUF_CNTL2_BUF_M.values()
         assert res in [b.KX224_BUF_CNTL2_BRES, 0]       # 8 or 16bit resolution store
         assert axis_mask == 0x03, 'all axis must included to buffer storage with KXx2x'
 
-        if res > 0:
+        if res == b.KX224_BUF_CNTL2_BRES:
             self.set_bit(r.KX224_BUF_CNTL2, b.KX224_BUF_CNTL2_BRES)
         else:
             self.reset_bit(r.KX224_BUF_CNTL2, b.KX224_BUF_CNTL2_BRES)
-
-        self.set_bit(r.KX224_BUF_CNTL2, b.KX224_BUF_CNTL2_BUFE | mode)
+        # combine two settings in one register write
+        self.set_bit_pattern(r.KX224_BUF_CNTL2, 
+                            b.KX224_BUF_CNTL2_BUFE | mode,
+                            m.KX224_BUF_CNTL2_BUF_M_MASK |b.KX224_BUF_CNTL2_BUFE)
 
     def disable_fifo(self):                                     # disable buffer
         self.reset_bit(r.KX224_BUF_CNTL2, b.KX224_BUF_CNTL2_BUFE)
 
     def get_fifo_resolution(self):                              # get resolution 0= 8b, >0 = 16b
         if self.read_register(r.KX224_BUF_CNTL2, 1)[0] & b.KX224_BUF_CNTL2_BRES > 0:
-            return 1
+            return 1 # 16 bit resulution
         else:
-            return 0
+            return 0 # 8 bit resolution
 
-    def set_fifo_watermark_level(self, level, axes=3): # hox! set watermark as samples
+    def set_fifo_watermark_level(self, level, axes=3): # NOTE! set watermark as samples
         assert axes in [3], 'only 3 axes possible to store fifo buffer' 
         if self.get_fifo_resolution() > 0:
             assert level <=0x154,'Watermark level too high.'    # 16b resolution
@@ -251,7 +247,7 @@ class kx224_driver(sensor_base):
                              msb << 2,
                              m.KX224_BUF_CNTL2_SMP_TH8_9_MASK)
 
-    def get_fifo_level(self):                                   # hox! get fifo buffer as bytes
+    def get_fifo_level(self):                                   # NOTE! get fifo buffer as bytes
         if self.WHOAMI in self._WAIS224:
             bytes_in_buffer = self.read_register(r.KX224_BUF_STATUS_1, 2)
             bytes_in_buffer = bin2uint16(bytes_in_buffer)
