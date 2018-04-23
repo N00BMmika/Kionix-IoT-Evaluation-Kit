@@ -64,9 +64,14 @@ def enable_data_logging(sensor,
     # parameter validation
     #
     
-    assert convert_to_enumkey(odr) in e.KX022_ODCNTL_OSA.keys(),\
+    if sensor.WHOAMI in sensor._WAIS122:
+        valid_odrs = e122.KX122_ODCNTL_OSA.keys()
+    else:
+        valid_odrs = e.KX022_ODCNTL_OSA.keys()
+
+    assert convert_to_enumkey(odr) in valid_odrs,\
     'Invalid odr value "{}". Valid values are {}'.format(
-    odr,e.KX022_ODCNTL_OSA.keys())
+    odr,valid_odrs)
     
     assert max_range in e.KX022_CNTL1_GSEL.keys(), \
     'Invalid max_range value "{}". Valid values are {}'.format(

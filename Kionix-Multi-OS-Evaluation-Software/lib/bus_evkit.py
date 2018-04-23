@@ -223,6 +223,12 @@ class bus_serial_com(kx_protocol_bus):
             if result == None:
                 result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'mbed Serial Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
 
+        elif self.config_section == "serial_com_cypress":
+            for desc in ["Cypress USB UART", "USB Serial Device"]:
+                result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = '%s' AND NOT PNPDeviceID LIKE 'ROOT\\%%'" % desc)
+                if result is not None:
+                    break
+
         else: #Arduino
             result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'Arduino Uno' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
             if result == None:
