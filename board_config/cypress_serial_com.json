@@ -3,7 +3,7 @@
     "protocol_version": 1.2,
     "configuration": {
         "name": "Cypress CY8CKIT-059",
-        "doc": "Cypress CY8CKIT-059 with KX122, KMX62, or KXG07",
+        "doc": "Cypress CY8CKIT-059 with A1 board",
         "bus1": {
             "connections": [{
                 "connection": "i2c",
@@ -21,6 +21,16 @@
                     "name": "KXG08",
                     "SAD": 78,
                     "int1_gpio": 0
+                },
+                {
+                    "name": "KX123",
+                    "SAD": 31,
+                    "int1_gpio": 0
+                },
+                {
+                    "name": "KX224",
+                    "SAD": 30,
+                    "int1_gpio": 16
                 }]
             }]
         },
