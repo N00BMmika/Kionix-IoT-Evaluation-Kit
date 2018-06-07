@@ -58,7 +58,12 @@
                     "name": "BH1790 - no hw",
                     "SAD": 91,
                     "int1_gpio": 14
-                }
+                },
+				{
+                    "name": "BH1749",
+                    "SAD": 57,
+                    "int1_gpio": 0
+                }   
 				]
             }]
         },
