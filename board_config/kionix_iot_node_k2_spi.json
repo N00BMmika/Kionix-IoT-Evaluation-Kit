@@ -36,7 +36,8 @@
         "stream_config": {
             "directory": "stream_config/board_kx_iot_k2_spi"
         },
-        "board_init": {        
+        "board_init": {
+            "reg_write": []
         }
     }
 }
