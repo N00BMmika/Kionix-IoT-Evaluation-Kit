@@ -45,7 +45,7 @@
             ], 
             "odr": 100, 
             "fmt": "<BBBBBBB", 
-            "type": "continuous", 
+            "type": "event", 
             "hdr": "ch!ins1!ins2!ins3!stat!N/A!rel"
         }, 
         {
