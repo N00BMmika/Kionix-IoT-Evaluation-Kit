@@ -15,18 +15,18 @@
                 {
                     "name": "KXG08",
                     "SAD": 79,
-                    "int1_gpio": 47,
+                    "int1_gpio": 47
                 },
                 {
                     "name": "KMX62",
                     "SAD": 15,
-                    "int1_gpio": 46,
+                    "int1_gpio": 46
                 },
                 {
                     "name": "BM1383AGLV",
                     "SAD": 93,
                     "int1_gpio": 45
-                },
+                }
                 ]
             }]
         },
