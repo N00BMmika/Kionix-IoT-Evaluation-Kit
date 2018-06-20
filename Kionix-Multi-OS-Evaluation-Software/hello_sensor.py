@@ -38,6 +38,7 @@ from kxcnl.imports import kxcnl_driver
 from bh1726.imports import bh1726_driver
 from bh1730.imports import bh1730_driver
 from bh1745.imports import bh1745_driver
+from bh1749.imports import bh1749_driver
 from bh1790.imports import bh1790_driver
 from bm1383aglv.imports import bm1383aglv_driver
 from bm1422gmv.imports import bm1422gmv_driver
@@ -64,6 +65,7 @@ def test_default():
         bh1726_driver(),
         bh1730_driver(),
         bh1745_driver(),
+        bh1749_driver(),
         bh1790_driver(),
         bm1383aglv_driver(),
         bm1422gmv_driver(),
