@@ -22,7 +22,7 @@
 import sys, time
 from lib.bus_base import BusException
 from lib.util_lib import logger, evkit_config, timing
-from connection_setup import setup_default_connection
+from connection_setup import setup_default_connection, import_addon_board_sensors
 
 #import all supported sensor drivers
 from kx126.imports import kx126_driver
@@ -38,6 +38,7 @@ from kxcnl.imports import kxcnl_driver
 from bh1726.imports import bh1726_driver
 from bh1730.imports import bh1730_driver
 from bh1745.imports import bh1745_driver
+from bh1749.imports import bh1749_driver
 from bh1790.imports import bh1790_driver
 from bm1383aglv.imports import bm1383aglv_driver
 from bm1422gmv.imports import bm1422gmv_driver
@@ -52,7 +53,7 @@ except ImportError:
 def test_default():
     # list of all supported sensor drivers
     bus = None
-    sensors = [       
+    sensors = [
         kx126_driver(),
         kx022_driver(),
         kmx62_driver(),
@@ -64,15 +65,22 @@ def test_default():
         bh1726_driver(),
         bh1730_driver(),
         bh1745_driver(),
+        bh1749_driver(),
         bh1790_driver(),
         bm1383aglv_driver(),
         bm1422gmv_driver(),
         rpr0521_driver(),
-        kx224_driver(),            
+        kx224_driver(),
         ]
-    
+
     sensors.extend(sensors_rnd)
-    
+
+    # add also all found add-on board sensors
+    # NOTE: check that they are not already on the list
+    for addon_sensor in import_addon_board_sensors():
+        if not addon_sensor.name in [x.name for x in sensors]:
+            sensors.append(addon_sensor)
+
     # Get first available sensor on default bus.
     bus = setup_default_connection()
 
@@ -106,7 +114,7 @@ def test_default():
         except Exception,e:
             logger.info('Hello Sensor got exception %s ' % e)
             continue
-            
+
     bus.close()
 
 
@@ -119,7 +127,7 @@ def read_sensor_data(sensor):
         #sensor.register_dump()
 
         timing.reset()
-        
+
         for t in range(10):
             print t,sensor.read_data()
 
@@ -137,11 +145,11 @@ def read_sensor_data(sensor):
         print 'Exception received',e
 
     finally:
-        sensor.set_power_off()    
+        sensor.set_power_off()
 
-    
+
 if __name__ == '__main__':
     if evkit_config.get('generic', 'drdy_operation') != 'INTERVAL_READ':
         logger.warning('***** drdy_operation != INTERVAL_READ. If interrupts not configured properly then data is not received')
-    
+
     test_default()

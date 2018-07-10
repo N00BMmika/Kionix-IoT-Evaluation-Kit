@@ -231,7 +231,7 @@ def app_main():
     # wu interrupt hard coded to int2
     enable_wakeup(sensor,
                   cfg=Parameter_set_1)
-
+    args = get_datalogger_args()   
     if args.stream_mode:
         read_with_stream(sensor, args.loop)
     else:

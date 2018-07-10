@@ -291,7 +291,12 @@ class kx_socket_b2s(_kx_socket_port):
 
 class kx_com_port(_kx_connection):
     def __init__(self, comport, baudrate, timeout):
-        self._com = serial.Serial(port=comport, baudrate=baudrate, timeout=timeout)
+        self._com = serial.Serial(
+            port=comport, 
+            baudrate=baudrate, 
+            timeout=timeout,
+            rtscts=True # FIXME: make configurable. This applies only K1 board!!
+            )
 
     def read(self, length = 1):
         data = self._com.read(length)
@@ -301,8 +306,9 @@ class kx_com_port(_kx_connection):
         return data
 
     def flush(self):
-        while self._com.in_waiting:
-            self._com.read()
+        # Flush incoming data
+        if self._com.in_waiting:
+            self._com.reset_input_buffer()
         
     def write(self, data):
         self._com.write(data)
@@ -386,8 +392,24 @@ class ProtocolEngine(object):
             raise ProtocolException('Invalid message type %d' % message_type)
         return ord(message[2])
         
-    def receive_message(self, waif_for_message = None):
-        retry_count = 200
+    def receive_message(self, waif_for_message = None, cache_messages = True):
+        """Receive message from bus.
+
+        Receive message. If message type is defined in waif_for_message argument
+        then it can be selected wether to store messages (cache_messages) received
+        before receiving the message what is waited.
+        
+        Keyword arguments:
+        
+        waif_for_message -- which message to wait. (Default None, e.g. accept
+                            first message which is received.
+
+        cache_messages -- Store received messages to FIFO if other than
+                            expected message (defined in waif_for_message)
+                            is received (default True)
+        
+        """        
+        retry_count = 1000 # max size of FIFO
 
         # check if wanted message already received and can be found from FIFO
         if len(self.message_fifo) > 0:
@@ -399,20 +421,23 @@ class ProtocolEngine(object):
                     self.message_fifo.pop(fifo_index) # remove this message from fifo
                     return received_message
 
-            # continue to receive new messages if wanted message was not in FIFO
-            
+        # continue to receive new messages if wanted message was not in FIFO    
         while (retry_count):
             received_message = self._receive_single_message()
             if waif_for_message == None or \
                self.get_message_type(received_message) == waif_for_message:
                 return received_message
 
+            # not an error message?
             elif self.get_message_type(received_message) != EVKIT_MSG_ERROR_IND:
-                # cache messages except error messages
-                self.message_fifo.append(received_message)
                 retry_count-=1
 
+                # store message to FIFO
+                if cache_messages:
+                    self.message_fifo.append(received_message)
+
             else:
+                # handle error message
                 message_status = ord(received_message[2])
                 raise ProtocolException('Error message received. Error id %d' % message_status)
 
@@ -434,7 +459,7 @@ class ProtocolEngine(object):
             retry_count -= 1
             received_message += partial_message
             if len (partial_message) == message_length:
-                assert len(received_message) > 1
+                assert len(received_message) > 1 # FIXME remove assert and raise exception
                 return length_byte+received_message
 
         raise ProtocolTimeoutException('Timeout on message receiving 2.')

@@ -198,7 +198,7 @@ def app_main():
     enable_freefall(sensor,
                     cfg=Parameter_set_1,
                     int_pin = 2) 
-    
+    args = get_datalogger_args()   
     if args.stream_mode:
         read_with_stream(sensor, args.loop)
     else:

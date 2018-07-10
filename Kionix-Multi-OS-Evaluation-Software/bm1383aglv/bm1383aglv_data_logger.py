@@ -110,7 +110,7 @@ def app_main(odr = 'AVG_16_50MS'):
     sensor = bm1383aglv_driver()
     bus = open_bus_or_exit(sensor)
     enable_data_logging(sensor, odr = odr)
-
+    args = get_datalogger_args()
     if args.stream_mode:
         if stream_config_check() is True:            
             read_with_stream(sensor, args.loop)

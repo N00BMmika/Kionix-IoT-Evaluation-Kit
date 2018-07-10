@@ -273,7 +273,7 @@ def app_main():
                           watermark = watermark,
                           bres = 1,
                           )
-
+    args = get_datalogger_args()
     if args.stream_mode:
         assert 0, 'Feature not implemented.'
     else:

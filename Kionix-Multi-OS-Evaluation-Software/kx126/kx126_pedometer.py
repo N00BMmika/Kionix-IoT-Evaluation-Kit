@@ -248,7 +248,7 @@ def enable_data_logging(sensor, odr = 100, cfg = Pedometer_parameters_odr_100, a
 
 def app_main(odr = 100):
     # A default number of AVG samples for the pedometer engine
-    avg = 128
+    avg = 16
     # Select configuration related to the ODR
     #conf = Pedometer_parameters_odr_50  # The best configuration with 50 Hz ODR.
     conf = Pedometer_parameters_odr_100  # The best configuration with 100 Hz ODR.
@@ -261,7 +261,7 @@ def app_main(odr = 100):
     
     logger.info('kx126_pedometer; '+'ODR: ' + str(odr)+' Hz, '+'configuration: '+str(conf)+', avg: '+str(avg)+' samples')
     timing.reset()
-
+    args = get_datalogger_args()   
     if args.stream_mode:
         logger.info('Read with stream')
         print '\n'

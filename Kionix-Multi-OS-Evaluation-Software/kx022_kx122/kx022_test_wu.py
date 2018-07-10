@@ -86,20 +86,16 @@ def enable_wakeup(sensor,
     #
     
     assert convert_to_enumkey(cfg.odr) in e.KX022_ODCNTL_OSA.keys(),\
-    'Invalid odr value "{}". Valid values are {}'.format(
-    cfg.odr,e.KX022_ODCNTL_OSA.keys())
+    'Invalid odr value "{}". Valid values are {}'.format(cfg.odr,e.KX022_ODCNTL_OSA.keys())
     
     assert convert_to_enumkey(cfg.odr) in e.KX022_CNTL3_OWUF.keys(),\
-    'Invalid odr value "{}". Valid values are {}'.format(
-    cfg.odr,e.KX022_CNTL3_OWUF.keys())
+    'Invalid odr value "{}". Valid values are {}'.format(cfg.odr,e.KX022_CNTL3_OWUF.keys())
     
     assert cfg.lp_average in e.KX022_LP_CNTL_AVC.keys(),\
-    'Invalid lp_average value. Valid values are {}'.format(
-    cfg.lp_average,e.KX022_LP_CNTL_AVC.keys())
+    'Invalid lp_average value "{}". Valid values are {}'.format(cfg.lp_average,e.KX022_LP_CNTL_AVC.keys())
     
     assert cfg.LOW_POWER_MODE in [True, False],\
-    'Invalid LOW_POWER_MODE value "{}". Valid values are {}'.format(
-    cfg.LOW_POWER_MODE,[True,False])
+    'Invalid LOW_POWER_MODE value "{}". Valid values are {}'.format(cfg.LOW_POWER_MODE,[True,False])
 
     # Set sensor to stand-by to enable setup change
     if power_off_on:
@@ -238,7 +234,7 @@ def app_main():
     # wu interrupt hard coded to int2
     enable_wakeup(sensor,
                   cfg=Parameter_set_1)
-
+    args = get_datalogger_args()
     if args.stream_mode:
         read_with_stream(sensor, args.loop)
     else:

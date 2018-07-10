@@ -110,7 +110,7 @@ def app_main():
     bus = open_bus_or_exit(sensor)
     
     enable_data_logging(sensor)
-
+    args = get_datalogger_args()
     if args.stream_mode:
         if stream_config_check() is True:            
             read_with_stream(sensor, args.loop)

@@ -26,7 +26,6 @@ _CODE_FORMAT_VERSION = 2.0
 from imports import *
 
 
-
 class kx022_data_stream(stream_config):
 
     def __init__(self, sensor, pin_index=None):
@@ -65,9 +64,14 @@ def enable_data_logging(sensor,
     # parameter validation
     #
     
-    assert convert_to_enumkey(odr) in e.KX022_ODCNTL_OSA.keys(),\
+    if sensor.WHOAMI in sensor._WAIS122:
+        valid_odrs = e122.KX122_ODCNTL_OSA.keys()
+    else:
+        valid_odrs = e.KX022_ODCNTL_OSA.keys()
+
+    assert convert_to_enumkey(odr) in valid_odrs,\
     'Invalid odr value "{}". Valid values are {}'.format(
-    odr,e.KX022_ODCNTL_OSA.keys())
+    odr,valid_odrs)
     
     assert max_range in e.KX022_CNTL1_GSEL.keys(), \
     'Invalid max_range value "{}". Valid values are {}'.format(
@@ -191,6 +195,7 @@ def app_main(odr=25):
     sensor = kx022_driver()
     bus = open_bus_or_exit(sensor)
     enable_data_logging(sensor, odr=odr)
+    args = get_datalogger_args()
     if args.stream_mode:
         read_with_stream(sensor, args.loop)
     else:

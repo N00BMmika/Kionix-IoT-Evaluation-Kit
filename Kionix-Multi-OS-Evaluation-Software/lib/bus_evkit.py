@@ -14,7 +14,7 @@ import os
 
 from bus_base import _i2c_bus, BusException
 from util_lib import logger, DelayedKeyboardInterrupt, evkit_config
-from proto import kx_socket_b2s, kx_socket_adb, kx_com_port, kx_socket_builtin, ProtocolEngine
+from proto import kx_socket_b2s, kx_socket_adb, kx_com_port, kx_socket_builtin, ProtocolEngine, ProtocolTimeoutException
 import proto
 from sys import platform as _platform
      
@@ -53,9 +53,9 @@ class kx_protocol_bus(_i2c_bus):
                              major_version, minor_version))
 
     # fixme: combine send_message and receive_message in one with DelayedKeyboardInterrupt():
-    def receive_message(self, waif_for_message = None):
+    def receive_message(self, waif_for_message = None, cache_messages = True):
         with DelayedKeyboardInterrupt():
-            resp = self._kx_connection.receive_message(waif_for_message)
+            resp = self._kx_connection.receive_message(waif_for_message, cache_messages)
         return resp
 
     def send_message(self, message):
@@ -172,19 +172,19 @@ class bus_socket(kx_protocol_bus):
         # FIXME improve
         try:
             self.send_message(proto.version_req())
-            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP)
+            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP, cache_messages = False)
         except proto.ProtocolException:
             raise proto.ProtocolException('No response from socket')
         try:
             message_type, major_version, minor_version = proto.unpack_response_data(reponse_data)
         except Exception,e:
             # retry if error
-            logger.debug('Version REQ failed. Flushing data and retry.')
+            logger.warning('Version REQ failed. Flushing data and retry.')
             sleep(0.1)
             self._kx_port.flush()
             sleep(0.1)
             self.send_message(proto.version_req())
-            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP)
+            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP, cache_messages = False)
             message_type, major_version, minor_version = proto.unpack_response_data(reponse_data)
 
         self.verify_protocol_version(major_version, minor_version)
@@ -212,6 +212,7 @@ class bus_serial_com(kx_protocol_bus):
             logger.critical('No interrupt pins configured in setting.cfg!')
     
     def get_com_port(self):
+        # TODO consider using : from serial.tools import list_ports_windows
         if self.config_section == 'serial_com_kx_iot':
             result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'USB Serial Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
             
@@ -221,6 +222,12 @@ class bus_serial_com(kx_protocol_bus):
                 result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'USB Serial Device' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
             if result == None:
                 result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'mbed Serial Port' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
+
+        elif self.config_section == "serial_com_cypress":
+            for desc in ["Cypress USB UART", "USB Serial Device"]:
+                result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = '%s' AND NOT PNPDeviceID LIKE 'ROOT\\%%'" % desc)
+                if result is not None:
+                    break
 
         else: #Arduino
             result = self.check_com_port("SELECT * FROM Win32_PnPEntity WHERE Description = 'Arduino Uno' AND NOT PNPDeviceID LIKE 'ROOT\\%'")
@@ -323,26 +330,31 @@ class bus_serial_com(kx_protocol_bus):
         logger.info("Using first device found:\n{}".format(dev[0]))
         return dev[0]
 
+    def _reset_protocol_engine(self):
+        # TODO move to base class and update all child classes
+        self._kx_connection = ProtocolEngine(self._kx_port)
+
     def open(self):
         kx_protocol_bus.open(self)
+        
         config_section = evkit_config.get('__com__','config')
 
-        if evkit_config.get(config_section, 'com_port').lower() == 'auto' and os.name == 'posix': #Linux etc...
-            if _platform == "darwin":
-                comport = self.get_dev_darwin()
+        if evkit_config.get(config_section, 'com_port').lower() == 'auto':
+            if os.name == 'posix': #Linux etc...
+                if _platform == "darwin": # Apple
+                    comport = self.get_dev_darwin()
+                else: # Linux
+                    comport = self.get_dev()
             else:
-                comport = self.get_dev()
-
-        elif evkit_config.get(config_section, 'com_port').lower() == "auto": #windows
-            comport = self.get_com_port()            
-        else:    
+                comport = self.get_com_port() # windows OS
+        else:
             comport = evkit_config.get(config_section, 'com_port')
  
         baudrate = evkit_config.getint(config_section, 'baudrate')
         delay_s = evkit_config.getint(config_section, 'start_delay_s')
-        self._kx_port = kx_com_port(comport,baudrate, timeout = 1)
-        self._kx_connection = ProtocolEngine(self._kx_port)
-
+        self._kx_port = kx_com_port(comport,baudrate, timeout = 2)
+        self._reset_protocol_engine()
+        
         if delay_s>0:
             logger.info('Waiting %d seconds', delay_s)
             sleep(delay_s)
@@ -350,7 +362,21 @@ class bus_serial_com(kx_protocol_bus):
         # run version request
         self._kx_port.flush() # Flush com port in case there is already some unwanted data
         self.send_message(proto.version_req())
-        reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP)
+        # TODO if getting error message instead of EVKIT_MSG_VERSION_RESP, then resend version_req
+        
+        # TODO congfigure port latency if possible
+        # Ref
+        # windows user guide 4.1.4. FTDI USB Serial driver and
+        # linux  /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
+        # https://github.com/pyserial/pyserial/issues/287
+        
+        try:
+            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP, cache_messages = False)
+        except ProtocolTimeoutException:
+            logger.warning('Version REQ failed. Flushing data and retry.')
+            self._kx_port.flush() # Flush com port in case there is already some unwanted data
+            reponse_data = self.receive_message(proto.EVKIT_MSG_VERSION_RESP, cache_messages = False)
+        
         message_type, major_version, minor_version = proto.unpack_response_data(reponse_data)
         self.verify_protocol_version(major_version, minor_version)
         

@@ -237,7 +237,7 @@ def logger_main():
 
     bus = open_bus_or_exit(sensor)    
     enable_data_logging(sensor)
-    
+    args = get_datalogger_args()  
     timing.reset()
     if args.stream_mode:
         read_with_stream(sensor, args.loop)

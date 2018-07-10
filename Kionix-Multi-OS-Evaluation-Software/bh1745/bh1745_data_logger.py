@@ -146,6 +146,7 @@ def logger_main(odr=6.25):
     enable_data_logging(sensor, odr=odr)
 
     timing.reset()
+    args = get_datalogger_args()
     if args.stream_mode:
         if stream_config_check() is True:            
             read_with_stream(sensor, args.loop)
